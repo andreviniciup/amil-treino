@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String
+  passwordHash String
+  age          Int?
+  gender       String?
+  weight       Float?
+  height       Float?
+  fitnessGoal  String?
+  trainingDays String?       // JSON array dos dias
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  workoutPlans WorkoutPlan[]
+  workoutLogs  WorkoutLog[]
+}
+
+model WorkoutPlan {
+  id            String    @id @default(uuid())
+  userId        String
+  name          String
+  description   String?
+  frequency     Int
+  trainingTypes String    // JSON string array
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workouts Workout[]
+}
+
+model Workout {
+  id           String   @id @default(uuid())
+  planId       String
+  dayOfWeek    String
+  trainingType String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  plan      WorkoutPlan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  exercises WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id           String  @id @default(uuid())
+  workoutId    String
+  exerciseId   String  // ID interno da tabela Exercise
+  exerciseName String
+  sets         Int
+  reps         String
+  weight       Float?
+  duration     Int?
+  restTime     Int
+  order        Int
+  notes        String?
+  gifUrl       String?
+  bodyPart     String?
+  equipment    String?
+  target       String?
+  
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+}
+
+model WorkoutLog {
+  id          String   @id @default(uuid())
+  userId      String
+  workoutId   String
+  completedAt DateTime @default(now())
+  duration    Int?
+  notes       String?
+  
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises ExerciseLog[]
+}
+
+model ExerciseLog {
+  id           String  @id @default(uuid())
+  workoutLogId String
+  exerciseId   String  // Referência ao exercício do WorkoutExercise
+  sets         Int
+  reps         String  // JSON array
+  weights      String  // JSON array
+  completed    Boolean
+  
+  workoutLog WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+}
+
+model Exercise {
+  id               String   @id @default(uuid())
+  externalId       String?  // ID da API externa (ExerciseDB/Wger)
+  name             String
+  bodyPart         String
+  equipment        String
+  gifUrl           String?
+  target           String?
+  secondaryMuscles String?  // JSON array
+  instructions     String?  // JSON array
+  source           String   // 'internal', 'exercisedb', 'wger'
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relacionamentos
+  workoutExercises WorkoutExercise[]
+  
+  @@unique([externalId, source], name: "externalId_source")
+  @@index([bodyPart])
+  @@index([source])
+}
+
