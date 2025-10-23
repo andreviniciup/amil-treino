@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import exerciseRoutes from './routes/exerciseRoutes';
 import workoutRoutes from './routes/workoutRoutes';
 import userRoutes from './routes/userRoutes';
+import recommendationRoutes from './routes/recommendationRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import autoCacheService from './services/autoCacheService';
 
@@ -36,6 +37,7 @@ app.use((req, _res, next) => {
 app.use('/api/exercises', exerciseRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -56,7 +58,8 @@ app.get('/', (_req, res) => {
       health: '/health',
       exercises: '/api/exercises',
       workouts: '/api/workouts',
-      users: '/api/users'
+      users: '/api/users',
+      recommendations: '/api/recommendations'
     }
   });
 });

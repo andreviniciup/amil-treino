@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Frame106 } from '../common/Frame106';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 import { exerciseApi, ExerciseDB } from '../../services/api';
+import { MuscleMappingUtil } from '../../utils/muscleMappingUtil';
 
 export function CreateWorkoutExercises() {
   const navigate = useNavigate();
@@ -24,9 +25,13 @@ export function CreateWorkoutExercises() {
         let fetchedExercises: ExerciseDB[] = [];
         
         if (workoutData.musculos && workoutData.musculos.length > 0) {
+          // Mapear músculos do português para inglês
+          const englishMuscles = MuscleMappingUtil.mapArrayPortugueseToEnglish(workoutData.musculos);
+          console.log('🔄 Mapeamento PT->EN:', workoutData.musculos, '->', englishMuscles);
+          
           // Buscar exercícios por grupo muscular
-          const exercisePromises = workoutData.musculos.map(musculo => 
-            exerciseApi.getByBodyPart(musculo)
+          const exercisePromises = englishMuscles.map(muscle => 
+            exerciseApi.getByBodyPart(muscle)
           );
           const results = await Promise.all(exercisePromises);
           // Combinar e remover duplicatas

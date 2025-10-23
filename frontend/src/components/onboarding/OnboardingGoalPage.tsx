@@ -30,8 +30,8 @@ interface Frame55Props {
 }
 
 function Frame55({ selectedInterests, onToggle }: Frame55Props) {
-  const row1 = ['Musica', 'Festas', 'Drinks', 'Dj'];
-  const row2 = ['Relax', 'Comida', 'Ao vivo', 'Social'];
+  const row1 = ['Hipertrofia', 'Força', 'Resistência', 'Definição'];
+  const row2 = ['Perda de Peso', 'Condicionamento', 'Reabilitação', 'Performance'];
 
   return (
     <div className="absolute content-stretch flex flex-col gap-[10px] items-start left-[18px] top-[358px] w-[354px]">
