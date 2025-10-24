@@ -6,6 +6,8 @@ import exerciseRoutes from './routes/exerciseRoutes';
 import workoutRoutes from './routes/workoutRoutes';
 import userRoutes from './routes/userRoutes';
 import recommendationRoutes from './routes/recommendationRoutes';
+import progressRoutes from './routes/progressRoutes';
+import gamificationRoutes from './routes/gamificationRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import autoCacheService from './services/autoCacheService';
 
@@ -38,6 +40,8 @@ app.use('/api/exercises', exerciseRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/gamification', gamificationRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -59,7 +63,9 @@ app.get('/', (_req, res) => {
       exercises: '/api/exercises',
       workouts: '/api/workouts',
       users: '/api/users',
-      recommendations: '/api/recommendations'
+      recommendations: '/api/recommendations',
+      progress: '/api/progress',
+      gamification: '/api/gamification'
     }
   });
 });

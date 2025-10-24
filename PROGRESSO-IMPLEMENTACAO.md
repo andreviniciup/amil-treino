@@ -244,3 +244,4 @@ GET  /api/recommendations/exercises?muscleGroup=Peito
 
 **Sistema construído com base em arquitetura científica e boas práticas de ML e engenharia de software.**
 
+

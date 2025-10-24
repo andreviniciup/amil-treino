@@ -1,0 +1,184 @@
+# Deep Learning Requirements - Sistema de Treino Inteligente
+# Execute: pip install -r requirements-dl.txt
+
+# ============================================================================
+# CORE DEEP LEARNING
+# ============================================================================
+
+# TensorFlow (para LSTM, CNN)
+tensorflow==2.16.1
+tensorflow-gpu==2.16.1  # Se tiver GPU NVIDIA
+
+# PyTorch (para Transformer, BERT)
+torch==2.1.0
+torchvision==0.16.0
+torchaudio==2.1.0
+
+# Transformers (BERT, GPT, etc.)
+transformers==4.35.2
+tokenizers==0.15.0
+datasets==2.14.6
+
+# ============================================================================
+# COMPUTER VISION (Análise de Forma)
+# ============================================================================
+
+# OpenCV para processamento de vídeo
+opencv-python==4.8.1.78
+opencv-contrib-python==4.8.1.78
+
+# MediaPipe para pose estimation
+mediapipe==0.10.7
+
+# PIL/Pillow para processamento de imagem
+Pillow==10.1.0
+
+# ============================================================================
+# TIME SERIES & SEQUENCE MODELING
+# ============================================================================
+
+# Para análise de séries temporais
+tslearn==0.6.2
+prophet==1.1.4
+statsmodels==0.14.0
+
+# Para LSTM avançado
+keras-tuner==1.4.6
+optuna==3.4.0
+
+# ============================================================================
+# NATURAL LANGUAGE PROCESSING
+# ============================================================================
+
+# Sentence transformers para embeddings
+sentence-transformers==2.2.2
+
+# SpaCy com transformers
+spacy[transformers]==3.7.2
+
+# NLTK para processamento de texto
+nltk==3.8.1
+
+# ============================================================================
+# REINFORCEMENT LEARNING
+# ============================================================================
+
+# Stable Baselines3 para RL
+stable-baselines3==2.2.1
+gymnasium==0.29.1
+
+# Ray RLlib para RL distribuído
+ray[rllib]==2.8.0
+
+# ============================================================================
+# DATA SCIENCE & MACHINE LEARNING
+# ============================================================================
+
+# Scikit-learn avançado
+scikit-learn==1.3.2
+imbalanced-learn==0.11.0
+
+# XGBoost e LightGBM
+xgboost==2.0.2
+lightgbm==4.1.0
+
+# Pandas e NumPy
+pandas==2.1.3
+numpy==1.26.2
+
+# ============================================================================
+# VISUALIZATION & MONITORING
+# ============================================================================
+
+# Matplotlib e Seaborn
+matplotlib==3.8.2
+seaborn==0.13.0
+plotly==5.18.0
+
+# Weights & Biases para experimentos
+wandb==0.16.0
+
+# TensorBoard para monitoramento
+tensorboard==2.16.2
+
+# ============================================================================
+# API & WEB FRAMEWORK
+# ============================================================================
+
+# FastAPI (já existente)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# ============================================================================
+# DATABASE & STORAGE
+# ============================================================================
+
+# Para armazenar modelos
+joblib==1.3.2
+pickle5==0.0.12
+
+# Redis para cache
+redis==5.0.1
+
+# ============================================================================
+# UTILITIES
+# ============================================================================
+
+# Progress bars
+tqdm==4.66.1
+
+# Logging avançado
+loguru==0.7.2
+
+# Configuração
+hydra-core==1.3.2
+omegaconf==2.3.0
+
+# ============================================================================
+# TESTING & DEVELOPMENT
+# ============================================================================
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Jupyter para notebooks
+jupyter==1.0.0
+ipykernel==6.27.1
+
+# ============================================================================
+# DEPLOYMENT & PRODUCTION
+# ============================================================================
+
+# Docker
+docker==6.1.3
+
+# Model serving
+mlflow==2.8.1
+bentoml==1.1.0
+
+# Monitoring
+prometheus-client==0.19.0
+
+# ============================================================================
+# OPTIONAL: GPU ACCELERATION
+# ============================================================================
+
+# CUDA (se tiver GPU NVIDIA)
+# cudatoolkit==11.8
+# cudnn==8.9.0
+
+# ============================================================================
+# INSTALAÇÃO
+# ============================================================================
+
+# Para instalar tudo:
+# pip install -r requirements-dl.txt
+
+# Para instalar apenas o essencial:
+# pip install tensorflow torch transformers opencv-python mediapipe
+
+# Para instalar com GPU:
+# pip install tensorflow-gpu torch torchvision --index-url https://download.pytorch.org/whl/cu118

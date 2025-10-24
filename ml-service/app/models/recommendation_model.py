@@ -8,8 +8,9 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, cross_val_score
-from tensorflow import keras
-from tensorflow.keras import layers
+# TensorFlow removido para simplificar instalação
+# from tensorflow import keras
+# from tensorflow.keras import layers
 import joblib
 import os
 from typing import Dict, List, Tuple

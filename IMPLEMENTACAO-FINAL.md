@@ -386,3 +386,4 @@ curl http://localhost:3001/api/recommendations/methods/all
 
 O sistema está pronto para ser utilizado e expandido. A arquitetura permite fácil manutenção e adição de novas funcionalidades.
 
+

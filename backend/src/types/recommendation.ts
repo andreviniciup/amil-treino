@@ -281,3 +281,4 @@ export type EquipmentType =
 
 export type FitnessLevel = 'Iniciante' | 'Intermediário' | 'Avançado';
 
+

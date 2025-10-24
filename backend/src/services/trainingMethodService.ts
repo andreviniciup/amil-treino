@@ -363,3 +363,4 @@ export class TrainingMethodService {
 
 export default new TrainingMethodService();
 
+

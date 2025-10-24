@@ -128,3 +128,4 @@ def _get_progression_reasoning(progression_type: str) -> str:
     }
     return reasons.get(progression_type, "Progressão linear padrão")
 
+

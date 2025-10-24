@@ -26,3 +26,4 @@ router.get('/exercises', recommendationController.getExerciseRecommendations.bin
 
 export default router;
 
+

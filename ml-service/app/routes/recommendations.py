@@ -5,7 +5,7 @@ Rotas de Recomendações ML
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-from app.models.recommendation_model import RecommendationModel
+from app.models.recommendation_model_simple import RecommendationModel
 import os
 
 router = APIRouter()
