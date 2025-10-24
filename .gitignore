@@ -334,3 +334,6 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+
+# Scripts de desenvolvimento
+*.ps1
