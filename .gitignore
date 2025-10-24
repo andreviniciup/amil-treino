@@ -1,9 +1,12 @@
 # Dependencies
 node_modules/
 */node_modules/
+**/node_modules/
 
 # Python
 __pycache__/
+*/__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -14,30 +17,61 @@ ENV/
 env.bak/
 venv.bak/
 ml-service/venv/
+**/venv/
+**/env/
+
+# Python virtual environments
+.venv/
+.venv
+venv/
+venv
+env/
+env
+
+# Python cache
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+*.sql
 
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
 # Coverage directory used by tools like istanbul
 coverage/
-
-# nyc test coverage
-.nyc_output
+.nyc_output/
 
 # Dependency directories
 jspm_packages/
@@ -65,17 +99,238 @@ jspm_packages/
 dist/
 build/
 out/
+*.tsbuildinfo
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Temporary files
 *.tmp
 *.temp
+*.bak
+*.backup
+*.old
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ML models and data
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+models/
+data/
+datasets/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.yaml
+
+# Kubernetes
+*.yaml
+*.yml
+!docker-compose.yml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Ansible
+*.retry
+
+# Vagrant
+.vagrant/
+
+# Test results
+test-results/
+coverage/
+.nyc_output/
+
+# ESLint
+.eslintcache
+
+# Prettier
+.prettierignore
+
+# Stylelint
+.stylelintcache
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
