@@ -3,6 +3,20 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class BadgeService {
+  // MVP v0.01: Badges desabilitados temporariamente
+  // TODO: Reativar na v0.02
+  async checkAndAwardBadges(userId: string) {
+    // MVP v0.01: Retornar array vazio
+    return [];
+  }
+
+  async getUserBadges(userId: string) {
+    // MVP v0.01: Retornar array vazio
+    return [];
+  }
+
+  // MVP v0.01: Badges originais comentados
+  /*
   private readonly BADGES = [
     {
       name: '7 Dias Consecutivos',
@@ -131,6 +145,7 @@ export class BadgeService {
       include: { badge: true }
     });
   }
+  */
 }
 
 export default new BadgeService();

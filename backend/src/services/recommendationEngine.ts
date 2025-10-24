@@ -15,9 +15,12 @@ import {
 import trainingMethodService from './trainingMethodService';
 
 /**
- * Engine de Recomendação Híbrido
+ * Engine de Recomendação Simplificado - MVP v0.01
  * 
- * Combina 4 abordagens para gerar recomendações precisas:
+ * MVP v0.01: Engine híbrido desabilitado temporariamente
+ * TODO: Reativar na v0.02
+ * 
+ * Engine original comentado abaixo com 4 algoritmos:
  * 1. Collaborative Filtering - Baseado em usuários similares
  * 2. Content-Based - Baseado no perfil do usuário
  * 3. Performance-Based - Baseado no histórico de performance
@@ -25,12 +28,72 @@ import trainingMethodService from './trainingMethodService';
  */
 export class RecommendationEngine {
   // ============================================================================
-  // MÉTODOS PRINCIPAIS
+  // MÉTODOS PRINCIPAIS - MVP v0.01
   // ============================================================================
 
   /**
-   * Gera recomendações completas para um usuário
+   * Gera recomendações simples para um usuário - MVP v0.01
    */
+  async generateRecommendations(userId: string): Promise<RecommendationResult> {
+    try {
+      // MVP v0.01: Usar apenas regras simples
+      const userProfile = await this.getUserProfile(userId);
+      const recommendations = this.getSimpleRecommendation(userProfile);
+      
+      return {
+        userId,
+        recommendations,
+        confidence: 0.8,
+        reasoning: "Recomendação baseada em regras simples para MVP",
+        timestamp: new Date()
+      };
+    } catch (error) {
+      console.error('Erro ao gerar recomendações:', error);
+      throw new Error('Falha ao gerar recomendações');
+    }
+  }
+
+  // MVP v0.01: Método simples de recomendação
+  private getSimpleRecommendation(userProfile: UserProfile): TrainingMethodRecommendation[] {
+    const days = userProfile.availability.daysPerWeek;
+    const level = userProfile.fitnessData.fitnessLevel;
+    
+    let recommendedMethod: string;
+    let reasoning: string;
+    
+    // Lógica simples baseada em regras
+    if (level === 'Iniciante' || days <= 3) {
+      recommendedMethod = 'Full Body';
+      reasoning = 'Iniciante ou poucos dias disponíveis → Full Body 3x por semana';
+    } else if (level === 'Intermediário' && days >= 4 && days <= 5) {
+      recommendedMethod = 'Upper/Lower';
+      reasoning = 'Intermediário com 4-5 dias → Upper/Lower';
+    } else if (level === 'Avançado' && days >= 5) {
+      recommendedMethod = 'PPL (Push/Pull/Legs)';
+      reasoning = 'Avançado com 5+ dias → PPL';
+    } else {
+      recommendedMethod = 'Full Body';
+      reasoning = 'Recomendação padrão → Full Body';
+    }
+    
+    const method = trainingMethodService.getMethodByName(recommendedMethod);
+    if (!method) {
+      return [];
+    }
+    
+    return [{
+      method,
+      score: 80,
+      confidence: 0.8,
+      reasoning,
+      pros: method.benefits,
+      cons: [],
+      alternatives: []
+    }];
+  }
+
+  // MVP v0.01: Engine híbrido original comentado
+  /*
   async generateRecommendations(userId: string): Promise<RecommendationResult> {
     try {
       // 1. Obter dados do usuário
@@ -78,6 +141,7 @@ export class RecommendationEngine {
       throw new Error('Falha ao gerar recomendações');
     }
   }
+  */
 
   /**
    * Recomenda exercícios específicos baseado no músculo alvo
@@ -101,12 +165,20 @@ export class RecommendationEngine {
   }
 
   // ============================================================================
+  // ALGORITMOS ORIGINAIS - COMENTADOS PARA MVP v0.01
+  // ============================================================================
+
+  // MVP v0.01: Algoritmos complexos desabilitados temporariamente
+  // TODO: Reativar na v0.02
+  /*
+  // ============================================================================
   // ALGORITMO 1: COLLABORATIVE FILTERING
   // ============================================================================
 
   /**
    * Filtragem Colaborativa - Baseado em usuários similares
    */
+  /*
   private async collaborativeFiltering(similarUsers: SimilarUser[]): Promise<CollaborativeFilteringResult> {
     try {
       if (!similarUsers || similarUsers.length === 0) {
@@ -501,6 +573,7 @@ export class RecommendationEngine {
   private calculateOverallConfidence(confidences: number[]): number {
     return confidences.reduce((sum, conf) => sum + conf, 0) / confidences.length;
   }
+  */
 }
 
 export default new RecommendationEngine();

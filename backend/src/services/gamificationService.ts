@@ -3,6 +3,28 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export class GamificationService {
+  // MVP v0.01: Gamificação desabilitada temporariamente
+  // TODO: Reativar na v0.02
+  async calculateUserScore(userId: string) {
+    // MVP v0.01: Retornar score básico
+    return this.getBasicScore(userId);
+  }
+
+  // MVP v0.01: Score básico
+  private getBasicScore(userId: string) {
+    return {
+      totalPoints: 0,
+      consistencyPoints: 0,
+      progressionPoints: 0,
+      goalPoints: 0,
+      level: 1,
+      nextLevelPoints: 100,
+      message: "Gamificação em breve!"
+    };
+  }
+
+  // MVP v0.01: Método original comentado
+  /*
   async calculateUserScore(userId: string) {
     try {
       // Buscar ou criar score do usuário
@@ -96,6 +118,7 @@ export class GamificationService {
   private calculateLevel(points: number): number {
     return Math.floor(points / 100) + 1;
   }
+  */
 }
 
 export default new GamificationService();

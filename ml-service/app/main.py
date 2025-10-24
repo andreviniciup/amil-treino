@@ -1,5 +1,8 @@
 """
-FastAPI Main Application - ML Service
+FastAPI Main Application - ML Service - MVP v0.01
+
+MVP v0.01: ML Service desabilitado temporariamente
+TODO: Reativar na v0.02
 """
 
 from fastapi import FastAPI
@@ -7,12 +10,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
-# Importar rotas
-from app.routes import recommendations, predictions, training, scientific
+# MVP v0.01: Rotas complexas desabilitadas temporariamente
+# TODO: Reativar na v0.02
+# from app.routes import recommendations, predictions, training, scientific
 
 app = FastAPI(
-    title="ML Service - Treino Inteligente",
-    description="Serviço de Machine Learning para recomendações científicas de treino",
+    title="ML Service - Treino Inteligente - MVP v0.01",
+    description="Serviço de Machine Learning para recomendações científicas de treino - MVP v0.01",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -27,34 +31,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir rotas
-app.include_router(recommendations.router, prefix="/api/ml/recommendations", tags=["Recomendações"])
-app.include_router(predictions.router, prefix="/api/ml/predict", tags=["Predições"])
-app.include_router(training.router, prefix="/api/ml/train", tags=["Treinamento"])
-app.include_router(scientific.router, prefix="/api/ml/scientific", tags=["Científico"])
+# MVP v0.01: Rotas complexas desabilitadas temporariamente
+# TODO: Reativar na v0.02
+# app.include_router(recommendations.router, prefix="/api/ml/recommendations", tags=["Recomendações"])
+# app.include_router(predictions.router, prefix="/api/ml/predict", tags=["Predições"])
+# app.include_router(training.router, prefix="/api/ml/train", tags=["Treinamento"])
+# app.include_router(scientific.router, prefix="/api/ml/scientific", tags=["Científico"])
 
 @app.get("/")
 async def root():
     return {
         "service": "ML Service - Treino Inteligente",
         "version": "1.0.0",
-        "status": "running",
+        "status": "disabled_for_mvp",
+        "message": "ML Service não necessário no MVP v0.01",
         "endpoints": {
             "docs": "/docs",
-            "recommendations": "/api/ml/recommendations",
-            "predictions": "/api/ml/predict",
-            "training": "/api/ml/train",
-            "scientific": "/api/ml/scientific"
+            "health": "/health"
         }
     }
 
 @app.get("/health")
 async def health():
     return {
-        "status": "healthy",
-        "service": "ml-service",
-        "version": "1.0.0"
+        "status": "ok",
+        "message": "ML Service em modo MVP v0.01",
+        "note": "Funcionalidades complexas desabilitadas temporariamente"
     }
+
 
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

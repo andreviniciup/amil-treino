@@ -3,12 +3,35 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 /**
- * Serviço de Análise de Performance
+ * Serviço de Análise de Performance - MVP v0.01
+ * 
+ * MVP v0.01: Análise avançada desabilitada temporariamente
+ * TODO: Reativar na v0.02
  */
 export class PerformanceAnalyzer {
   /**
-   * Analisa consistência do usuário
+   * Analisa consistência do usuário - MVP v0.01
    */
+  async analyzeConsistency(userId: string, period: 'week' | 'month' | 'quarter') {
+    // MVP v0.01: Análise básica
+    return this.getBasicConsistency(userId, period);
+  }
+
+  // MVP v0.01: Análise básica
+  private getBasicConsistency(userId: string, period: string) {
+    return {
+      period,
+      totalWorkouts: 0,
+      completionRate: 0,
+      currentStreak: 0,
+      consistencyScore: 0,
+      averageSessionDuration: 0,
+      message: "Análise avançada em breve!"
+    };
+  }
+
+  // MVP v0.01: Método original comentado
+  /*
   async analyzeConsistency(userId: string, period: 'week' | 'month' | 'quarter') {
     try {
       const days = period === 'week' ? 7 : period === 'month' ? 30 : 90;
@@ -41,10 +64,27 @@ export class PerformanceAnalyzer {
       throw error;
     }
   }
+  */
 
   /**
-   * Analisa progressão em exercícios
+   * Analisa progressão em exercícios - MVP v0.01
    */
+  async analyzeProgression(userId: string, exerciseId?: string) {
+    // MVP v0.01: Análise básica
+    return this.getBasicProgression(userId, exerciseId);
+  }
+
+  // MVP v0.01: Análise básica de progressão
+  private getBasicProgression(userId: string, exerciseId?: string) {
+    return {
+      message: "Análise de progressão em breve!",
+      progression: 0,
+      trend: "stable"
+    };
+  }
+
+  // MVP v0.01: Método original comentado
+  /*
   async analyzeProgression(userId: string, exerciseId?: string) {
     try {
       const where: any = { userId };
@@ -268,6 +308,7 @@ export class PerformanceAnalyzer {
     
     return milestones;
   }
+  */
 }
 
 export default new PerformanceAnalyzer();

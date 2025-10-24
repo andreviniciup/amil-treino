@@ -1,7 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
 
 /**
- * Serviço de Integração com ML API (Python)
+ * Serviço de Integração com ML API (Python) - MVP v0.01
+ * 
+ * MVP v0.01: ML Service desabilitado - não precisa rodar
+ * TODO: Reativar na v0.02
  * 
  * Conecta o backend TypeScript com o serviço Python de ML
  */
@@ -21,12 +24,29 @@ export class MLApiService {
   }
 
   // ============================================================================
-  // RECOMENDAÇÕES
+  // RECOMENDAÇÕES - MVP v0.01
   // ============================================================================
 
   /**
-   * Obtém recomendações de métodos de treino usando ML
+   * Obtém recomendações de métodos de treino usando ML - MVP v0.01
    */
+  async getMLRecommendations(userProfile: any): Promise<any> {
+    // MVP v0.01: ML Service desabilitado - não precisa rodar
+    console.log('MVP v0.01: ML Service desabilitado - usando fallback');
+    return this.getFallbackRecommendations(userProfile);
+  }
+
+  // MVP v0.01: Fallback simples
+  private getFallbackRecommendations(userProfile: any): any {
+    return {
+      success: false,
+      message: "ML Service não disponível no MVP v0.01",
+      fallback: true
+    };
+  }
+
+  // MVP v0.01: Método original comentado
+  /*
   async getMLRecommendations(userProfile: any): Promise<any> {
     try {
       const response = await this.api.post('/api/ml/recommendations', userProfile);
@@ -36,10 +56,34 @@ export class MLApiService {
       return null; // Fallback para recomendação baseada em regras
     }
   }
+  */
 
   /**
-   * Obtém recomendações de exercícios usando ML
+   * Obtém recomendações de exercícios usando ML - MVP v0.01
    */
+  async getMLExerciseRecommendations(
+    userProfile: any,
+    muscleGroup: string,
+    limit: number = 10
+  ): Promise<any> {
+    // MVP v0.01: ML Service desabilitado - não precisa rodar
+    console.log('MVP v0.01: ML Service desabilitado - usando fallback para exercícios');
+    return this.getFallbackExerciseRecommendations(muscleGroup, limit);
+  }
+
+  // MVP v0.01: Fallback simples para exercícios
+  private getFallbackExerciseRecommendations(muscleGroup: string, limit: number): any {
+    return {
+      success: false,
+      message: "ML Service não disponível no MVP v0.01",
+      fallback: true,
+      muscleGroup,
+      limit
+    };
+  }
+
+  // MVP v0.01: Método original comentado
+  /*
   async getMLExerciseRecommendations(
     userProfile: any,
     muscleGroup: string,
@@ -57,14 +101,19 @@ export class MLApiService {
       return null;
     }
   }
+  */
 
   // ============================================================================
-  // PREDIÇÕES
+  // PREDIÇÕES - MVP v0.01
   // ============================================================================
 
+  // MVP v0.01: Predições desabilitadas temporariamente
+  // TODO: Reativar na v0.02
+  /*
   /**
    * Prediz performance futura
    */
+  /*
   async predictPerformance(userId: string, exerciseId: string, history: any[]): Promise<any> {
     try {
       const response = await this.api.post('/api/ml/predict/performance', {
@@ -177,6 +226,7 @@ export class MLApiService {
       return false;
     }
   }
+  */
 }
 
 export default new MLApiService();

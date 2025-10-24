@@ -1,20 +1,20 @@
-# 🏋️ Sistema de Treino Inteligente com ML Científico
+# 🏋️ Sistema de Treino Inteligente - MVP v0.01
 
-Sistema completo de gerenciamento de treinos com **recomendações personalizadas**, **análise de progresso**, **gamificação** e **validação científica** usando Machine Learning.
+Sistema de gerenciamento de treinos com **recomendações personalizadas** e **análise de progresso** básica. Versão MVP focada no fluxo essencial: **Cadastro → Onboarding → Criar Treino → Executar → Ver Histórico**.
 
 ---
 
-## 🎯 Status do Projeto
+## 🎯 Status do Projeto - MVP v0.01
 
-**✅ 100% IMPLEMENTADO E FUNCIONAL**
+**✅ MVP v0.01 IMPLEMENTADO E FUNCIONAL**
 
-- ✅ Todas as 4 fases concluídas
-- ✅ 40+ arquivos criados/modificados  
-- ✅ 25+ endpoints implementados
-- ✅ 8 novos modelos no banco de dados
-- ✅ Sistema de ML científico em Python
-- ✅ Gamificação completa
-- ✅ Documentação extensiva
+- ✅ Fluxo core completo
+- ✅ Recomendações baseadas em regras
+- ✅ Sistema de treinos funcional
+- ✅ Progresso básico
+- ⚠️ ML Service desabilitado temporariamente
+- ⚠️ Gamificação desabilitada temporariamente
+- ⚠️ Análise avançada desabilitada temporariamente
 
 ---
 
@@ -28,7 +28,7 @@ Para entender o sistema completo, leia os documentos nesta ordem:
 2. **[RESUMO-FINAL-IMPLEMENTACAO.md](./RESUMO-FINAL-IMPLEMENTACAO.md)** - O que foi implementado
 3. **[EXECUTAR-SISTEMA-COMPLETO.md](./EXECUTAR-SISTEMA-COMPLETO.md)** - Como executar
 
-### ⚡ Executar o Sistema (3 terminais)
+### ⚡ Executar o Sistema MVP v0.01 (2 terminais)
 
 **Terminal 1 - Backend TypeScript:**
 ```bash
@@ -40,18 +40,7 @@ npm run dev
 # → http://localhost:3001
 ```
 
-**Terminal 2 - ML Service Python:**
-```bash
-cd ml-service
-python -m venv venv
-.\venv\Scripts\Activate.ps1  # Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-# → http://localhost:8000
-# → http://localhost:8000/docs (Swagger)
-```
-
-**Terminal 3 - Frontend React:**
+**Terminal 2 - Frontend React:**
 ```bash
 cd frontend
 npm install
@@ -59,10 +48,42 @@ npm run dev
 # → http://localhost:5173
 ```
 
+### 📝 **NOTA IMPORTANTE - MVP v0.01:**
+- ❌ **ML Service Python NÃO precisa rodar** (desabilitado temporariamente)
+- ✅ **Apenas Backend + Frontend** necessários
+- ✅ **Sistema funcional** com fluxo completo
+
 ### 🧪 Testar Tudo
 ```bash
 .\TEST-ALL-ENDPOINTS.ps1
 ```
+
+---
+
+## 🎯 **MVP v0.01 - FUNCIONALIDADES**
+
+### **✅ Funcionalidades Ativas:**
+- **Onboarding** - 8 focos de treino reais
+- **Recomendações** - Baseadas em regras simples
+- **Criação de Treinos** - Seleção de exercícios
+- **Execução de Treinos** - Timer e registro
+- **Histórico Básico** - Lista de treinos realizados
+
+### **❌ Funcionalidades Desabilitadas (v0.02):**
+- **ML Service Python** - Machine Learning científico
+- **Gamificação** - Pontos, níveis, badges
+- **Análise Avançada** - Detecção de plateaus, PRs
+- **Engine Híbrido** - 4 algoritmos de recomendação
+
+### **📋 Limitações Conhecidas:**
+- Recomendações baseadas apenas em regras (não ML)
+- Sem sistema de pontuação ou badges
+- Análise de progresso básica
+- ML Service não necessário
+
+### **📄 Documentação MVP:**
+- **[MVP-v0.01-LIMITATIONS.md](./MVP-v0.01-LIMITATIONS.md)** - Limitações detalhadas
+- **[EXECUTAR-SISTEMA-COMPLETO.md](./EXECUTAR-SISTEMA-COMPLETO.md)** - Guia de execução
 
 ---
 
