@@ -92,57 +92,6 @@ export class RecommendationEngine {
     }];
   }
 
-  // MVP v0.01: Engine híbrido original comentado
-  /*
-  async generateRecommendations(userId: string): Promise<RecommendationResult> {
-    try {
-      // 1. Obter dados do usuário
-      const userProfile = await this.getUserProfile(userId);
-      const performanceHistory = await this.getPerformanceHistory(userId);
-      const similarUsers = await this.findSimilarUsers(userId);
-
-      // 2. Executar os 4 algoritmos em paralelo
-      const [collaborative, contentBased, performanceBased, ruleBased] = await Promise.all([
-        this.collaborativeFiltering(similarUsers),
-        this.contentBasedFiltering(userProfile),
-        this.performanceBasedFiltering(performanceHistory),
-        this.ruleBasedFiltering(userProfile)
-      ]);
-
-      // 3. Combinar resultados
-      const combinedRecommendations = this.combineRecommendations({
-        collaborative,
-        contentBased,
-        performanceBased,
-        ruleBased,
-        combined: []
-      }, userProfile);
-
-      // 4. Gerar explicação geral
-      const reasoning = this.generateGeneralReasoning(userProfile, combinedRecommendations);
-
-      // 5. Calcular confiança geral
-      const confidence = this.calculateOverallConfidence([
-        collaborative.confidence,
-        contentBased.confidence,
-        performanceBased.confidence,
-        ruleBased.confidence
-      ]);
-
-      return {
-        userId,
-        recommendations: combinedRecommendations,
-        confidence,
-        reasoning,
-        timestamp: new Date()
-      };
-    } catch (error) {
-      console.error('Erro ao gerar recomendações:', error);
-      throw new Error('Falha ao gerar recomendações');
-    }
-  }
-  */
-
   /**
    * Recomenda exercícios específicos baseado no músculo alvo
    */
@@ -162,6 +111,48 @@ export class RecommendationEngine {
       console.error('Erro ao recomendar exercícios:', error);
       return [];
     }
+  }
+
+  // ============================================================================
+  // MÉTODOS AUXILIARES - MVP v0.01
+  // ============================================================================
+
+  private async getUserProfile(userId: string): Promise<UserProfile> {
+    // TODO: Buscar perfil real do banco de dados
+    // Por enquanto, retorna perfil mock
+    return {
+      userId,
+      demographics: {
+        age: 25,
+        gender: 'Masculino',
+        weight: 75,
+        height: 175
+      },
+      fitnessData: {
+        fitnessLevel: 'Intermediário',
+        trainingExperience: 2
+      },
+      goals: {
+        primary: ['Hipertrofia', 'Força'],
+        secondary: ['Definição']
+      },
+      availability: {
+        daysPerWeek: 5,
+        minutesPerSession: 60,
+        preferredDays: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+      },
+      equipment: ['Barra', 'Halteres', 'Máquinas'],
+      medicalHistory: {
+        injuries: [],
+        conditions: [],
+        limitations: []
+      }
+    };
+  }
+
+  private async getPerformanceHistory(userId: string): Promise<PerformanceData[]> {
+    // TODO: Buscar histórico real do banco de dados
+    return [];
   }
 
   // ============================================================================
@@ -235,6 +226,7 @@ export class RecommendationEngine {
   /**
    * Filtragem Baseada em Conteúdo - Baseado no perfil do usuário
    */
+  /*
   private async contentBasedFiltering(userProfile: UserProfile): Promise<ContentBasedResult> {
     try {
       const preferences = {
@@ -246,7 +238,7 @@ export class RecommendationEngine {
         equipment: userProfile.equipment,
         preferences: {
           intensity: this.determineIntensity(userProfile.fitnessData.fitnessLevel),
-          exerciseVariety: 'Média',
+          exerciseVariety: 'Média' as 'Baixa' | 'Média' | 'Alta',
           restDays: 7 - userProfile.availability.daysPerWeek
         },
         constraints: {
@@ -285,6 +277,7 @@ export class RecommendationEngine {
   /**
    * Filtragem Baseada em Performance - Baseado no histórico
    */
+  /*
   private async performanceBasedFiltering(performanceHistory: PerformanceData[]): Promise<PerformanceBasedResult> {
     try {
       if (!performanceHistory || performanceHistory.length === 0) {
@@ -342,6 +335,7 @@ export class RecommendationEngine {
   /**
    * Filtragem Baseada em Regras - Regras de negócio
    */
+  /*
   private async ruleBasedFiltering(userProfile: UserProfile): Promise<RuleBasedResult> {
     try {
       const recommendedMethods: string[] = [];
@@ -406,6 +400,7 @@ export class RecommendationEngine {
   /**
    * Combina resultados dos 4 algoritmos
    */
+  /*
   private combineRecommendations(
     hybrid: HybridRecommendationResult,
     userProfile: UserProfile
@@ -474,44 +469,6 @@ export class RecommendationEngine {
   // MÉTODOS AUXILIARES
   // ============================================================================
 
-  private async getUserProfile(userId: string): Promise<UserProfile> {
-    // TODO: Buscar perfil real do banco de dados
-    // Por enquanto, retorna perfil mock
-    return {
-      userId,
-      demographics: {
-        age: 25,
-        gender: 'Masculino',
-        weight: 75,
-        height: 175
-      },
-      fitnessData: {
-        fitnessLevel: 'Intermediário',
-        trainingExperience: 2
-      },
-      goals: {
-        primary: ['Hipertrofia', 'Força'],
-        secondary: ['Definição']
-      },
-      availability: {
-        daysPerWeek: 5,
-        minutesPerSession: 60,
-        preferredDays: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
-      },
-      equipment: ['Barra', 'Halteres', 'Máquinas'],
-      medicalHistory: {
-        injuries: [],
-        conditions: [],
-        limitations: []
-      }
-    };
-  }
-
-  private async getPerformanceHistory(userId: string): Promise<PerformanceData[]> {
-    // TODO: Buscar histórico real do banco de dados
-    return [];
-  }
-
   private async findSimilarUsers(userId: string): Promise<SimilarUser[]> {
     // TODO: Implementar busca de usuários similares
     return [];
@@ -577,5 +534,3 @@ export class RecommendationEngine {
 }
 
 export default new RecommendationEngine();
-
-
