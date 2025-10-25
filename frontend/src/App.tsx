@@ -6,6 +6,7 @@ import { StreakPage } from './components/StreakPage';
 import { TreinoPage } from './components/TreinoPage';
 import TreinoIniciado from './imports/TreinoIniciado';
 import { TreinoIdPage } from './components/TreinoIdPage';
+import { ExerciseIdPage } from './components/ExerciseIdPage';
 import { TreinoTempoDescansoPage } from './components/TreinoTempoDescansoPage';
 import { MenuBar } from './components/MenuBar';
 import { LoginPage } from './components/auth/LoginPage';
@@ -26,11 +27,13 @@ import { CreateWorkoutName } from './components/workout-creator/CreateWorkoutNam
 import { CreateWorkoutMuscles } from './components/workout-creator/CreateWorkoutMuscles';
 import { CreateWorkoutExercises } from './components/workout-creator/CreateWorkoutExercises';
 import { CreateWorkoutConfig } from './components/workout-creator/CreateWorkoutConfig';
+import { CreateWorkoutDay } from './components/workout-creator/CreateWorkoutDay';
 import { CreateWorkoutReady } from './components/workout-creator/CreateWorkoutReady';
 import { PageTransition } from './components/common/PageTransition';
 import { MyWorkoutsPage } from './components/MyWorkoutsPage';
+import { WorkoutList } from './components/WorkoutList';
 
-type Page = 'home' | 'streak' | 'treino' | 'treino-iniciado' | 'treino-id' | 'treino-tempo-descanso' | 'my-workouts';
+type Page = 'home' | 'streak' | 'treino' | 'treino-iniciado' | 'treino-id' | 'exercise-id' | 'treino-tempo-descanso' | 'my-workouts' | 'workout-list';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -89,13 +92,28 @@ function AppContent() {
   // Sincroniza estado com a URL
   useEffect(() => {
     const path = location.pathname.replace(/^\/+/, '');
-    const page = (path.split('/')[0] || 'home') as Page;
+    let page = (path.split('/')[0] || 'home') as Page;
+    
+    // Mapear workout-list para treino
+    if (page === 'workout-list') {
+      page = 'treino';
+    }
+    
+    // Mapear exercise-id para treino
+    if (page === 'exercise-id') {
+      page = 'treino';
+    }
+    
     if (page !== currentPage) setCurrentPage(page);
   }, [location.pathname]);
 
   const handleMenuNavigate = (page: 'home' | 'streak' | 'treino') => {
     setCurrentPage(page);
-    navigate(`/${page}`);
+    if (page === 'treino') {
+      navigate('/workout-list');
+    } else {
+      navigate(`/${page}`);
+    }
   };
 
   // Verifica em que contexto está
@@ -130,7 +148,7 @@ function AppContent() {
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-y-auto">
       <AnimatePresence mode="wait">
         <Routes location={location}>
           {/* Splash and Landing */}
@@ -159,8 +177,9 @@ function AppContent() {
           <Route path="/workout/create/name" element={<CreateWorkoutName />} />
           <Route path="/workout/create/muscles" element={<CreateWorkoutMuscles />} />
           <Route path="/workout/create/exercises" element={<CreateWorkoutExercises />} />
-          <Route path="/workout/create/config" element={<CreateWorkoutConfig />} />
-          <Route path="/workout/create/ready" element={<CreateWorkoutReady />} />
+              <Route path="/workout/create/day" element={<CreateWorkoutDay />} />
+              <Route path="/workout/create/config" element={<CreateWorkoutConfig />} />
+              <Route path="/workout/create/ready" element={<CreateWorkoutReady />} />
           
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
@@ -170,16 +189,19 @@ function AppContent() {
           <Route path="/pagina/streak" element={<Navigate to="/streak" replace />} />
           <Route 
             path="/treino" 
-            element={<TreinoPage onStartWorkout={handleStartWorkout} onExerciseClick={(exercise) => navigate('/treino-id', { state: { exercise } })} />} 
+            element={<TreinoPage onStartWorkout={handleStartWorkout} onExerciseClick={(exercise) => navigate('/exercise-id', { state: { exercise } })} />} 
           />
           <Route path="/pagina/treino" element={<Navigate to="/treino" replace />} />
-          <Route path="/treino-iniciado" element={<div onClick={() => navigate('/treino-id')}><TreinoIniciado /></div>} />
+          <Route path="/treino-iniciado" element={<div onClick={() => navigate('/exercise-id')}><TreinoIniciado /></div>} />
           <Route path="/pagina/treino-iniciado" element={<Navigate to="/treino-iniciado" replace />} />
           <Route path="/treino-id" element={<TreinoIdPage />} />
           <Route path="/pagina/treino-id" element={<Navigate to="/treino-id" replace />} />
+          <Route path="/exercise-id" element={<ExerciseIdPage />} />
+          <Route path="/pagina/exercise-id" element={<Navigate to="/exercise-id" replace />} />
           <Route path="/treino-tempo-descanso" element={<TreinoTempoDescansoPage onFinish={() => navigate('/treino-id', { state: { fromRest: true } })} />} />
           <Route path="/pagina/treino-tempo-descanso" element={<Navigate to="/treino-tempo-descanso" replace />} />
           <Route path="/my-workouts" element={<MyWorkoutsPage />} />
+          <Route path="/workout-list" element={<WorkoutList />} />
           
           {/* fallback */}
           <Route path="*" element={<Navigate to="/home" replace />} />

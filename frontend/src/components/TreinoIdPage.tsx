@@ -1,191 +1,286 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { SeriesCard } from "./SeriesCard";
-import { SlideToComplete } from "./SlideToComplete";
-import { workoutApi } from "../services/api";
+import { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ExerciseCard } from './ExerciseCard';
+import svgPaths from "../imports/svg-c71qf4vhvy";
+import { workoutApi, WorkoutPlan } from '../services/api';
 
-interface SeriesData {
-  repetitions: string;
-  weight: string;
-  restTime: string;
-  status: "active" | "pending" | "completed";
+interface Exercise {
+  id: string;
+  name: string;
+  sets: number;
+  completed: boolean;
+  improvement?: {
+    type: 'weight' | 'reps';
+    value: string;
+  };
+  // Dados adicionais do exercício
+  gifUrl?: string;
+  bodyPart?: string;
+  equipment?: string;
+  target?: string;
+  reps?: string;
+  restTime?: number;
+}
+
+function MuscleGroup({ label }: { label: string }) {
+  return (
+    <div className="bg-[#202020] border border-[#252525] box-border content-stretch flex flex-col gap-[10px] items-center justify-center px-[20px] py-[20px] relative rounded-[20px] shrink-0 w-[120px] h-[120px] min-w-[120px]">
+      <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[10px] text-white w-[80px] text-center">{label}</p>
+    </div>
+  );
 }
 
 export function TreinoIdPage() {
-  const navigate = useNavigate();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   
-  // Obter dados do exercício do estado
-  const exercise = location.state?.exercise;
-  console.log('Exercise data:', exercise);
-  const exerciseName = exercise?.name || "nome do exercicio";
-  const exerciseGifUrl = exercise?.gifUrl;
-  const exerciseReps = exercise?.reps || "6 a 8";
-  const exerciseRestTime = exercise?.restTime || 90;
-  
-  console.log('Exercise GIF URL:', exerciseGifUrl);
-  
-  const [currentSeriesIndex, setCurrentSeriesIndex] = useState(0);
-  const [series, setSeries] = useState<SeriesData[]>([
-    { repetitions: exerciseReps, weight: "12", restTime: exerciseRestTime.toString(), status: "active" },
-    { repetitions: exerciseReps, weight: "12", restTime: exerciseRestTime.toString(), status: "pending" },
-    { repetitions: exerciseReps, weight: "12", restTime: exerciseRestTime.toString(), status: "pending" },
-  ]);
-  const [saving, setSaving] = useState(false);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<WorkoutPlan | null>(null);
+  const [workoutName, setWorkoutName] = useState<string>('Treino');
 
-  // Verifica se está retornando da página de descanso
+  // Carregar planos e workout do dia
   useEffect(() => {
-    if (location.state?.fromRest) {
-      const newSeries = [...series];
-      newSeries[currentSeriesIndex].status = "completed";
-      
-      // Verifica se há próxima série
-      if (currentSeriesIndex < series.length - 1) {
-        newSeries[currentSeriesIndex + 1].status = "active";
-        setCurrentSeriesIndex(currentSeriesIndex + 1);
+    const loadWorkout = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Se veio da lista de treinos, usar dados do estado
+        const workoutData = location.state?.workout;
+        console.log('Workout data from state:', workoutData);
+        
+        if (workoutData) {
+          setCurrentPlan(workoutData);
+          console.log('Full workout data:', workoutData);
+          
+          // Verificar se tem workouts
+          if (workoutData.workouts && workoutData.workouts.length > 0) {
+            const workout = workoutData.workouts[0];
+            console.log('First workout:', workout);
+            console.log('Workout exercises:', workout?.exercises);
+            console.log('Workout exercises length:', workout?.exercises?.length);
+            console.log('Workout structure:', JSON.stringify(workout, null, 2));
+            
+            if (workout && workout.exercises && workout.exercises.length > 0) {
+              setWorkoutName(workout.trainingType);
+              
+              // Mapear exercícios do workout
+              const mappedExercises: Exercise[] = workout.exercises.map(ex => ({
+                id: ex.id,
+                name: ex.exerciseName,
+                sets: ex.sets,
+                completed: false,
+                // Adicionar dados completos do exercício
+                gifUrl: ex.gifUrl,
+                bodyPart: ex.bodyPart,
+                equipment: ex.equipment,
+                target: ex.target,
+                reps: ex.reps,
+                restTime: ex.restTime
+              }));
+              
+              console.log('Mapped exercises:', mappedExercises);
+              setExercises(mappedExercises);
+            } else {
+              console.log('No exercises in workout');
+              setExercises([]);
+            }
+          } else {
+            console.log('No workouts in plan');
+            setExercises([]);
+          }
+        } else {
+          // Fallback: carregar do backend
+          const plans = await workoutApi.getUserPlans();
+          
+          if (plans.length === 0) {
+            setExercises([]);
+            setLoading(false);
+            return;
+          }
+
+          // Pegar o primeiro plano (pode ser ajustado para selecionar por dia da semana)
+          const plan = plans[0];
+          setCurrentPlan(plan);
+
+          // Pegar o primeiro workout do plano
+          const workout = plan.workouts[0];
+          
+          if (workout) {
+            setWorkoutName(workout.trainingType);
+            
+            // Mapear exercícios do workout
+            const mappedExercises: Exercise[] = workout.exercises.map(ex => ({
+              id: ex.id,
+              name: ex.exerciseName,
+              sets: ex.sets,
+              completed: false,
+              // Adicionar dados completos do exercício
+              gifUrl: ex.gifUrl,
+              bodyPart: ex.bodyPart,
+              equipment: ex.equipment,
+              target: ex.target,
+              reps: ex.reps,
+              restTime: ex.restTime
+            }));
+            
+            setExercises(mappedExercises);
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar treino:', err);
+        setError('Erro ao carregar treino do dia.');
+      } finally {
+        setLoading(false);
       }
-      
-      setSeries(newSeries);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    };
+
+    loadWorkout();
   }, [location.state]);
 
-  const handleStartSeries = (index: number) => {
-    // Navega para a página de tempo de descanso
-    setCurrentSeriesIndex(index);
-    navigate("/treino-tempo-descanso", { state: { fromSeries: index } });
-  };
-
-  const handleCompleteSeries = (index: number) => {
-    const newSeries = [...series];
-    newSeries[index].status = "completed";
-    
-    // Verifica se há próxima série
-    if (index < series.length - 1) {
-      newSeries[index + 1].status = "active";
-      setCurrentSeriesIndex(index + 1);
+  // Verifica se um exercício foi concluído
+  useEffect(() => {
+    if (location.state?.exerciseCompleted) {
+      const exerciseName = location.state.exerciseName;
+      setExercises(prevExercises => 
+        prevExercises.map(exercise => 
+          exercise.name === exerciseName 
+            ? { ...exercise, completed: true, improvement: { type: 'weight', value: '5kg' } }
+            : exercise
+        )
+      );
     }
-    
-    setSeries(newSeries);
-  };
+  }, [location.state]);
 
-  const handleRepetitionsChange = (index: number, value: string) => {
-    const newSeries = [...series];
-    newSeries[index].repetitions = value;
-    setSeries(newSeries);
-  };
-
-  const handleWeightChange = (index: number, value: string) => {
-    const newSeries = [...series];
-    newSeries[index].weight = value;
-    setSeries(newSeries);
-  };
-
-  const handleRestTimeChange = (index: number, value: string) => {
-    const newSeries = [...series];
-    newSeries[index].restTime = value;
-    setSeries(newSeries);
-  };
-
-  const handleCompleteExercise = async () => {
-    try {
-      setSaving(true);
-      
-      // Coletar dados das séries completadas
-      const repsArray = series.map(s => {
-        const reps = s.repetitions.split(' ')[0]; // Pega apenas o primeiro número
-        return parseInt(reps) || 0;
+  const handleStartWorkout = () => {
+    if (exercises.length > 0) {
+      navigate('/exercise-id', {
+        state: {
+          workout: currentPlan,
+          currentExerciseIndex: 0,
+          fromWorkout: true
+        }
       });
-      
-      const weightsArray = series.map(s => parseFloat(s.weight) || 0);
-      
-      // Criar log do treino (simplificado - workoutId seria obtido do contexto/props)
-      const logData = {
-        workoutId: '1', // Este ID deveria vir do workout atual
-        duration: 0, // Pode ser calculado com timer
-        exercises: [{
-          exerciseId: '1', // Este ID deveria vir do exercício atual
-          sets: series.length,
-          reps: repsArray,
-          weights: weightsArray,
-          completed: true
-        }]
-      };
-      
-      // Salvar no backend
-      await workoutApi.createLog(logData);
-      
-      // Navega de volta para a página de treino com informação de que o exercício foi concluído
-      navigate("/treino", { 
-        state: { 
-          exerciseCompleted: true,
-          exerciseName: exerciseName 
-        } 
-      });
-    } catch (err) {
-      console.error('Erro ao salvar progresso:', err);
-      // Mesmo com erro, navegar de volta (pode melhorar isso depois)
-      navigate("/treino", { 
-        state: { 
-          exerciseCompleted: true,
-          exerciseName: exerciseName 
-        } 
-      });
-    } finally {
-      setSaving(false);
     }
   };
 
-  const allSeriesCompleted = series.every((s) => s.status === "completed");
+  const handleExerciseClick = (exercise: Exercise) => {
+    const exerciseIndex = exercises.findIndex(ex => ex.id === exercise.id);
+    navigate('/exercise-id', {
+      state: {
+        exercise: exercise, // Adicionar o exercício no state
+        workout: currentPlan,
+        currentExerciseIndex: exerciseIndex,
+        fromWorkout: true
+      }
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-[#181818] relative size-full flex items-center justify-center" data-name="treino">
+        <p className="text-white text-[18px] font-['Alexandria:Regular',_sans-serif]">
+          Carregando treino...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-[#181818] relative size-full flex flex-col items-center justify-center gap-4" data-name="treino">
+        <p className="text-red-400 text-[18px] font-['Alexandria:Regular',_sans-serif]">
+          {error}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-[#d9d9d9] px-6 py-3 rounded-full text-[#202020] font-['Alexandria:Medium',_sans-serif]"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
+  if (exercises.length === 0) {
+    return (
+      <div className="bg-[#181818] relative size-full flex flex-col items-center justify-center gap-4" data-name="treino">
+        <p className="text-white text-[18px] font-['Alexandria:Regular',_sans-serif] text-center px-8">
+          Este treino não possui exercícios. Volte para a lista e escolha outro treino.
+        </p>
+        <button
+          onClick={() => navigate('/workout-list')}
+          className="bg-[#d9d9d9] px-6 py-3 rounded-full text-[#202020] font-['Alexandria:Medium',_sans-serif]"
+        >
+          Voltar para Lista
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-[#181818] relative size-full" data-name="treino-id">
-      <div className="absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] top-[56px] w-[350px]">
-        {/* Imagem do Exercício */}
-        <div className="bg-[#202020] h-[350px] relative rounded-[30px] shrink-0 w-full overflow-hidden">
-          <ImageWithFallback
-            src={exerciseGifUrl || "https://images.unsplash.com/photo-1590150392093-a552544eed09?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxneW0lMjB3ZWlnaHQlMjB0cmFpbmluZ3xlbnwxfHx8fDE3NjA4ODY0NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"}
-            alt="foto do exercicio"
-            className="size-full object-cover"
-          />
+    <div className="bg-[#181818] relative size-full overflow-hidden" data-name="treino">
+      <div className="absolute content-stretch flex flex-col gap-[18px] items-start left-[20px] top-[98px] right-[20px] pb-[100px]">
+        {/* Header */}
+        <div className="content-stretch flex font-['Alexandria:Regular',_sans-serif] font-normal items-center justify-between leading-[normal] relative shrink-0 text-[20px] text-nowrap w-full whitespace-pre">
+          <p className="relative shrink-0 text-white">Hoje</p>
+          <p className="relative shrink-0 text-[#2c2c2c]">{workoutName}</p>
+        </div>
+        
+        {/* Muscle Groups Carousel */}
+        <div className="relative w-full">
+          <div 
+            ref={scrollRef}
+            className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full overflow-x-auto scrollbar-hide touch-pan-x"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            <MuscleGroup label="vector com musculo trabalhado" />
+            <MuscleGroup label="vector com musculo trabalhado" />
+            <MuscleGroup label="vector com musculo trabalhado" />
+            <MuscleGroup label="vector com musculo trabalhado" />
+            <MuscleGroup label="vector com musculo trabalhado" />
+          </div>
         </div>
 
-        {/* Nome do Exercício e Séries */}
-        <div className="content-stretch flex flex-col gap-[15px] items-start relative shrink-0 w-full">
-          <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[16px] text-white w-full">
-            {exerciseName}
-          </p>
-
-          {series.map((serie, index) => (
-            <SeriesCard
-              key={index}
-              seriesNumber={index + 1}
-              repetitions={serie.repetitions}
-              weight={serie.weight}
-              restTime={serie.restTime}
-              status={serie.status}
-              onStart={() => handleStartSeries(index)}
-              onRepetitionsChange={(value) => handleRepetitionsChange(index, value)}
-              onWeightChange={(value) => handleWeightChange(index, value)}
-              onRestTimeChange={(value) => handleRestTimeChange(index, value)}
+        {/* Exercises List */}
+        <div className="content-stretch flex flex-col gap-[10px] items-start relative shrink-0 w-full">
+          {exercises.map((exercise, index) => (
+            <ExerciseCard 
+              key={exercise.id}
+              name={exercise.name}
+              sets={exercise.sets}
+              completed={exercise.completed}
+              improvement={exercise.improvement}
+              onExerciseClick={() => handleExerciseClick(exercise)}
+              defaultExpanded={index === 0}
             />
           ))}
         </div>
 
-        {/* Slide to Complete - Só aparece quando todas as séries estiverem completas */}
-        {allSeriesCompleted && (
-          <div className="w-full mt-[15px]">
-            {saving ? (
-              <div className="w-full bg-[#202020] rounded-full p-4 flex items-center justify-center">
-                <p className="text-white font-['Alexandria:Medium',_sans-serif]">Salvando...</p>
-              </div>
-            ) : (
-              <SlideToComplete onComplete={handleCompleteExercise} />
-            )}
+        {/* Start Workout Button */}
+        <button
+          onClick={handleStartWorkout}
+          className="bg-[#d9d9d9] hover:bg-[#e9e9e9] transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full"
+        >
+          <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
+            <div className="h-[18px] relative shrink-0 w-[15px]" data-name="Vector">
+              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15 18">
+                <path d={svgPaths.p26ee6680} fill="var(--fill-0, #202020)" id="Vector" />
+              </svg>
+            </div>
+            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[#202020] text-[16px] text-nowrap whitespace-pre">iniciar treino</p>
           </div>
-        )}
+        </button>
       </div>
+
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }

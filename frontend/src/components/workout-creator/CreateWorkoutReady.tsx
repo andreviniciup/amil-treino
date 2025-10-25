@@ -15,14 +15,20 @@ export function CreateWorkoutReady() {
       setLoading(true);
       setError(null);
 
-      // Transformar dados do contexto para o formato da API
-      const planData: CreateWorkoutPlanDto = {
-        name: workoutData.nomeTreino || 'Meu Treino',
-        description: `Treino de ${workoutData.tipoTreino || 'Personalizado'}`,
-        frequency: 1, // Pode ser ajustado conforme necessidade
-        trainingTypes: workoutData.tipoTreino ? [workoutData.tipoTreino] : [],
-        workouts: [{
-          dayOfWeek: 'Segunda', // Pode ser ajustado conforme necessidade
+      // Criar um workout para cada dia selecionado
+      const workouts = (workoutData.trainingDays || ['monday']).map(dayKey => {
+        const dayMap: { [key: string]: string } = {
+          'monday': 'Segunda',
+          'tuesday': 'Terça', 
+          'wednesday': 'Quarta',
+          'thursday': 'Quinta',
+          'friday': 'Sexta',
+          'saturday': 'Sábado',
+          'sunday': 'Domingo'
+        };
+
+        return {
+          dayOfWeek: dayMap[dayKey] || 'Segunda',
           trainingType: workoutData.tipoTreino || 'Geral',
           exercises: (workoutData.exercises || []).map((exercise, index) => ({
             exerciseId: exercise.id,
@@ -36,7 +42,16 @@ export function CreateWorkoutReady() {
             equipment: exercise.equipment,
             target: exercise.target
           }))
-        }]
+        };
+      });
+
+      // Transformar dados do contexto para o formato da API
+      const planData: CreateWorkoutPlanDto = {
+        name: workoutData.nomeTreino || 'Meu Treino',
+        description: `Treino de ${workoutData.tipoTreino || 'Personalizado'}`,
+        frequency: workouts.length,
+        trainingTypes: workoutData.tipoTreino ? [workoutData.tipoTreino] : [],
+        workouts: workouts
       };
 
       // Salvar no backend

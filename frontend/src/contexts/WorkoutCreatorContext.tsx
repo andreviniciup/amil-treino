@@ -10,6 +10,7 @@ interface WorkoutData {
   hasWarmup?: boolean;
   reps?: string;
   restTime?: number;
+  trainingDays?: string[];
 }
 
 interface WorkoutCreatorContextType {
@@ -29,6 +30,7 @@ export function WorkoutCreatorProvider({ children }: { children: ReactNode }) {
     tipoTreino: null,
     nomeTreino: null,
     musculos: [],
+    trainingDays: [],
   });
 
   const setTipoTreino = (tipo: string) => {

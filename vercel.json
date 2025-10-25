@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_API_URL": "https://seu-backend.onrender.com",
+    "VITE_ML_SERVICE_URL": "https://seu-ml-service.onrender.com"
+  }
+}

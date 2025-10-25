@@ -78,8 +78,36 @@ class HybridExerciseService {
     try {
       console.log(`🔍 Fetching exercises for body part: ${bodyPart}`);
       
-      // TEMPORÁRIO: Usar apenas API externa para testar mapeamento
-      console.log(`⚠️ Using external API only for testing...`);
+      // Mapear bodyPart do inglês para português
+      const bodyPartMapping: { [key: string]: string } = {
+        'chest': 'peito',
+        'back': 'costas',
+        'shoulders': 'ombros',
+        'arms': 'braços',
+        'legs': 'pernas',
+        'glutes': 'glúteos',
+        'core': 'core',
+        'cardio': 'cardio'
+      };
+      
+      const mappedBodyPart = bodyPartMapping[bodyPart.toLowerCase()] || bodyPart;
+      console.log(`🔄 Mapped ${bodyPart} -> ${mappedBodyPart}`);
+      
+      // 1. Buscar no banco interno primeiro
+      const internalExercises = await prisma.exercise.findMany({
+        where: {
+          bodyPart: mappedBodyPart
+        },
+        orderBy: { name: 'asc' }
+      });
+
+      if (internalExercises.length > 0) {
+        console.log(`✓ Found ${internalExercises.length} exercises for "${bodyPart}" in internal DB`);
+        return this.mapInternalToExternal(internalExercises);
+      }
+
+      // 2. Se não encontrar, buscar na API externa
+      console.log(`⚠️ No exercises for "${bodyPart}" in internal DB, fetching from external APIs...`);
       let externalExercises: ExerciseDBExercise[] = [];
 
       try {
@@ -90,6 +118,9 @@ class HybridExerciseService {
         externalExercises = await wgerService.getExercisesByBodyPart(bodyPart);
         console.log('✓ Using Wger API');
       }
+
+      // 3. Salvar dados da API no banco interno
+      await this.saveExternalExercisesToDB(externalExercises);
 
       console.log(`✓ Found ${externalExercises.length} exercises for ${bodyPart}`);
       return externalExercises;

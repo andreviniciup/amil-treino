@@ -22,6 +22,24 @@ export class WorkoutController {
         });
       }
 
+      // Log detalhado dos exercícios
+      console.log('🔍 Dados recebidos:');
+      console.log('Nome:', planData.name);
+      console.log('Frequência:', planData.frequency);
+      console.log('Workouts:', planData.workouts.length);
+      
+      planData.workouts.forEach((workout: any, workoutIndex: number) => {
+        console.log(`  Workout ${workoutIndex + 1}:`, workout.dayOfWeek, workout.trainingType);
+        workout.exercises.forEach((exercise: any, exerciseIndex: number) => {
+          console.log(`    Exercise ${exerciseIndex + 1}:`, {
+            exerciseId: exercise.exerciseId,
+            exerciseName: exercise.exerciseName,
+            sets: exercise.sets,
+            reps: exercise.reps
+          });
+        });
+      });
+
       // Create plan with workouts and exercises
       const plan = await prisma.workoutPlan.create({
         data: {

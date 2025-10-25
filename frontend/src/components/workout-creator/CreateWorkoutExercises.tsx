@@ -94,7 +94,7 @@ export function CreateWorkoutExercises() {
   const handleNext = () => {
     if (selectedExercises.length > 0) {
       updateWorkoutData({ exercises: selectedExercises });
-      navigate('/workout/create/config');
+      navigate('/workout/create/day');
     }
   };
 

@@ -5,11 +5,11 @@ const basicExercises = [
   // Peito
   {
     name: 'Supino Reto',
-    bodyPart: 'chest',
-    equipment: 'barbell',
+    bodyPart: 'peito',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'pectorals',
-    secondaryMuscles: ['anterior deltoid', 'triceps'],
+    target: 'peitorais',
+    secondaryMuscles: ['deltóide anterior', 'tríceps'],
     instructions: [
       'Deite-se no banco com os pés firmes no chão',
       'Segure a barra com pegada ligeiramente mais larga que os ombros',
@@ -20,11 +20,11 @@ const basicExercises = [
   },
   {
     name: 'Supino Inclinado',
-    bodyPart: 'chest',
-    equipment: 'barbell',
+    bodyPart: 'peito',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'upper chest',
-    secondaryMuscles: ['anterior deltoid', 'triceps'],
+    target: 'peito superior',
+    secondaryMuscles: ['deltóide anterior', 'tríceps'],
     instructions: [
       'Ajuste o banco em 30-45 graus',
       'Deite-se com os pés firmes no chão',
@@ -36,11 +36,11 @@ const basicExercises = [
   },
   {
     name: 'Flexão de Braço',
-    bodyPart: 'chest',
-    equipment: 'body weight',
+    bodyPart: 'peito',
+    equipment: 'peso corporal',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'pectorals',
-    secondaryMuscles: ['anterior deltoid', 'triceps', 'core'],
+    target: 'peitorais',
+    secondaryMuscles: ['deltóide anterior', 'tríceps', 'core'],
     instructions: [
       'Posicione-se em prancha com as mãos ligeiramente mais largas que os ombros',
       'Mantenha o corpo em linha reta',
@@ -53,11 +53,11 @@ const basicExercises = [
   // Costas
   {
     name: 'Puxada Frontal',
-    bodyPart: 'back',
-    equipment: 'cable',
+    bodyPart: 'costas',
+    equipment: 'cabo',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'lats',
-    secondaryMuscles: ['rhomboids', 'middle trapezius', 'biceps'],
+    target: 'latíssimo',
+    secondaryMuscles: ['romboides', 'trapézio médio', 'bíceps'],
     instructions: [
       'Sente-se na máquina com os joelhos fixos',
       'Segure a barra com pegada mais larga que os ombros',
@@ -69,11 +69,11 @@ const basicExercises = [
   },
   {
     name: 'Remada Curvada',
-    bodyPart: 'back',
-    equipment: 'barbell',
+    bodyPart: 'costas',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'rhomboids',
-    secondaryMuscles: ['lats', 'middle trapezius', 'biceps'],
+    target: 'romboides',
+    secondaryMuscles: ['latíssimo', 'trapézio médio', 'bíceps'],
     instructions: [
       'Segure a barra com pegada ligeiramente mais larga que os ombros',
       'Dobre os joelhos e incline o tronco para frente',
@@ -88,11 +88,11 @@ const basicExercises = [
   // Pernas
   {
     name: 'Agachamento',
-    bodyPart: 'upper legs',
-    equipment: 'barbell',
+    bodyPart: 'pernas',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'quadriceps',
-    secondaryMuscles: ['glutes', 'hamstrings', 'calves'],
+    target: 'quadríceps',
+    secondaryMuscles: ['glúteos', 'posteriores', 'panturrilhas'],
     instructions: [
       'Posicione a barra sobre os ombros',
       'Pés na largura dos ombros',
@@ -105,11 +105,11 @@ const basicExercises = [
   },
   {
     name: 'Leg Press',
-    bodyPart: 'upper legs',
-    equipment: 'machine',
+    bodyPart: 'pernas',
+    equipment: 'máquina',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'quadriceps',
-    secondaryMuscles: ['glutes', 'hamstrings'],
+    target: 'quadríceps',
+    secondaryMuscles: ['glúteos', 'posteriores'],
     instructions: [
       'Sente-se na máquina com as costas apoiadas',
       'Posicione os pés na plataforma na largura dos ombros',
@@ -121,11 +121,11 @@ const basicExercises = [
   },
   {
     name: 'Stiff',
-    bodyPart: 'upper legs',
-    equipment: 'barbell',
+    bodyPart: 'pernas',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'hamstrings',
-    secondaryMuscles: ['glutes', 'lower back'],
+    target: 'posteriores',
+    secondaryMuscles: ['glúteos', 'lombar'],
     instructions: [
       'Segure a barra com pegada na largura dos ombros',
       'Mantenha as pernas ligeiramente flexionadas',
@@ -139,11 +139,11 @@ const basicExercises = [
   // Ombros
   {
     name: 'Desenvolvimento',
-    bodyPart: 'shoulders',
-    equipment: 'barbell',
+    bodyPart: 'ombros',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'anterior deltoid',
-    secondaryMuscles: ['lateral deltoid', 'triceps'],
+    target: 'deltóide anterior',
+    secondaryMuscles: ['deltóide lateral', 'tríceps'],
     instructions: [
       'Sente-se no banco com as costas apoiadas',
       'Segure a barra na altura dos ombros',
@@ -155,11 +155,11 @@ const basicExercises = [
   },
   {
     name: 'Elevação Lateral',
-    bodyPart: 'shoulders',
-    equipment: 'dumbbell',
+    bodyPart: 'ombros',
+    equipment: 'halteres',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'lateral deltoid',
-    secondaryMuscles: ['anterior deltoid'],
+    target: 'deltóide lateral',
+    secondaryMuscles: ['deltóide anterior'],
     instructions: [
       'Segure halteres ao lado do corpo',
       'Mantenha os braços ligeiramente flexionados',
@@ -173,11 +173,11 @@ const basicExercises = [
   // Braços
   {
     name: 'Rosca Bíceps',
-    bodyPart: 'upper arms',
-    equipment: 'barbell',
+    bodyPart: 'braços',
+    equipment: 'barra',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'biceps',
-    secondaryMuscles: ['forearms'],
+    target: 'bíceps',
+    secondaryMuscles: ['antebraços'],
     instructions: [
       'Segure a barra com pegada na largura dos ombros',
       'Mantenha os cotovelos próximos ao corpo',
@@ -189,11 +189,11 @@ const basicExercises = [
   },
   {
     name: 'Tríceps Pulley',
-    bodyPart: 'upper arms',
-    equipment: 'cable',
+    bodyPart: 'braços',
+    equipment: 'cabo',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'triceps',
-    secondaryMuscles: ['forearms'],
+    target: 'tríceps',
+    secondaryMuscles: ['antebraços'],
     instructions: [
       'Segure a barra com pegada fechada',
       'Mantenha os cotovelos próximos ao corpo',
@@ -207,11 +207,11 @@ const basicExercises = [
   // Core
   {
     name: 'Prancha',
-    bodyPart: 'waist',
-    equipment: 'body weight',
+    bodyPart: 'core',
+    equipment: 'peso corporal',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
     target: 'core',
-    secondaryMuscles: ['shoulders', 'glutes'],
+    secondaryMuscles: ['ombros', 'glúteos'],
     instructions: [
       'Posicione-se em prancha com antebraços no chão',
       'Mantenha o corpo em linha reta',
@@ -223,11 +223,11 @@ const basicExercises = [
   },
   {
     name: 'Abdominal Crunch',
-    bodyPart: 'waist',
-    equipment: 'body weight',
+    bodyPart: 'core',
+    equipment: 'peso corporal',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'abs',
-    secondaryMuscles: ['obliques'],
+    target: 'abdômen',
+    secondaryMuscles: ['oblíquos'],
     instructions: [
       'Deite-se de costas com joelhos flexionados',
       'Coloque as mãos atrás da cabeça',
@@ -242,10 +242,10 @@ const basicExercises = [
   {
     name: 'Burpee',
     bodyPart: 'cardio',
-    equipment: 'body weight',
+    equipment: 'peso corporal',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'full body',
-    secondaryMuscles: ['chest', 'shoulders', 'legs'],
+    target: 'corpo inteiro',
+    secondaryMuscles: ['peito', 'ombros', 'pernas'],
     instructions: [
       'Comece em pé',
       'Agache e coloque as mãos no chão',
@@ -259,10 +259,10 @@ const basicExercises = [
   {
     name: 'Mountain Climber',
     bodyPart: 'cardio',
-    equipment: 'body weight',
+    equipment: 'peso corporal',
     gifUrl: 'https://v2.exercisedb.io/image/0gJjYH1V-s7iQr',
-    target: 'full body',
-    secondaryMuscles: ['core', 'shoulders', 'legs'],
+    target: 'corpo inteiro',
+    secondaryMuscles: ['core', 'ombros', 'pernas'],
     instructions: [
       'Posicione-se em prancha',
       'Mantenha o core contraído',

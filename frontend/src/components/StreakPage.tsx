@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Streak from '../imports/Streak';
+import { DynamicStreak } from './DynamicStreak';
 import { WorkoutDayPopup } from './WorkoutDayPopup';
 import { workoutApi } from '../services/api';
 
@@ -107,7 +107,7 @@ export function StreakPage() {
           handleDayClick(day);
         }
       }}>
-        <Streak />
+        <DynamicStreak />
       </div>
 
       {selectedDay && workoutDays[selectedDay] && (
