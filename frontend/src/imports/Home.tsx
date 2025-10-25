@@ -88,80 +88,82 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-[#181818] relative size-full overflow-y-auto" data-name="home">
-      {/* Header */}
-      <div className="absolute left-[20px] top-[99px] w-[276px] flex flex-col gap-[6px]">
-        <div className="text-white text-[24px] font-['Alexandria:Medium',_sans-serif] font-medium">
-          Hey, {user?.name || 'Usuário'}!
+    <div className="bg-[#181818] relative w-full min-h-screen flex items-center justify-center overflow-y-auto" data-name="home">
+      {/* Container centralizado */}
+      <div className="w-[393px] max-w-[90vw] py-8 px-5">
+        {/* Header */}
+        <div className="w-full flex flex-col gap-[6px] mb-8">
+          <div className="text-white text-[24px] font-['Alexandria:Medium',_sans-serif] font-medium">
+            Hey, {user?.name || 'Usuário'}!
+          </div>
+          <div className="text-[#2C2C2C] text-[20px] font-['Alexandria:Medium',_sans-serif] font-medium">
+            hoje você tem {todayWorkouts.length} treino{todayWorkouts.length !== 1 ? 's' : ''} planejado{todayWorkouts.length !== 1 ? 's' : ''}!
+          </div>
         </div>
-        <div className="text-[#2C2C2C] text-[20px] font-['Alexandria:Medium',_sans-serif] font-medium">
-          hoje você tem {todayWorkouts.length} treino{todayWorkouts.length !== 1 ? 's' : ''} planejado{todayWorkouts.length !== 1 ? 's' : ''}!
+
+        {/* Seção Hoje */}
+        <div className="text-[#C1C1C1] text-[16px] font-['Alexandria:Medium',_sans-serif] font-medium mb-4">
+          hoje
         </div>
-      </div>
 
-      {/* Seção Hoje */}
-      <div className="absolute left-[20px] top-[451px] text-[#C1C1C1] text-[16px] font-['Alexandria:Medium',_sans-serif] font-medium">
-        hoje
-      </div>
-
-      {/* Cards de Treinos */}
-      <div className="absolute left-[20px] top-[481px] w-[350px] space-y-[10px]">
-        {todayWorkouts.slice(0, 2).map((workout, index) => {
-          const bodyParts = getBodyPartTags(workout);
-          const duration = getWorkoutDuration(workout);
-          const trainingType = workout.workouts?.[0]?.trainingType || 'treino';
-          
-          return (
-            <div
-              key={workout.id}
-              onClick={() => navigate('/treino-id', { state: { workout } })}
-              className="w-[350px] h-[80px] p-[9px_13px] bg-[#2C2C2C] rounded-[20px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#3C3C3C] transition-colors"
-            >
-              <div className="w-[322px] flex flex-col gap-[32px]">
-                <div className="flex justify-between items-center">
-                  <div className="text-white text-[12px] font-['Alexandria:Medium',_sans-serif] font-medium">
-                    {workout.name}
+        {/* Cards de Treinos */}
+        <div className="w-full space-y-[10px]">
+          {todayWorkouts.slice(0, 2).map((workout, index) => {
+            const bodyParts = getBodyPartTags(workout);
+            const duration = getWorkoutDuration(workout);
+            const trainingType = workout.workouts?.[0]?.trainingType || 'treino';
+            
+            return (
+              <div
+                key={workout.id}
+                onClick={() => navigate('/treino-id', { state: { workout } })}
+                className="w-full h-[80px] p-[9px_13px] bg-[#2C2C2C] rounded-[20px] flex flex-col justify-center items-center cursor-pointer hover:bg-[#3C3C3C] transition-colors"
+              >
+                <div className="w-full flex flex-col gap-[32px]">
+                  <div className="flex justify-between items-center">
+                    <div className="text-white text-[12px] font-['Alexandria:Medium',_sans-serif] font-medium">
+                      {workout.name}
+                    </div>
+                    <div className="text-[#646464] text-[12px] font-['Alexandria:Regular',_sans-serif] font-normal">
+                      {trainingType}
+                    </div>
                   </div>
-                  <div className="text-[#646464] text-[12px] font-['Alexandria:Regular',_sans-serif] font-normal">
-                    {trainingType}
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-[5px] items-center">
-                    {bodyParts.slice(0, 2).map((bodyPart, tagIndex) => {
-                      const colors = [
-                        { bg: '#9EDBE7', text: '#1A3835' },
-                        { bg: '#9EE7A4', text: '#1A3821' },
-                        { bg: '#E7D69E', text: '#38301A' }
-                      ];
-                      const color = colors[tagIndex % colors.length];
-                      
-                      return (
-                        <div
-                          key={tagIndex}
-                          className="px-[6px] py-[2px] rounded-[99px] flex justify-center items-center"
-                          style={{ backgroundColor: color.bg }}
-                        >
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-[5px] items-center">
+                      {bodyParts.slice(0, 2).map((bodyPart, tagIndex) => {
+                        const colors = [
+                          { bg: '#9EDBE7', text: '#1A3835' },
+                          { bg: '#9EE7A4', text: '#1A3821' },
+                          { bg: '#E7D69E', text: '#38301A' }
+                        ];
+                        const color = colors[tagIndex % colors.length];
+                        
+                        return (
                           <div
-                            className="text-[8px] font-['Alexandria:Medium',_sans-serif] font-medium"
-                            style={{ color: color.text }}
+                            key={tagIndex}
+                            className="px-[6px] py-[2px] rounded-[99px] flex justify-center items-center"
+                            style={{ backgroundColor: color.bg }}
                           >
-                            {bodyPart}
+                            <div
+                              className="text-[8px] font-['Alexandria:Medium',_sans-serif] font-medium"
+                              style={{ color: color.text }}
+                            >
+                              {bodyPart}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="text-[#CBCBCB] text-[10px] font-['Alexandria:Regular',_sans-serif] font-normal">
-                    {duration} min
+                        );
+                      })}
+                    </div>
+                    <div className="text-[#CBCBCB] text-[10px] font-['Alexandria:Regular',_sans-serif] font-normal">
+                      {duration} min
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-
     </div>
   );
 }
