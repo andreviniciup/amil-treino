@@ -71,39 +71,41 @@ export function MyWorkoutsPage() {
   }
 
   return (
-    <div className="bg-[#181818] relative size-full overflow-y-auto" data-name="my-workouts">
-      {/* Header */}
-      <div className="absolute left-0 right-0 top-0 p-5 bg-[#181818] z-10 border-b border-[#2c2c2c]">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => navigate('/home')}
-            className="text-white text-[24px]"
-          >
-            ←
-          </button>
-          <h1 className="text-white font-['Alexandria:Medium',_sans-serif] text-[20px]">
-            Meus Treinos
-          </h1>
-          <div className="w-6"></div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="absolute left-0 right-0 top-[80px] bottom-[80px] overflow-y-auto px-5 pb-5">
-        {plans.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <p className="text-[#7c7c7c] text-center font-['Alexandria:Regular',_sans-serif] mb-6">
-              Você ainda não tem planos de treino.
-            </p>
+    <div className="bg-[#181818] relative w-full min-h-screen overflow-y-auto" data-name="my-workouts">
+      {/* Container centralizado horizontalmente */}
+      <div className="w-[393px] max-w-[90vw] mx-auto">
+        {/* Header */}
+        <div className="sticky top-0 p-5 bg-[#181818] z-10 border-b border-[#2c2c2c]">
+          <div className="flex items-center justify-between">
             <button
-              onClick={() => navigate('/workout/create/intro')}
-              className="bg-[#d9d9d9] px-8 py-4 rounded-full text-[#202020] font-['Alexandria:Medium',_sans-serif]"
+              onClick={() => navigate('/home')}
+              className="text-white text-[24px]"
             >
-              Criar Primeiro Treino
+              ←
             </button>
+            <h1 className="text-white font-['Alexandria:Medium',_sans-serif] text-[20px]">
+              Meus Treinos
+            </h1>
+            <div className="w-6"></div>
           </div>
-        ) : (
-          <div className="space-y-4">
+        </div>
+
+        {/* Content */}
+        <div className="px-5 py-5">
+          {plans.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[60vh]">
+              <p className="text-[#7c7c7c] text-center font-['Alexandria:Regular',_sans-serif] mb-6">
+                Você ainda não tem planos de treino.
+              </p>
+              <button
+                onClick={() => navigate('/workout/create/intro')}
+                className="bg-[#d9d9d9] px-8 py-4 rounded-full text-[#202020] font-['Alexandria:Medium',_sans-serif]"
+              >
+                Criar Primeiro Treino
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
             {plans.map((plan) => (
               <div
                 key={plan.id}
@@ -172,6 +174,7 @@ export function MyWorkoutsPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

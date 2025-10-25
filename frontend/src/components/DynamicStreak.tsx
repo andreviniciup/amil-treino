@@ -167,9 +167,10 @@ export function DynamicStreak() {
   const allMonths = generateAllMonths();
 
   return (
-    <div className="bg-[#181818] relative h-full w-full overflow-y-auto" data-name="streak">
-      <div className="content-stretch flex flex-col gap-[10px] items-center left-[19px] top-[50px] w-[353px] pb-[100px]">
-        <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[14px] text-center text-white w-full">calendario</p>
+    <div className="bg-[#181818] relative min-h-screen w-full overflow-y-auto" data-name="streak">
+      {/* Container centralizado horizontalmente */}
+      <div className="w-[393px] max-w-[90vw] mx-auto py-8 px-5">
+        <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[14px] text-center text-white w-full mb-6">calendario</p>
         
         {/* Todos os meses do ano */}
         <div className="space-y-8">
