@@ -18,7 +18,7 @@ dev.db
 dev.db-journal
 
 # Prisma
-prisma/migrations/
+# prisma/migrations/ - COMENTADO: precisamos das migrations no Git para deploy
 
 # Logs
 logs/
