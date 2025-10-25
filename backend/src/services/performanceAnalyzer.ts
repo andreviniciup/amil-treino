@@ -308,7 +308,7 @@ export class PerformanceAnalyzer {
     
     return milestones;
   }
-  */
+  
 }
 
 export default new PerformanceAnalyzer();

@@ -226,7 +226,6 @@ export class MLApiService {
       return false;
     }
   }
-  */
 }
 
 export default new MLApiService();
