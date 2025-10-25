@@ -78,29 +78,58 @@ export function LoginPage() {
   };
 
   return (
-    <div className="bg-[#288b9f] relative size-full" data-name="login">
-      <p className="absolute font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] left-[calc(20%+113px)] text-[32px] text-center text-nowrap text-white top-[282px] translate-x-[-50%] whitespace-pre">entrar</p>
-      <Frame77 />
-      <Frame107 onClick={handleSubmit} />
-      <InputFormsOverboarding 
-        label="email" 
-        value={email}
-        onChange={setEmail}
-        type="email"
-        top="331px"
-      />
-      <InputFormsOverboarding 
-        label="senha" 
-        value={senha}
-        onChange={setSenha}
-        type="password"
-        top="406px"
-      />
-      {error && (
-        <div className="absolute left-[20px] top-[510px] w-[354px]">
-          <p className="font-['Alexandria:Regular',_sans-serif] text-[#ff6b6b] text-[12px]">{error}</p>
+    <div className="bg-[#288b9f] relative w-full min-h-screen flex items-center justify-center overflow-hidden" data-name="login">
+      {/* Container centralizado */}
+      <div className="relative w-[393px] max-w-[90vw] h-auto flex flex-col items-center justify-center py-8">
+        
+        {/* Título */}
+        <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[32px] text-center text-white mb-6">entrar</p>
+        
+        {/* Inputs */}
+        <div className="w-full space-y-6 px-5">
+          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
+            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">email</p>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+            />
+          </div>
+          
+          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
+            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">senha</p>
+            <input
+              type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+            />
+          </div>
+          
+          {error && (
+            <div className="w-full">
+              <p className="font-['Alexandria:Regular',_sans-serif] text-[#ff6b6b] text-[12px]">{error}</p>
+            </div>
+          )}
         </div>
-      )}
+        
+        {/* Termos */}
+        <div className="content-stretch flex gap-[10px] items-center justify-center mt-6">
+          <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[10px] text-center text-neutral-200 max-w-[200px]">
+            <span>{`Criando uma conta, você concorda com todos os nossos `}</span>
+            <span className="[text-underline-position:from-font] decoration-solid underline">termos e condições</span>.
+          </p>
+        </div>
+        
+        {/* Botão */}
+        <button 
+          onClick={handleSubmit}
+          className="bg-[#1c1c1c] box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] cursor-pointer hover:bg-[#2c2c2c] transition-colors mt-8"
+        >
+          <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">entrar</p>
+        </button>
+      </div>
     </div>
   );
 }
