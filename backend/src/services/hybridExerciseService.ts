@@ -276,32 +276,40 @@ class HybridExerciseService {
         });
 
         if (existing) {
-          // Atualizar se já existe
-          await prisma.exercise.update({
-            where: { id: existing.id },
-            data: {
-              name: exercise.name,
-              bodyPart: exercise.bodyPart,
-              equipment: exercise.equipment,
-              gifUrl: exercise.gifUrl,
-              target: exercise.target,
-              secondaryMuscles: JSON.stringify(exercise.secondaryMuscles),
-              instructions: JSON.stringify(exercise.instructions),
-              updatedAt: new Date()
-            }
-          });
+          // Atualizar se já existe (e tem name válido)
+          if (exercise.name && exercise.name.trim() !== '') {
+            await prisma.exercise.update({
+              where: { id: existing.id },
+              data: {
+                name: exercise.name.trim(),
+                bodyPart: exercise.bodyPart || existing.bodyPart,
+                equipment: exercise.equipment || existing.equipment,
+                gifUrl: exercise.gifUrl || existing.gifUrl,
+                target: exercise.target || existing.target,
+                secondaryMuscles: JSON.stringify(exercise.secondaryMuscles || []),
+                instructions: JSON.stringify(exercise.instructions || []),
+                updatedAt: new Date()
+              }
+            });
+          }
         } else {
           // Criar novo se não existe
+          // Validar que name não está vazio
+          if (!exercise.name || exercise.name.trim() === '') {
+            console.warn(`⚠️ Skipping exercise ${exercise.id} - missing name`);
+            continue;
+          }
+
           await prisma.exercise.create({
             data: {
               externalId: exercise.id,
-              name: exercise.name,
-              bodyPart: exercise.bodyPart,
-              equipment: exercise.equipment,
-              gifUrl: exercise.gifUrl,
-              target: exercise.target,
-              secondaryMuscles: JSON.stringify(exercise.secondaryMuscles),
-              instructions: JSON.stringify(exercise.instructions),
+              name: exercise.name.trim(),
+              bodyPart: exercise.bodyPart || 'unknown',
+              equipment: exercise.equipment || 'bodyweight',
+              gifUrl: exercise.gifUrl || 'https://via.placeholder.com/300x300?text=Exercise',
+              target: exercise.target || '',
+              secondaryMuscles: JSON.stringify(exercise.secondaryMuscles || []),
+              instructions: JSON.stringify(exercise.instructions || []),
               source: 'exercisedb'
             }
           });

@@ -41,16 +41,18 @@ class WgerService {
       // Buscar exercícios com imagens
       const response = await this.makeRequest('/exercise/?language=2&status=2&limit=100');
       
-      const exercises: ExerciseDBExercise[] = response.results.map((ex: any) => ({
-        id: ex.id.toString(),
-        name: ex.name,
-        bodyPart: this.mapBodyPart(ex.category),
-        equipment: ex.equipment.map((eq: any) => eq.name).join(', '),
-        gifUrl: ex.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=Exercise',
-        target: ex.muscles.map((muscle: any) => muscle.name).join(', '),
-        secondaryMuscles: ex.muscles_secondary?.map((muscle: any) => muscle.name) || [],
-        instructions: ex.description ? [ex.description] : []
-      }));
+      const exercises: ExerciseDBExercise[] = response.results
+        .filter((ex: any) => ex.name && ex.name.trim() !== '') // Filtrar exercícios sem nome
+        .map((ex: any) => ({
+          id: ex.id.toString(),
+          name: ex.name.trim(),
+          bodyPart: this.mapBodyPart(ex.category),
+          equipment: ex.equipment?.map((eq: any) => eq.name).join(', ') || '',
+          gifUrl: ex.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=Exercise',
+          target: ex.muscles?.map((muscle: any) => muscle.name).join(', ') || '',
+          secondaryMuscles: ex.muscles_secondary?.map((muscle: any) => muscle.name) || [],
+          instructions: ex.description ? [ex.description] : []
+        }));
 
       cache.set(cacheKey, exercises);
       console.log(`✓ Fetched ${exercises.length} exercises from Wger`);
@@ -76,16 +78,18 @@ class WgerService {
       const categoryId = this.getCategoryId(bodyPart);
       const response = await this.makeRequest(`/exercise/?language=2&status=2&category=${categoryId}&limit=50`);
       
-      const exercises: ExerciseDBExercise[] = response.results.map((ex: any) => ({
-        id: ex.id.toString(),
-        name: ex.name,
-        bodyPart: this.mapBodyPart(ex.category),
-        equipment: ex.equipment.map((eq: any) => eq.name).join(', '),
-        gifUrl: ex.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=Exercise',
-        target: ex.muscles.map((muscle: any) => muscle.name).join(', '),
-        secondaryMuscles: ex.muscles_secondary?.map((muscle: any) => muscle.name) || [],
-        instructions: ex.description ? [ex.description] : []
-      }));
+      const exercises: ExerciseDBExercise[] = response.results
+        .filter((ex: any) => ex.name && ex.name.trim() !== '') // Filtrar exercícios sem nome
+        .map((ex: any) => ({
+          id: ex.id.toString(),
+          name: ex.name.trim(),
+          bodyPart: this.mapBodyPart(ex.category),
+          equipment: ex.equipment?.map((eq: any) => eq.name).join(', ') || '',
+          gifUrl: ex.images?.[0]?.image || 'https://via.placeholder.com/300x300?text=Exercise',
+          target: ex.muscles?.map((muscle: any) => muscle.name).join(', ') || '',
+          secondaryMuscles: ex.muscles_secondary?.map((muscle: any) => muscle.name) || [],
+          instructions: ex.description ? [ex.description] : []
+        }));
 
       cache.set(cacheKey, exercises);
       console.log(`✓ Fetched ${exercises.length} exercises for ${bodyPart} from Wger`);
