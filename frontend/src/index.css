@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 /* Custom styles for the app */
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -12,19 +17,24 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f9fafb;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Container principal sempre centralizado */
+/* Container principal SEMPRE centralizado */
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Utilitários personalizados */

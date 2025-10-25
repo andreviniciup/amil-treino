@@ -2,32 +2,41 @@ import React from 'react';
 
 interface CenteredLayoutProps {
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   className?: string;
   noPadding?: boolean;
+  bgColor?: string;
 }
 
 /**
  * Layout centralizado para todas as páginas
- * Garante que o conteúdo sempre fique no centro e responsivo
+ * Garante que o conteúdo sempre fique no centro e 100% responsivo
  */
 export const CenteredLayout: React.FC<CenteredLayoutProps> = ({ 
   children, 
   maxWidth = 'md',
   className = '',
-  noPadding = false
+  noPadding = false,
+  bgColor = ''
 }) => {
   const maxWidthClasses = {
-    sm: 'max-w-sm',   // 384px
-    md: 'max-w-md',   // 448px
-    lg: 'max-w-lg',   // 512px
-    xl: 'max-w-xl',   // 576px
+    xs: 'max-w-xs',   // 320px - muito pequeno, ideal para modais
+    sm: 'max-w-sm',   // 384px - mobile pequeno
+    md: 'max-w-md',   // 448px - mobile padrão
+    lg: 'max-w-lg',   // 512px - mobile grande/tablet pequeno
+    xl: 'max-w-xl',   // 576px - tablet
+    '2xl': 'max-w-2xl', // 672px - tablet grande
     full: 'max-w-full'
   };
 
   return (
-    <div className={`min-h-screen w-full flex flex-col items-center ${className}`}>
-      <div className={`w-full ${maxWidthClasses[maxWidth]} ${!noPadding ? 'px-4 py-6' : ''}`}>
+    <div className={`min-h-screen w-full flex flex-col items-center justify-start ${bgColor} ${className}`}>
+      <div className={`
+        w-full 
+        ${maxWidthClasses[maxWidth]} 
+        ${!noPadding ? 'px-4 sm:px-6 py-4 sm:py-6' : ''} 
+        flex flex-col items-center
+      `}>
         {children}
       </div>
     </div>
@@ -38,14 +47,17 @@ interface PageContainerProps {
   children: React.ReactNode;
   title?: string;
   subtitle?: string;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   className?: string;
   showBackButton?: boolean;
   onBack?: () => void;
+  bgColor?: string;
+  centerContent?: boolean;
 }
 
 /**
  * Container de página com título e subtítulo
+ * SEMPRE centralizado e responsivo
  */
 export const PageContainer: React.FC<PageContainerProps> = ({
   children,
@@ -54,40 +66,44 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   maxWidth = 'md',
   className = '',
   showBackButton = false,
-  onBack
+  onBack,
+  bgColor = 'bg-gray-50',
+  centerContent = false
 }) => {
   return (
-    <CenteredLayout maxWidth={maxWidth} className={className}>
-      {(title || showBackButton) && (
-        <div className="mb-6">
-          {showBackButton && (
-            <button
-              onClick={onBack}
-              className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Voltar
-            </button>
-          )}
-          
-          {title && (
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
-              {title}
-            </h1>
-          )}
-          
-          {subtitle && (
-            <p className="text-gray-600 text-center">
-              {subtitle}
-            </p>
-          )}
-        </div>
-      )}
-      
+    <CenteredLayout maxWidth={maxWidth} className={className} bgColor={bgColor}>
       <div className="w-full">
-        {children}
+        {(title || showBackButton) && (
+          <div className="mb-6 w-full">
+            {showBackButton && (
+              <button
+                onClick={onBack}
+                className="mb-4 flex items-center text-gray-600 hover:text-gray-900 transition-colors group"
+              >
+                <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Voltar
+              </button>
+            )}
+            
+            {title && (
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 text-center px-2">
+                {title}
+              </h1>
+            )}
+            
+            {subtitle && (
+              <p className="text-sm sm:text-base text-gray-600 text-center px-4">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        )}
+        
+        <div className={`w-full ${centerContent ? 'flex flex-col items-center' : ''}`}>
+          {children}
+        </div>
       </div>
     </CenteredLayout>
   );
@@ -102,6 +118,7 @@ interface CardProps {
 
 /**
  * Card padronizado para conteúdo
+ * 100% responsivo com padding adaptativo
  */
 export const Card: React.FC<CardProps> = ({ 
   children, 
@@ -109,11 +126,19 @@ export const Card: React.FC<CardProps> = ({
   onClick,
   hover = false
 }) => {
-  const hoverClass = hover ? 'hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer' : '';
+  const hoverClass = hover ? 'hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer' : '';
   
   return (
     <div 
-      className={`bg-white rounded-2xl shadow-md p-6 ${hoverClass} ${className}`}
+      className={`
+        bg-white 
+        rounded-xl sm:rounded-2xl 
+        shadow-md 
+        p-4 sm:p-5 md:p-6 
+        w-full
+        ${hoverClass} 
+        ${className}
+      `}
       onClick={onClick}
     >
       {children}
