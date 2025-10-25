@@ -84,10 +84,10 @@ function Frame108({ onClick }: Frame108Props) {
     <button 
       id="btn-entrar"
       onClick={handleClick}
-      className="absolute bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 
+      className="absolute bg-[rgba(187,187,187,0.73)] hover:bg-[rgba(187,187,187,0.85)] 
                  box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
                  left-1/2 -translate-x-1/2 px-[129px] py-[13px] rounded-[999px] bottom-[150px] w-[353px] max-w-[90vw]
-                 cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl"
+                 cursor-pointer transition-colors"
     >
       <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[20px] text-nowrap text-white whitespace-pre">entrar</p>
     </button>
@@ -112,10 +112,10 @@ function Frame109({ onClick }: Frame109Props) {
     <button 
       id="btn-criar"
       onClick={handleClick}
-      className="absolute bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 
+      className="absolute bg-[rgba(187,187,187,0.73)] hover:bg-[rgba(187,187,187,0.85)] 
                  box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
                  left-1/2 -translate-x-1/2 px-[129px] py-[13px] rounded-[999px] bottom-[220px] w-[353px] max-w-[90vw]
-                 cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl"
+                 cursor-pointer transition-colors"
     >
       <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[20px] text-nowrap text-white whitespace-pre">criar conta</p>
     </button>
