@@ -11,8 +11,64 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f9fafb;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Container principal sempre centralizado */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Utilitários personalizados */
+@layer utilities {
+  .center-content {
+    @apply flex items-center justify-center;
+  }
+  
+  .center-x {
+    @apply mx-auto;
+  }
+  
+  .center-y {
+    @apply my-auto;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Componentes personalizados */
+@layer components {
+  .app-container {
+    @apply w-full max-w-md mx-auto px-4;
+  }
+  
+  .page-wrapper {
+    @apply min-h-screen w-full flex flex-col items-center bg-gray-50;
+  }
+  
+  .content-center {
+    @apply w-full max-w-md mx-auto;
+  }
+  
+  .card-base {
+    @apply bg-white rounded-2xl shadow-md p-6;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-700 transition-all shadow-md;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 font-semibold px-6 py-3 rounded-xl hover:bg-gray-300 transition-all;
+  }
 }
