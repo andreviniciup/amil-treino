@@ -84,9 +84,9 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="bg-[#288b9f] relative w-full min-h-screen flex items-center justify-center overflow-hidden" data-name="registro">
-      {/* Container centralizado */}
-      <div className="relative w-[393px] max-w-[90vw] h-auto flex flex-col items-center justify-center py-8">
+    <div className="bg-[#288b9f] relative w-full min-h-screen overflow-y-auto" data-name="registro">
+      {/* Container centralizado horizontalmente */}
+      <div className="relative w-[393px] max-w-[90vw] h-auto mx-auto py-8">
         
         {/* Título */}
         <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[32px] text-center text-white mb-6">Crie sua conta!</p>

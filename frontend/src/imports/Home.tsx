@@ -88,9 +88,9 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-[#181818] relative w-full min-h-screen flex items-center justify-center overflow-y-auto" data-name="home">
-      {/* Container centralizado */}
-      <div className="w-[393px] max-w-[90vw] py-8 px-5">
+    <div className="bg-[#181818] relative w-full min-h-screen overflow-y-auto" data-name="home">
+      {/* Container centralizado horizontalmente */}
+      <div className="w-[393px] max-w-[90vw] mx-auto py-8 px-5">
         {/* Header */}
         <div className="w-full flex flex-col gap-[6px] mb-8">
           <div className="text-white text-[24px] font-['Alexandria:Medium',_sans-serif] font-medium">

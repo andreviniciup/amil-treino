@@ -129,7 +129,7 @@ interface LandingPageProps {
 
 export function LandingPage({ onLogin, onRegister }: LandingPageProps) {
   return (
-    <div className="bg-[#181818] relative w-full min-h-screen flex items-center justify-center overflow-hidden" data-name="ladingpage/inicio">
+    <div className="bg-[#181818] relative w-full min-h-screen overflow-y-auto overflow-x-hidden" data-name="ladingpage/inicio">
       <MaskGroup />
       
       {/* Adicionando CSS da animação inline */}
@@ -153,14 +153,51 @@ export function LandingPage({ onLogin, onRegister }: LandingPageProps) {
         }
       `}</style>
       
-      <Frame108 onClick={onLogin} />
-      <Frame109 onClick={onRegister} />
-      
-      {/* Texto alinhado à esquerda dos botões */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-[300px] w-[353px] max-w-[90vw]">
-        <p className="font-['Alexandria:Medium',_sans-serif] font-medium text-[16px] text-left text-white leading-relaxed">
-          Transforme seu corpo, supere seus limites e alcance seus objetivos com treinos personalizados.
-        </p>
+      {/* Container centralizado horizontalmente */}
+      <div className="relative w-[393px] max-w-[90vw] h-auto mx-auto min-h-screen flex flex-col items-center justify-center py-8">
+        {/* Texto alinhado à esquerda dos botões */}
+        <div className="w-full px-5 mb-6">
+          <p className="font-['Alexandria:Medium',_sans-serif] font-medium text-[16px] text-left text-white leading-relaxed">
+            Transforme seu corpo, supere seus limites e alcance seus objetivos com treinos personalizados.
+          </p>
+        </div>
+        
+        {/* Botões */}
+        <div className="w-full px-5 space-y-4">
+          <button
+            id="btn-criar"
+            onClick={() => {
+              const button = document.getElementById('btn-criar');
+              if (button) {
+                button.classList.add('animate-expand-exit');
+                setTimeout(() => onRegister(), 600);
+              }
+            }}
+            className="bg-[rgba(187,187,187,0.73)] hover:bg-[rgba(187,187,187,0.85)] 
+                       box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
+                       px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] mx-auto
+                       cursor-pointer transition-colors"
+          >
+            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">criar conta</p>
+          </button>
+          
+          <button
+            id="btn-entrar"
+            onClick={() => {
+              const button = document.getElementById('btn-entrar');
+              if (button) {
+                button.classList.add('animate-expand-exit');
+                setTimeout(() => onLogin(), 600);
+              }
+            }}
+            className="bg-[rgba(187,187,187,0.73)] hover:bg-[rgba(187,187,187,0.85)] 
+                       box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
+                       px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] mx-auto
+                       cursor-pointer transition-colors"
+          >
+            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">entrar</p>
+          </button>
+        </div>
       </div>
     </div>
   );
