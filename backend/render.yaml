@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: treino-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: treino-db
+          property: connectionString
+      - key: JWT_SECRET
+        value: "SUBSTITUA_PELO_SEU_JWT_SECRET_AQUI"
+      - key: ML_SERVICE_URL
+        value: "SUBSTITUA_PELA_URL_DO_ML_SERVICE_AQUI"
+      - key: FRONTEND_URL
+        value: "https://frontend-2t7iujpqn-andreviniciups-projects.vercel.app"
+      - key: RAPIDAPI_KEY
+        value: "2206ac6aa5msh83d4d102127c2cbp1311dajsnf515e6c2463a"
+      - key: RAPIDAPI_HOST
+        value: "exercisedb.p.rapidapi.com"
+      - key: RAPIDAPI_BASE_URL
+        value: "https://exercisedb.p.rapidapi.com"
+      - key: EXERCISEDB_EXERCISES_URL
+        value: "https://exercisedb.p.rapidapi.com/exercises"
+      - key: EXERCISEDB_TARGET_LIST_URL
+        value: "https://exercisedb.p.rapidapi.com/exercises/targetList"
+      - key: EXERCISEDB_BODYPART_LIST_URL
+        value: "https://exercisedb.p.rapidapi.com/exercises/bodyPartList"
+      - key: EXERCISEDB_EQUIPMENT_LIST_URL
+        value: "https://exercisedb.p.rapidapi.com/exercises/equipmentList"
+      - key: WGER_BASE_URL
+        value: "https://wger.de/api/v2"
+
+databases:
+  - name: treino-db
+    plan: free
