@@ -71,12 +71,23 @@ interface Frame108Props {
 }
 
 function Frame108({ onClick }: Frame108Props) {
+  const handleClick = () => {
+    // Animação de expansão
+    const button = document.getElementById('btn-entrar');
+    if (button) {
+      button.classList.add('animate-expand-exit');
+      setTimeout(() => onClick(), 600);
+    }
+  };
+
   return (
     <button 
-      onClick={onClick}
-      className="absolute bg-[rgba(187,187,187,0.73)] box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
+      id="btn-entrar"
+      onClick={handleClick}
+      className="absolute bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 
+                 box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
                  left-1/2 -translate-x-1/2 px-[129px] py-[13px] rounded-[999px] bottom-[150px] w-[353px] max-w-[90vw]
-                 cursor-pointer hover:bg-[rgba(187,187,187,0.85)] transition-colors"
+                 cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl"
     >
       <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[20px] text-nowrap text-white whitespace-pre">entrar</p>
     </button>
@@ -88,12 +99,23 @@ interface Frame109Props {
 }
 
 function Frame109({ onClick }: Frame109Props) {
+  const handleClick = () => {
+    // Animação de expansão
+    const button = document.getElementById('btn-criar');
+    if (button) {
+      button.classList.add('animate-expand-exit');
+      setTimeout(() => onClick(), 600);
+    }
+  };
+
   return (
     <button 
-      onClick={onClick}
-      className="absolute bg-[rgba(187,187,187,0.73)] box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
+      id="btn-criar"
+      onClick={handleClick}
+      className="absolute bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 
+                 box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
                  left-1/2 -translate-x-1/2 px-[129px] py-[13px] rounded-[999px] bottom-[220px] w-[353px] max-w-[90vw]
-                 cursor-pointer hover:bg-[rgba(187,187,187,0.85)] transition-colors"
+                 cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl"
     >
       <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[20px] text-nowrap text-white whitespace-pre">criar conta</p>
     </button>
@@ -107,14 +129,39 @@ interface LandingPageProps {
 
 export function LandingPage({ onLogin, onRegister }: LandingPageProps) {
   return (
-    <div className="bg-[#181818] relative w-full min-h-screen flex items-center justify-center" data-name="ladingpage/inicio">
+    <div className="bg-[#181818] relative w-full min-h-screen flex items-center justify-center overflow-hidden" data-name="ladingpage/inicio">
       <MaskGroup />
+      
+      {/* Adicionando CSS da animação inline */}
+      <style>{`
+        @keyframes expand-exit {
+          0% {
+            transform: translate(-50%, 0) scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: translate(-50%, 0) scale(1.5);
+            opacity: 0.5;
+          }
+          100% {
+            transform: translate(-50%, 0) scale(10);
+            opacity: 0;
+          }
+        }
+        .animate-expand-exit {
+          animation: expand-exit 0.6s ease-out forwards;
+        }
+      `}</style>
+      
       <Frame108 onClick={onLogin} />
       <Frame109 onClick={onRegister} />
-      <p className="absolute font-['Alexandria:Medium',_sans-serif] font-medium h-[90px] leading-[normal] 
-                    left-1/2 -translate-x-1/2 text-[16px] text-center text-white bottom-[300px] w-[225px]">
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      </p>
+      
+      {/* Texto alinhado à esquerda dos botões */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[300px] w-[353px] max-w-[90vw]">
+        <p className="font-['Alexandria:Medium',_sans-serif] font-medium text-[16px] text-left text-white leading-relaxed">
+          Transforme seu corpo, supere seus limites e alcance seus objetivos com treinos personalizados.
+        </p>
+      </div>
     </div>
   );
 }
