@@ -76,17 +76,17 @@ export function MyWorkoutsPage() {
       <div className="w-[393px] max-w-[90vw] mx-auto">
         {/* Header */}
         <div className="sticky top-0 p-5 bg-[#181818] z-10 border-b border-[#2c2c2c]">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <button
               onClick={() => navigate('/home')}
-              className="text-white text-[24px]"
+              className="text-white text-[24px] shrink-0"
             >
               ←
             </button>
-            <h1 className="text-white font-['Alexandria:Medium',_sans-serif] text-[20px]">
+            <h1 className="text-white font-['Alexandria:Medium',_sans-serif] text-[20px] flex-1 text-center">
               Meus Treinos
             </h1>
-            <div className="w-6"></div>
+            <div className="w-[24px] shrink-0"></div>
           </div>
         </div>
 
