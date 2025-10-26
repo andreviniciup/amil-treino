@@ -23,12 +23,11 @@ export function CreateWorkoutExercises() {
         let fetchedExercises: ExerciseDB[] = [];
         
         if (workoutData.musculos && workoutData.musculos.length > 0) {
-          // Mapear músculos do português para inglês
-          const englishMuscles = MuscleMappingUtil.mapArrayPortugueseToEnglish(workoutData.musculos);
-          console.log('🔄 Mapeamento PT->EN:', workoutData.musculos, '->', englishMuscles);
+          // Backend agora retorna dados em português, buscar diretamente
+          console.log('� Buscando exercícios para:', workoutData.musculos);
           
-          // Buscar exercícios por grupo muscular
-          const exercisePromises = englishMuscles.map(muscle => 
+          // Buscar exercícios por grupo muscular (agora em português)
+          const exercisePromises = workoutData.musculos.map(muscle => 
             exerciseApi.getByBodyPart(muscle)
           );
           const results = await Promise.all(exercisePromises);
@@ -43,6 +42,9 @@ export function CreateWorkoutExercises() {
         
         // Exercícios já vêm traduzidos do backend
         setExercises(fetchedExercises);
+        
+        console.log('✅ Exercícios carregados:', fetchedExercises.length);
+        console.log('🖼️ Primeiro exercício:', fetchedExercises[0]);
       } catch (err) {
         console.error('Erro ao carregar exercícios:', err);
         setError('Erro ao carregar exercícios. Tente novamente.');
