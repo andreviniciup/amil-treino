@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import hybridExerciseService from '../services/hybridExerciseService';
+import databaseExerciseService from '../services/databaseExerciseService';
 
 export class ExerciseController {
   async getAll(_req: Request, res: Response) {
     try {
-      const exercises = await hybridExerciseService.getAllExercises();
+      const exercises = await databaseExerciseService.getAllExercises();
 
       res.json({
         success: true,
@@ -23,7 +23,7 @@ export class ExerciseController {
   async getByBodyPart(req: Request, res: Response) {
     try {
       const { bodyPart } = req.params;
-      const exercises = await hybridExerciseService.getExercisesByBodyPart(bodyPart);
+      const exercises = await databaseExerciseService.getExercisesByBodyPart(bodyPart);
       
       res.json({
         success: true,
@@ -42,7 +42,7 @@ export class ExerciseController {
   async getByCategory(req: Request, res: Response) {
     try {
       const { category } = req.params;
-      const exercises = await hybridExerciseService.getExercisesByCategory(category);
+      const exercises = await databaseExerciseService.getExercisesByEquipment(category);
       
       res.json({
         success: true,
@@ -61,7 +61,7 @@ export class ExerciseController {
   async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const exercise = await hybridExerciseService.getExerciseById(id);
+      const exercise = await databaseExerciseService.getExerciseById(id);
       
       res.json({
         success: true,
@@ -87,7 +87,7 @@ export class ExerciseController {
         });
       }
 
-      const exercises = await hybridExerciseService.searchExercises(q);
+      const exercises = await databaseExerciseService.searchExercises(q);
       
       res.json({
         success: true,
@@ -105,10 +105,10 @@ export class ExerciseController {
 
   async clearCache(_req: Request, res: Response) {
     try {
-      await hybridExerciseService.clearInternalCache();
+      // Não há cache para limpar quando usamos banco direto
       res.json({
         success: true,
-        message: 'Internal exercise cache cleared successfully'
+        message: 'Using direct database queries - no cache to clear'
       });
     } catch (error) {
       console.error('Error in clearCache:', error);
@@ -121,11 +121,10 @@ export class ExerciseController {
 
   async updateImages(_req: Request, res: Response) {
     try {
-      const result = await hybridExerciseService.updateExerciseImages();
+      // As imagens já vêm da API ao fazer o seed
       res.json({
         success: true,
-        message: 'Exercise images update completed',
-        data: result
+        message: 'Images are synced during seed process'
       });
     } catch (error) {
       console.error('Error in updateImages:', error);
@@ -138,15 +137,10 @@ export class ExerciseController {
 
   async getStats(_req: Request, res: Response) {
     try {
-      // Versão simplificada para debug
+      const stats = await databaseExerciseService.getStats();
       res.json({
         success: true,
-        data: {
-          totalExercises: 0,
-          bySource: [],
-          byBodyPart: [],
-          message: "Stats endpoint working - full implementation pending"
-        }
+        data: stats
       });
     } catch (error) {
       console.error('Error in getStats:', error);

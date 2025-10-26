@@ -10,7 +10,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "seed:exercises": "ts-node src/scripts/seedExercises.ts"
+    "seed:exercises": "ts-node src/scripts/seedExercises.ts",
+    "seed:exercises:api": "ts-node src/scripts/seedExercisesFromAPI.ts"
   },
   "keywords": [
     "treino",

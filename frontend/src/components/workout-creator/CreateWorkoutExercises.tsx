@@ -9,11 +9,9 @@ export function CreateWorkoutExercises() {
   const navigate = useNavigate();
   const { workoutData, updateWorkoutData } = useWorkoutCreator();
   const [exercises, setExercises] = useState([] as ExerciseDB[]);
-  const [allExercises, setAllExercises] = useState([] as ExerciseDB[]);
   const [selectedExercises, setSelectedExercises] = useState(workoutData.exercises || [] as ExerciseDB[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null as string | null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Carregar exercícios da API baseado nos músculos selecionados
   useEffect(() => {
@@ -43,8 +41,8 @@ export function CreateWorkoutExercises() {
           fetchedExercises = await exerciseApi.getAll();
         }
         
+        // Exercícios já vêm traduzidos do backend
         setExercises(fetchedExercises);
-        setAllExercises(fetchedExercises);
       } catch (err) {
         console.error('Erro ao carregar exercícios:', err);
         setError('Erro ao carregar exercícios. Tente novamente.');
@@ -55,30 +53,6 @@ export function CreateWorkoutExercises() {
 
     loadExercises();
   }, [workoutData.musculos]);
-
-  // Implementar busca com debounce
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setExercises(allExercises);
-      return;
-    }
-
-    const searchTimeout = setTimeout(async () => {
-      try {
-        const searchResults = await exerciseApi.search(searchQuery);
-        setExercises(searchResults);
-      } catch (err) {
-        console.error('Erro ao buscar exercícios:', err);
-        // Fallback para busca local
-        const filtered = allExercises.filter(ex => 
-          ex.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setExercises(filtered);
-      }
-    }, 500);
-
-    return () => clearTimeout(searchTimeout);
-  }, [searchQuery, allExercises]);
 
   const toggleExercise = (exercise: ExerciseDB) => {
     setSelectedExercises(prev => {
@@ -132,19 +106,7 @@ export function CreateWorkoutExercises() {
         Escolha os exercícios
       </p>
 
-      {/* Barra de Busca */}
-      <div className="absolute left-[20px] right-[20px] top-[60px]">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Buscar exercícios..."
-          className="w-full h-[40px] bg-[rgba(60,60,60,0.50)] rounded-[999px] border-none text-white text-[14px] font-['Alexandria:Regular',_sans-serif] pl-[20px] pr-[20px] outline-none placeholder-[#7c7c7c]"
-        />
-      </div>
-
-      <div className="absolute left-[20px] right-[20px] top-[110px] pb-[100px]">
-        {exercises.length === 0 ? (
+      <div className="absolute left-[20px] right-[20px] top-[70px] pb-[100px]">{exercises.length === 0 ? (
           <p className="text-white text-center mt-10">
             Nenhum exercício encontrado para os grupos musculares selecionados.
           </p>
