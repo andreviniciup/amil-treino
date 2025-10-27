@@ -194,20 +194,49 @@ async function fetchAllExercises(): Promise<ExerciseDBExercise[]> {
   }
 
   console.log('🔄 Buscando exercícios da API ExerciseDB...');
+  console.log('💡 Estratégia: Buscar por cada parte do corpo para evitar limites da API\n');
   
   try {
-    const response = await axios.get(`${baseUrl}/exercises`, {
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-      },
-      params: {
-        limit: 1500 // Buscar todos os exercícios disponíveis
+    const allExercises: ExerciseDBExercise[] = [];
+    const bodyParts = ['back', 'cardio', 'chest', 'lower arms', 'lower legs', 'neck', 'shoulders', 'upper arms', 'upper legs', 'waist'];
+    
+    let totalFetched = 0;
+    
+    for (const bodyPart of bodyParts) {
+      try {
+        console.log(`📥 Buscando exercícios de: ${bodyPart}...`);
+        
+        const response = await axios.get(`${baseUrl}/exercises/bodyPart/${bodyPart}`, {
+          headers: {
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+          },
+          timeout: 30000
+        });
+        
+        const count = response.data.length;
+        totalFetched += count;
+        console.log(`   ✅ ${count} exercícios encontrados`);
+        
+        allExercises.push(...response.data);
+        
+        // Pequeno delay entre requisições para não sobrecarregar a API
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+      } catch (error: any) {
+        console.error(`   ❌ Erro ao buscar ${bodyPart}:`, error.response?.data || error.message);
+        // Continuar mesmo se uma parte falhar
       }
-    });
+    }
 
-    console.log(`✅ ${response.data.length} exercícios encontrados`);
-    return response.data;
+    console.log(`\n✅ Total de ${totalFetched} exercícios encontrados de ${bodyParts.length} partes do corpo`);
+    
+    if (allExercises.length < 100) {
+      console.warn('⚠️  API retornou menos exercícios que o esperado!');
+      console.warn('📝 Verifique se a chave da API está correta e ativa.');
+    }
+    
+    return allExercises;
   } catch (error: any) {
     console.error('❌ Erro ao buscar exercícios:', error.response?.data || error.message);
     throw error;
