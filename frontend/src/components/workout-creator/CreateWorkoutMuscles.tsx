@@ -4,6 +4,19 @@ import { Frame106 } from '../common/Frame106';
 import { SelectOptionInteresse } from '../common/SelectOptionInteresse';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 
+// Mapeamento de grupos musculares para bodyParts do banco de dados
+// Cada grupo pode mapear para múltiplos bodyParts
+const MUSCLE_GROUP_MAPPING: Record<string, string[]> = {
+  'Peito': ['Peito'],
+  'Costas': ['Costas'],
+  'Ombros': ['Ombros'],
+  'Braços': ['Bíceps/Tríceps', 'Antebraços'],
+  'Pernas': ['Coxas', 'Panturrilhas'],
+  'Glúteos': ['Coxas'], // Glúteos são trabalhados em exercícios de coxas
+  'Core': ['Abdômen'],
+  'Cardio': ['Cardio']
+};
+
 interface Frame52Props {
   muscles: string[];
   selectedMuscles: string[];
@@ -31,6 +44,7 @@ interface Frame55Props {
 }
 
 function Frame55({ selectedMuscles, onToggle }: Frame55Props) {
+  // Usar grupos amigáveis ao usuário
   const row1 = ['Peito', 'Costas', 'Ombros', 'Braços'];
   const row2 = ['Pernas', 'Glúteos', 'Core', 'Cardio'];
 
@@ -57,7 +71,15 @@ export function CreateWorkoutMuscles() {
 
   const handleNext = () => {
     if (selectedMuscles.length > 0) {
-      updateWorkoutData({ musculos: selectedMuscles });
+      // Converter grupos musculares selecionados para bodyParts do banco
+      const bodyParts = selectedMuscles.flatMap(muscle => MUSCLE_GROUP_MAPPING[muscle] || [muscle]);
+      // Remover duplicatas
+      const uniqueBodyParts = Array.from(new Set(bodyParts));
+      
+      console.log('🎯 Grupos selecionados:', selectedMuscles);
+      console.log('🗂️ BodyParts mapeados:', uniqueBodyParts);
+      
+      updateWorkoutData({ musculos: uniqueBodyParts });
       navigate('/workout/create/exercises');
     }
   };
