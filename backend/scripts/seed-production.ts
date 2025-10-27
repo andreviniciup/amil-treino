@@ -2,9 +2,23 @@ import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { execSync } from 'child_process';
 
 // Carregar variáveis de ambiente
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+// Regenerar Prisma Client com a configuração do PostgreSQL
+console.log('\n🔧 Regenerando Prisma Client para PostgreSQL...');
+try {
+  execSync('npx prisma generate', {
+    cwd: path.resolve(__dirname, '..'),
+    stdio: 'inherit'
+  });
+  console.log('✅ Prisma Client regenerado\n');
+} catch (error) {
+  console.error('❌ Erro ao regenerar Prisma Client:', error);
+  process.exit(1);
+}
 
 const prisma = new PrismaClient();
 
