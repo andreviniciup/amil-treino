@@ -180,18 +180,35 @@ export function CreateWorkoutExercises() {
                     justifyContent: 'center',
                     overflow: 'hidden'
                   }}>
-                    <img
-                      src={getMuscleImage(exercise.bodyPart)}
-                      alt={exercise.bodyPart}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                      onError={(e: any) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
+                    {exercise.gifUrl && (
+                      <img
+                        src={exercise.gifUrl.replace(
+                          'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/',
+                          '/exercises/'
+                        )}
+                        alt={exercise.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        onError={(e: any) => {
+                          // Fallback para imagem do músculo
+                          e.target.src = getMuscleImage(exercise.bodyPart);
+                        }}
+                      />
+                    )}
+                    {!exercise.gifUrl && (
+                      <img
+                        src={getMuscleImage(exercise.bodyPart)}
+                        alt={exercise.bodyPart}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    )}
                   </div>
                   <div style={{width: 235, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 17, display: 'inline-flex'}}>
                     <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-end', display: 'inline-flex'}}>
