@@ -4,6 +4,7 @@ import autoCacheService from '../services/autoCacheService';
 import cacheService from '../services/cacheService';
 import databaseExpansionService from '../services/databaseExpansionService';
 import multiModalExerciseService from '../services/multiModalExerciseService';
+import databaseInitService from '../services/databaseInitService';
 
 const router = Router();
 
@@ -21,6 +22,38 @@ router.get('/category/:category', exerciseController.getByCategory.bind(exercise
 
 // GET /api/exercises/stats - Estatísticas do banco interno (ANTES de :id)
 router.get('/stats', exerciseController.getStats.bind(exerciseController));
+
+// POST /api/exercises/seed - Forçar seed do banco de dados
+router.post('/seed', async (_req, res) => {
+  try {
+    const needsSeed = await databaseInitService.needsSeed();
+    
+    if (!needsSeed) {
+      return res.json({
+        success: true,
+        message: 'Banco de dados já está populado',
+        needsSeed: false
+      });
+    }
+
+    // Executar seed em background (não bloquear a requisição)
+    databaseInitService.initialize().catch(error => {
+      console.error('Erro ao executar seed:', error);
+    });
+
+    res.json({
+      success: true,
+      message: 'Seed iniciado! Verifique os logs do servidor. Isso pode demorar 5-10 minutos.',
+      needsSeed: true
+    });
+  } catch (error) {
+    console.error('Erro ao iniciar seed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to start seed process'
+    });
+  }
+});
 
 // POST /api/exercises/cache/clear - Limpar cache (útil para desenvolvimento)
 router.post('/cache/clear', exerciseController.clearCache.bind(exerciseController));

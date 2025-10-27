@@ -62,12 +62,21 @@ class DatabaseInitService {
       const projectRoot = path.resolve(__dirname, '../..');
       console.log(`📁 Executando seed em: ${projectRoot}`);
       
-      execSync('npx ts-node src/scripts/seedExercisesFromAPI.ts', {
+      // Em produção, usar node com o arquivo compilado
+      // Em desenvolvimento, usar ts-node
+      const isProduction = process.env.NODE_ENV === 'production';
+      const command = isProduction
+        ? 'node dist/scripts/seedExercisesFromAPI.js'
+        : 'npx ts-node src/scripts/seedExercisesFromAPI.ts';
+      
+      console.log(`🚀 Comando: ${command}`);
+      
+      execSync(command, {
         cwd: projectRoot,
         stdio: 'inherit',
         env: {
           ...process.env,
-          NODE_ENV: 'production'
+          NODE_ENV: process.env.NODE_ENV || 'development'
         }
       });
     } catch (error) {
