@@ -12,6 +12,7 @@ import recommendationRoutes from './routes/recommendationRoutes';
 // import gamificationRoutes from './routes/gamificationRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import autoCacheService from './services/autoCacheService';
+import databaseInitService from './services/databaseInitService';
 
 // Load environment variables
 dotenv.config();
@@ -106,6 +107,13 @@ app.listen(PORT, async () => {
   console.log(`📍 http://localhost:${PORT}`);
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
   console.log('===========================================');
+  
+  // Verificar e inicializar banco de dados
+  try {
+    await databaseInitService.initialize();
+  } catch (error) {
+    console.error('❌ Error initializing database:', error);
+  }
   
   // Inicializar cache automático
   try {
