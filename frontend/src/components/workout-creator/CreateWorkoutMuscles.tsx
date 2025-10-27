@@ -5,16 +5,16 @@ import { SelectOptionInteresse } from '../common/SelectOptionInteresse';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 
 // Mapeamento de grupos musculares para bodyParts do banco de dados
-// Cada grupo pode mapear para múltiplos bodyParts
+// Deve corresponder exatamente aos nomes em português do banco
 const MUSCLE_GROUP_MAPPING: Record<string, string[]> = {
   'Peito': ['Peito'],
-  'Costas': ['Costas'],
-  'Ombros': ['Ombros'],
-  'Braços': ['Bíceps/Tríceps', 'Antebraços'],
-  'Pernas': ['Coxas', 'Panturrilhas'],
-  'Glúteos': ['Coxas'], // Glúteos são trabalhados em exercícios de coxas
+  'Costas': ['Costas', 'Lombar'], // Inclui lombar (parte inferior das costas)
+  'Ombros': ['Ombros', 'Trapézio'], // Trapézio trabalha junto com ombros
+  'Braços': ['Bíceps', 'Tríceps', 'Antebraços'],
+  'Pernas': ['Quadríceps', 'Posteriores de Coxa', 'Panturrilhas', 'Adutores', 'Abdutores'],
+  'Glúteos': ['Glúteos', 'Posteriores de Coxa'], // Glúteos são trabalhados com posteriores
   'Core': ['Abdômen'],
-  'Cardio': ['Cardio']
+  'Cardio': ['Cardio'] // Manter para compatibilidade futura
 };
 
 interface Frame52Props {
