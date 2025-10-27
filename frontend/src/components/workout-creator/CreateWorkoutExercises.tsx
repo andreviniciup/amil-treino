@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 import { exerciseApi, ExerciseDB } from '../../services/api';
-import { MuscleMappingUtil } from '../../utils/muscleMappingUtil';
+import { getMuscleImage } from '../../utils/muscleMapping';
 
 export function CreateWorkoutExercises() {
   const navigate = useNavigate();
@@ -170,21 +170,29 @@ export function CreateWorkoutExercises() {
                 }}
               >
                 <div style={{justifyContent: 'center', alignItems: 'center', gap: 9, display: 'inline-flex'}}>
-                  {exercise.gifUrl ? (
+                  <div style={{
+                    width: 50, 
+                    height: 50, 
+                    background: '#484848', 
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
                     <img
-                      src={exercise.gifUrl}
-                      alt={exercise.name}
+                      src={getMuscleImage(exercise.bodyPart)}
+                      alt={exercise.bodyPart}
                       style={{
-                        width: 50,
-                        height: 50,
-                        background: '#484848',
-                        borderRadius: 8,
+                        width: '100%',
+                        height: '100%',
                         objectFit: 'cover'
                       }}
+                      onError={(e: any) => {
+                        e.target.style.display = 'none';
+                      }}
                     />
-                  ) : (
-                    <div style={{width: 50, height: 50, background: '#484848', borderRadius: 8}} />
-                  )}
+                  </div>
                   <div style={{width: 235, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 17, display: 'inline-flex'}}>
                     <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-end', display: 'inline-flex'}}>
                       <div style={{color: 'white', fontSize: 14, fontFamily: 'Alexandria', fontWeight: '400', wordWrap: 'break-word'}}>
