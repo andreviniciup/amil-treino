@@ -13,8 +13,9 @@ async function postBuild() {
     
     console.log(`📊 Exercícios no banco: ${exerciseCount}`);
 
-    if (exerciseCount === 0) {
-      console.log('\n🚀 Banco vazio! Iniciando seed de exercícios...\n');
+    // Seed necessário se tiver menos de 100 exercícios (indica que o seed completo não rodou)
+    if (exerciseCount < 100) {
+      console.log('\n🚀 Banco com poucos exercícios! Iniciando seed completo...\n');
       console.log('⏱️  Isso pode demorar 5-10 minutos...\n');
       
       // Executar seed - cwd é a raiz do backend
@@ -26,9 +27,17 @@ async function postBuild() {
         cwd: projectRoot
       });
       
-      console.log('\n✅ Seed concluído com sucesso!');
+      // Verificar resultado
+      const newCount = await prisma.exercise.count();
+      console.log(`\n✅ Seed concluído! Total de exercícios: ${newCount}`);
+      
+      if (newCount > 1000) {
+        console.log('🎉 Banco populado com sucesso!');
+      } else {
+        console.log(`⚠️  Atenção: Esperado 1300+ exercícios, mas obteve ${newCount}`);
+      }
     } else {
-      console.log('\n✅ Banco já possui exercícios. Seed não necessário.');
+      console.log(`\n✅ Banco já possui ${exerciseCount} exercícios. Seed não necessário.`);
       console.log('💡 Para atualizar exercícios, execute: npm run seed:exercises:api\n');
     }
 
