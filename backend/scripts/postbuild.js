@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { execSync } = require('child_process');
+const path = require('path');
 
 const prisma = new PrismaClient();
 
@@ -16,10 +17,13 @@ async function postBuild() {
       console.log('\n🚀 Banco vazio! Iniciando seed de exercícios...\n');
       console.log('⏱️  Isso pode demorar 5-10 minutos...\n');
       
-      // Executar seed
+      // Executar seed - cwd é a raiz do backend
+      const projectRoot = path.resolve(__dirname, '..');
+      console.log(`📁 Executando seed em: ${projectRoot}\n`);
+      
       execSync('npm run seed:exercises:api', { 
         stdio: 'inherit',
-        cwd: __dirname 
+        cwd: projectRoot
       });
       
       console.log('\n✅ Seed concluído com sucesso!');

@@ -13,6 +13,7 @@
     "prisma:studio": "prisma studio",
     "seed:exercises": "ts-node src/scripts/seedExercises.ts",
     "seed:exercises:api": "ts-node src/scripts/seedExercisesFromAPI.ts",
+    "reset:database": "node scripts/reset-database.js",
     "test:gifs": "ts-node src/scripts/testGifs.ts"
   },
   "keywords": [
