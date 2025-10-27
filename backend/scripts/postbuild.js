@@ -22,7 +22,8 @@ async function postBuild() {
       const projectRoot = path.resolve(__dirname, '..');
       console.log(`📁 Executando seed em: ${projectRoot}\n`);
       
-      execSync('npm run seed:exercises:api', { 
+      // Usar o comando de produção que executa o arquivo compilado
+      execSync('npm run seed:exercises:api:prod', { 
         stdio: 'inherit',
         cwd: projectRoot
       });
@@ -38,14 +39,14 @@ async function postBuild() {
       }
     } else {
       console.log(`\n✅ Banco já possui ${exerciseCount} exercícios. Seed não necessário.`);
-      console.log('💡 Para atualizar exercícios, execute: npm run seed:exercises:api\n');
+      console.log('💡 Para atualizar exercícios, execute: npm run seed:exercises:api:prod\n');
     }
 
   } catch (error) {
     console.error('❌ Erro no post-build:', error);
     // Não falhar o deploy se o seed falhar
     console.log('\n⚠️  Seed falhou, mas o deploy continuará.');
-    console.log('💡 Você pode executar manualmente: npm run seed:exercises:api\n');
+    console.log('💡 Você pode executar manualmente: npm run seed:exercises:api:prod\n');
   } finally {
     await prisma.$disconnect();
   }
