@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 import { exerciseApi, ExerciseDB } from '../../services/api';
 import { MuscleMappingUtil } from '../../utils/muscleMappingUtil';
@@ -101,149 +100,116 @@ export function CreateWorkoutExercises() {
   }
 
   return (
-    <div className="bg-[#202020] relative size-full overflow-y-auto" data-name="criar-treino-exercises">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      
-      <p className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[20px] text-[24px] text-nowrap text-white top-[20px] whitespace-pre">
-        Escolha os exercícios
-      </p>
+    <div style={{width: 390, height: 844, position: 'relative', background: '#202020', overflow: 'hidden'}} data-name="criar-treino-exercises">
+      {/* Botão Avançar - Fixo */}
+      <div 
+        onClick={handleNext}
+        style={{
+          width: 353, 
+          height: 50, 
+          paddingLeft: 129, 
+          paddingRight: 129, 
+          paddingTop: 13, 
+          paddingBottom: 13, 
+          left: 20, 
+          top: 765, 
+          position: 'absolute', 
+          background: '#1C1C1C', 
+          borderRadius: 999, 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          gap: 10, 
+          display: 'inline-flex',
+          cursor: 'pointer'
+        }}
+      >
+        <div style={{color: 'white', fontSize: 20, fontFamily: 'Alexandria', fontWeight: '500', wordWrap: 'break-word'}}>
+          Avançar
+        </div>
+      </div>
 
-      <div className="absolute left-[20px] right-[20px] top-[70px] pb-[100px]">{exercises.length === 0 ? (
-          <p className="text-white text-center mt-10">
+      {/* Área de scroll apenas dos exercícios */}
+      <div style={{
+        position: 'absolute',
+        left: 0,
+        top: 57,
+        width: 390,
+        height: 690,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        paddingLeft: 35,
+        paddingRight: 35
+      }}>
+        {exercises.length === 0 ? (
+          <p style={{color: 'white', textAlign: 'center', marginTop: 40, fontFamily: 'Alexandria'}}>
             Nenhum exercício encontrado para os grupos musculares selecionados.
           </p>
         ) : (
-          exercises.map((exercise, index) => (
-            <div
-              key={exercise.id}
-              onClick={() => toggleExercise(exercise)}
-              className={`cursor-pointer mb-4 ${
-                selectedExercises.some(e => e.id === exercise.id) ? 'ring-2 ring-[#f0d471]' : ''
-              }`}
-              style={{
-                width: '100%',
-                maxWidth: 320,
-                height: 80,
-                paddingLeft: 13,
-                paddingRight: 13,
-                paddingTop: 14,
-                paddingBottom: 14,
-                background: '#1D1D1D',
-                borderRadius: 20,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                margin: '0 auto'
-              }}
-            >
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: 9,
-                width: '100%'
-              }}>
-                {exercise.gifUrl && (
-                  <img
-                    src={exercise.gifUrl}
-                    alt={exercise.name}
-                    style={{
-                      width: 50,
-                      height: 50,
-                      background: '#484848',
-                      borderRadius: 8,
-                      objectFit: 'cover'
-                    }}
-                  />
-                )}
-                {!exercise.gifUrl && (
-                  <div style={{
-                    width: 50,
-                    height: 50,
-                    background: '#484848',
-                    borderRadius: 8
-                  }} />
-                )}
-                <div style={{
-                  flex: 1,
-                  display: 'flex',
+          exercises.map((exercise, index) => {
+            const isSelected = selectedExercises.some(e => e.id === exercise.id);
+            return (
+              <div
+                key={exercise.id}
+                onClick={() => toggleExercise(exercise)}
+                style={{
+                  width: 320,
+                  height: 80,
+                  paddingLeft: 13,
+                  paddingRight: 13,
+                  paddingTop: 14,
+                  paddingBottom: 14,
+                  marginBottom: 10,
+                  background: isSelected ? '#1D1D1D' : '#2E2E2E',
+                  borderRadius: 20,
                   flexDirection: 'column',
-                  gap: 8
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <div style={{
-                      color: 'white',
-                      fontSize: 14,
-                      fontFamily: 'Alexandria, sans-serif',
-                      fontWeight: 400,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '180px'
-                    }}>
-                      {exercise.name}
-                    </div>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    gap: 5,
-                    flexWrap: 'wrap'
-                  }}>
-                    <div
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: 10,
+                  display: 'inline-flex',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{justifyContent: 'center', alignItems: 'center', gap: 9, display: 'inline-flex'}}>
+                  {exercise.gifUrl ? (
+                    <img
+                      src={exercise.gifUrl}
+                      alt={exercise.name}
                       style={{
-                        paddingLeft: 6,
-                        paddingRight: 6,
-                        paddingTop: 2,
-                        paddingBottom: 2,
-                        background: '#CF9EE7',
-                        borderRadius: 99,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        width: 50,
+                        height: 50,
+                        background: '#484848',
+                        borderRadius: 8,
+                        objectFit: 'cover'
                       }}
-                    >
-                      <div style={{
-                        color: '#361A38',
-                        fontSize: 8,
-                        fontFamily: 'Alexandria, sans-serif',
-                        fontWeight: 500
-                      }}>
-                        {exercise.bodyPart}
+                    />
+                  ) : (
+                    <div style={{width: 50, height: 50, background: '#484848', borderRadius: 8}} />
+                  )}
+                  <div style={{width: 235, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 17, display: 'inline-flex'}}>
+                    <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-end', display: 'inline-flex'}}>
+                      <div style={{color: 'white', fontSize: 14, fontFamily: 'Alexandria', fontWeight: '400', wordWrap: 'break-word'}}>
+                        {exercise.name}
                       </div>
                     </div>
-                    {exercise.equipment && (
-                      <div
-                        style={{
-                          paddingLeft: 6,
-                          paddingRight: 6,
-                          paddingTop: 2,
-                          paddingBottom: 2,
-                          background: '#AD9EE7',
-                          borderRadius: 99,
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <div style={{
-                          color: '#261A38',
-                          fontSize: 8,
-                          fontFamily: 'Alexandria, sans-serif',
-                          fontWeight: 500
-                        }}>
-                          {exercise.equipment}
+                    <div style={{justifyContent: 'flex-start', alignItems: 'center', gap: 5, display: 'inline-flex'}}>
+                      <div style={{paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, background: '#CF9EE7', borderRadius: 99, justifyContent: 'center', alignItems: 'center', gap: 10, display: 'flex'}}>
+                        <div style={{color: '#361A38', fontSize: 8, fontFamily: 'Alexandria', fontWeight: '500', wordWrap: 'break-word'}}>
+                          {exercise.bodyPart}
                         </div>
                       </div>
-                    )}
+                      {exercise.equipment && (
+                        <div style={{paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, background: '#AD9EE7', borderRadius: 99, justifyContent: 'center', alignItems: 'center', gap: 10, display: 'flex'}}>
+                          <div style={{color: '#261A38', fontSize: 8, fontFamily: 'Alexandria', fontWeight: '500', wordWrap: 'break-word'}}>
+                            {exercise.equipment}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
