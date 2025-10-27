@@ -14,6 +14,7 @@
     "seed:exercises": "ts-node src/scripts/seedExercises.ts",
     "seed:exercises:api": "ts-node src/scripts/seedExercisesFromAPI.ts",
     "seed:exercises:api:prod": "node dist/scripts/seedExercisesFromAPI.js",
+    "seed:production": "ts-node scripts/seed-production.ts",
     "reset:database": "node scripts/reset-database.js",
     "test:gifs": "ts-node src/scripts/testGifs.ts"
   },
