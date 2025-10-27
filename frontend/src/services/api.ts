@@ -125,7 +125,9 @@ export const exerciseApi = {
 
   // Buscar exercícios por grupo muscular
   getByBodyPart: async (bodyPart: string): Promise<ExerciseDB[]> => {
-    const response = await api.get(`/exercises/bodypart/${bodyPart}`);
+    // Encode do bodyPart para evitar problemas com caracteres especiais (/, espaços, acentos)
+    const encodedBodyPart = encodeURIComponent(bodyPart);
+    const response = await api.get(`/exercises/bodypart/${encodedBodyPart}`);
     return response.data.data;
   },
 
