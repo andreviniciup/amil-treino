@@ -1,18 +1,33 @@
-import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import * as fs from 'fs';
 
 // Carregar variáveis de ambiente
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-// Regenerar Prisma Client com a configuração do PostgreSQL
-console.log('\n🔧 Regenerando Prisma Client para PostgreSQL...');
+// Limpar e regenerar Prisma Client com a configuração do PostgreSQL
+console.log('\n🔧 Limpando e regenerando Prisma Client para PostgreSQL...');
 try {
+  const backendRoot = path.resolve(__dirname, '..');
+  const prismaClientPath = path.join(backendRoot, 'node_modules', '.prisma');
+  
+  // Remover cache do Prisma Client
+  if (fs.existsSync(prismaClientPath)) {
+    console.log('🗑️  Removendo cache antigo do Prisma Client...');
+    fs.rmSync(prismaClientPath, { recursive: true, force: true });
+  }
+  
+  // Regenerar
+  console.log('⚙️  Gerando novo Prisma Client...');
   execSync('npx prisma generate', {
-    cwd: path.resolve(__dirname, '..'),
-    stdio: 'inherit'
+    cwd: backendRoot,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      DATABASE_URL: process.env.DATABASE_URL
+    }
   });
   console.log('✅ Prisma Client regenerado\n');
 } catch (error) {
@@ -20,6 +35,8 @@ try {
   process.exit(1);
 }
 
+// Importar Prisma Client DEPOIS de regenerar
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 // Tradução de partes do corpo
@@ -344,7 +361,7 @@ async function seedProduction() {
     });
 
     console.log('🔤 Exemplos de exercícios:');
-    examples.forEach(ex => {
+    examples.forEach((ex: any) => {
       console.log(`  • ${ex.name}`);
       console.log(`    - Parte: ${ex.bodyPart} | Equipamento: ${ex.equipment}`);
     });

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ExerciseCard } from './ExerciseCard';
 import svgPaths from "../imports/svg-c71qf4vhvy";
 import { workoutApi, WorkoutPlan } from '../services/api';
+import { getMuscleImage, getUniqueMuscles } from '../utils/muscleMapping';
 
 interface Exercise {
   id: string;
@@ -22,9 +23,18 @@ interface Exercise {
   restTime?: number;
 }
 
-function MuscleGroup({ label }: { label: string }) {
+function MuscleGroup({ label, imageUrl }: { label: string; imageUrl: string }) {
   return (
     <div className="bg-[#202020] border border-[#252525] box-border content-stretch flex flex-col gap-[10px] items-center justify-center px-[20px] py-[20px] relative rounded-[20px] shrink-0 w-[120px] h-[120px] min-w-[120px]">
+      <img 
+        src={imageUrl} 
+        alt={label}
+        className="w-[60px] h-[60px] object-contain"
+        onError={(e) => {
+          // Fallback se a imagem não carregar
+          e.currentTarget.style.display = 'none';
+        }}
+      />
       <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[10px] text-white w-[80px] text-center">{label}</p>
     </div>
   );
@@ -40,6 +50,7 @@ export function TreinoIdPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPlan, setCurrentPlan] = useState<WorkoutPlan | null>(null);
   const [workoutName, setWorkoutName] = useState<string>('Treino');
+  const [musclesWorked, setMusclesWorked] = useState<Array<{ name: string; imageUrl: string }>>([]);
 
   // Carregar planos e workout do dia
   useEffect(() => {
@@ -84,6 +95,14 @@ export function TreinoIdPage() {
               
               console.log('Mapped exercises:', mappedExercises);
               setExercises(mappedExercises);
+              
+              // Extrair músculos únicos trabalhados
+              const uniqueMuscles = getUniqueMuscles(mappedExercises);
+              const musclesWithImages = uniqueMuscles.map(muscle => ({
+                name: muscle,
+                imageUrl: getMuscleImage(muscle)
+              }));
+              setMusclesWorked(musclesWithImages);
             } else {
               console.log('No exercises in workout');
               setExercises([]);
@@ -128,6 +147,14 @@ export function TreinoIdPage() {
             }));
             
             setExercises(mappedExercises);
+            
+            // Extrair músculos únicos trabalhados
+            const uniqueMuscles = getUniqueMuscles(mappedExercises);
+            const musclesWithImages = uniqueMuscles.map(muscle => ({
+              name: muscle,
+              imageUrl: getMuscleImage(muscle)
+            }));
+            setMusclesWorked(musclesWithImages);
           }
         }
       } catch (err) {
@@ -237,11 +264,19 @@ export function TreinoIdPage() {
             className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full overflow-x-auto scrollbar-hide touch-pan-x"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            <MuscleGroup label="vector com musculo trabalhado" />
-            <MuscleGroup label="vector com musculo trabalhado" />
-            <MuscleGroup label="vector com musculo trabalhado" />
-            <MuscleGroup label="vector com musculo trabalhado" />
-            <MuscleGroup label="vector com musculo trabalhado" />
+            {musclesWorked.length > 0 ? (
+              musclesWorked.map((muscle, index) => (
+                <MuscleGroup 
+                  key={index} 
+                  label={muscle.name} 
+                  imageUrl={muscle.imageUrl}
+                />
+              ))
+            ) : (
+              <p className="text-[#2c2c2c] text-[14px] font-['Alexandria:Regular',_sans-serif]">
+                Nenhum músculo identificado
+              </p>
+            )}
           </div>
         </div>
 
