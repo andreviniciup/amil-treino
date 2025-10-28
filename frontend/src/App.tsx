@@ -17,6 +17,7 @@ import { WorkoutCreatorProvider } from './contexts/WorkoutCreatorContext';
 import { OnboardingPersonalInfoPage } from './components/onboarding/OnboardingPersonalInfoPage';
 import { OnboardingGoalPage } from './components/onboarding/OnboardingGoalPage';
 import { OnboardingTrainingTypesPage } from './components/onboarding/OnboardingTrainingTypesPage';
+import { OnboardingSplitPage } from './components/onboarding/OnboardingSplitPage';
 import { OnboardingDaysPage } from './components/onboarding/OnboardingDaysPage';
 import { OnboardingFinalPage } from './components/onboarding/OnboardingFinalPage';
 import { SplashScreen } from './components/splash/SplashScreen';
@@ -168,6 +169,7 @@ function AppContent() {
           <Route path="/onboarding/personal-info" element={<OnboardingPersonalInfoPage />} />
           <Route path="/onboarding/goal" element={<OnboardingGoalPage />} />
           <Route path="/onboarding/training-types" element={<OnboardingTrainingTypesPage />} />
+          <Route path="/onboarding/split" element={<OnboardingSplitPage />} />
           <Route path="/onboarding/days" element={<OnboardingDaysPage />} />
           <Route path="/onboarding/final" element={<OnboardingFinalPage />} />
 

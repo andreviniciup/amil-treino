@@ -26,7 +26,7 @@ export function OnboardingTrainingTypesPage() {
   const handleNext = () => {
     if (selectedWorkouts.length > 0) {
       localStorage.setItem('onboarding-workouts', JSON.stringify(selectedWorkouts));
-      navigate('/onboarding/days');
+      navigate('/onboarding/split');
     }
   };
 
