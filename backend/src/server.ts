@@ -11,8 +11,7 @@ import recommendationRoutes from './routes/recommendationRoutes';
 // import progressRoutes from './routes/progressRoutes';
 // import gamificationRoutes from './routes/gamificationRoutes';
 import { errorHandler } from './middleware/errorHandler';
-import autoCacheService from './services/autoCacheService';
-import databaseInitService from './services/databaseInitService';
+import prisma from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -108,19 +107,27 @@ app.listen(PORT, async () => {
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
   console.log('===========================================');
   
-  // Verificar e inicializar banco de dados
+  // MVP v0.01: Serviços de seed e cache automáticos desabilitados
+  // O banco já está populado, não precisa de inicialização
+  // TODO v0.02: Adicionar flag de ambiente para controlar seed/cache
+  
+  // Verificar estado do banco (apenas log, sem seed automático)
   try {
-    await databaseInitService.initialize();
+    const exerciseCount = await prisma.exercise.count();
+    console.log(`📊 Database status: ${exerciseCount} exercises available`);
+    
+    if (exerciseCount === 0) {
+      console.warn('⚠️  WARNING: Database is empty! Run seed manually if needed:');
+      console.warn('   npm run seed');
+    } else {
+      console.log('✅ Database ready - queries will use local data only');
+    }
   } catch (error) {
-    console.error('❌ Error initializing database:', error);
+    console.error('❌ Error checking database:', error);
   }
   
-  // Inicializar cache automático
-  try {
-    await autoCacheService.initialize();
-  } catch (error) {
-    console.error('❌ Error initializing auto cache:', error);
-  }
+  console.log('🚀 Server ready - optimized for direct database queries');
+  console.log('===========================================\n');
 });
 
 // Handle uncaught exceptions
