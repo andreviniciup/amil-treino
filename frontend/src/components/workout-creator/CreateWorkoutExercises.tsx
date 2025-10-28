@@ -75,8 +75,8 @@ export function CreateWorkoutExercises() {
 
   if (loading) {
     return (
-      <div className="bg-[#202020] relative size-full flex items-center justify-center" data-name="criar-treino-exercises">
-        <p className="text-white text-[18px] font-['Alexandria:Regular',_sans-serif]">
+      <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
+        <p className="text-white text-[18px] font-alexandria font-normal">
           Carregando exercícios...
         </p>
       </div>
@@ -85,13 +85,13 @@ export function CreateWorkoutExercises() {
 
   if (error) {
     return (
-      <div className="bg-[#202020] relative size-full flex flex-col items-center justify-center gap-4" data-name="criar-treino-exercises">
-        <p className="text-red-400 text-[18px] font-['Alexandria:Regular',_sans-serif]">
+      <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex flex-col items-center justify-center gap-4" data-name="criar-treino-exercises">
+        <p className="text-red-400 text-[18px] font-alexandria font-normal">
           {error}
         </p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-[#d9d9d9] px-6 py-3 rounded-full text-[#202020] font-['Alexandria:Medium',_sans-serif]"
+          className="bg-[#d9d9d9] px-6 py-3 rounded-full text-[#202020] font-alexandria font-medium"
         >
           Tentar novamente
         </button>
@@ -100,138 +100,92 @@ export function CreateWorkoutExercises() {
   }
 
   return (
-    <div style={{width: 390, height: 844, position: 'relative', background: '#202020', overflow: 'hidden'}} data-name="criar-treino-exercises">
-      {/* Botão Avançar - Fixo */}
-      <div 
-        onClick={handleNext}
-        style={{
-          width: 353, 
-          height: 50, 
-          paddingLeft: 129, 
-          paddingRight: 129, 
-          paddingTop: 13, 
-          paddingBottom: 13, 
-          left: 20, 
-          top: 765, 
-          position: 'absolute', 
-          background: '#1C1C1C', 
-          borderRadius: 999, 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          gap: 10, 
-          display: 'inline-flex',
-          cursor: 'pointer'
-        }}
-      >
-        <div style={{color: 'white', fontSize: 20, fontFamily: 'Alexandria', fontWeight: '500', wordWrap: 'break-word'}}>
-          Avançar
-        </div>
-      </div>
-
-      {/* Área de scroll apenas dos exercícios */}
-      <div style={{
-        position: 'absolute',
-        left: 0,
-        top: 57,
-        width: 390,
-        height: 690,
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        paddingLeft: 35,
-        paddingRight: 35
-      }}>
-        {exercises.length === 0 ? (
-          <p style={{color: 'white', textAlign: 'center', marginTop: 40, fontFamily: 'Alexandria'}}>
-            Nenhum exercício encontrado para os grupos musculares selecionados.
+    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+        
+        {/* Título fixo */}
+        <div className="w-full mb-4">
+          <p className="font-alexandria font-normal text-[20px] text-white text-left">
+            Escolha os exercícios
           </p>
-        ) : (
-          exercises.map((exercise, index) => {
-            const isSelected = selectedExercises.some(e => e.id === exercise.id);
-            return (
-              <div
-                key={exercise.id}
-                onClick={() => toggleExercise(exercise)}
-                style={{
-                  width: 320,
-                  height: 80,
-                  paddingLeft: 13,
-                  paddingRight: 13,
-                  paddingTop: 14,
-                  paddingBottom: 14,
-                  marginBottom: 10,
-                  background: isSelected ? '#1D1D1D' : '#2E2E2E',
-                  borderRadius: 20,
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: 10,
-                  display: 'inline-flex',
-                  cursor: 'pointer'
-                }}
-              >
-                <div style={{justifyContent: 'center', alignItems: 'center', gap: 9, display: 'inline-flex'}}>
-                  <div style={{
-                    width: 50, 
-                    height: 50, 
-                    background: '#484848', 
-                    borderRadius: 8,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
-                  }}>
-                    {exercise.gifUrl ? (
-                      <img
-                        src={exercise.gifUrl}
-                        alt={exercise.name}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                        onError={(e: any) => {
-                          // Fallback: Imagem do músculo
-                          e.target.src = getMuscleImage(exercise.bodyPart);
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={getMuscleImage(exercise.bodyPart)}
-                        alt={exercise.bodyPart}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div style={{width: 235, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 17, display: 'inline-flex'}}>
-                    <div style={{alignSelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-end', display: 'inline-flex'}}>
-                      <div style={{color: 'white', fontSize: 14, fontFamily: 'Alexandria', fontWeight: '400', wordWrap: 'break-word'}}>
-                        {exercise.name}
+          <p className="font-alexandria font-normal text-[14px] text-white/70 text-left mt-1">
+            {selectedExercises.length} selecionado{selectedExercises.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        
+        {/* Lista de exercícios com scroll */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2">
+          {exercises.length === 0 ? (
+            <p className="text-white text-center mt-10 font-alexandria">
+              Nenhum exercício encontrado para os grupos musculares selecionados.
+            </p>
+          ) : (
+            <div className="space-y-3 pb-4">
+              {exercises.map((exercise) => {
+                const isSelected = selectedExercises.some(e => e.id === exercise.id);
+                return (
+                  <button
+                    key={exercise.id}
+                    onClick={() => toggleExercise(exercise)}
+                    className={`w-full p-3 rounded-[20px] transition-all ${
+                      isSelected ? 'bg-[#1D1D1D]' : 'bg-[#2E2E2E] hover:bg-[#3E3E3E]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Imagem do exercício */}
+                      <div className="w-[50px] h-[50px] bg-[#484848] rounded-lg flex-shrink-0 overflow-hidden">
+                        {exercise.gifUrl ? (
+                          <img
+                            src={exercise.gifUrl}
+                            alt={exercise.name}
+                            className="w-full h-full object-cover"
+                            onError={(e: any) => {
+                              e.target.src = getMuscleImage(exercise.bodyPart);
+                            }}
+                          />
+                        ) : (
+                          <img
+                            src={getMuscleImage(exercise.bodyPart)}
+                            alt={exercise.bodyPart}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
                       </div>
-                    </div>
-                    <div style={{justifyContent: 'flex-start', alignItems: 'center', gap: 5, display: 'inline-flex'}}>
-                      <div style={{paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, background: '#CF9EE7', borderRadius: 99, justifyContent: 'center', alignItems: 'center', gap: 10, display: 'flex'}}>
-                        <div style={{color: '#361A38', fontSize: 8, fontFamily: 'Alexandria', fontWeight: '500', wordWrap: 'break-word'}}>
-                          {exercise.bodyPart}
+                      
+                      {/* Informações do exercício */}
+                      <div className="flex-1 min-w-0 text-left">
+                        <p className="text-white text-[14px] font-alexandria font-normal mb-2 line-clamp-1">
+                          {exercise.name}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="px-2 py-0.5 bg-[#CF9EE7] rounded-full text-[#361A38] text-[10px] font-alexandria font-medium whitespace-nowrap">
+                            {exercise.bodyPart}
+                          </span>
+                          {exercise.equipment && (
+                            <span className="px-2 py-0.5 bg-[#AD9EE7] rounded-full text-[#261A38] text-[10px] font-alexandria font-medium whitespace-nowrap">
+                              {exercise.equipment}
+                            </span>
+                          )}
                         </div>
                       </div>
-                      {exercise.equipment && (
-                        <div style={{paddingLeft: 6, paddingRight: 6, paddingTop: 2, paddingBottom: 2, background: '#AD9EE7', borderRadius: 99, justifyContent: 'center', alignItems: 'center', gap: 10, display: 'flex'}}>
-                          <div style={{color: '#261A38', fontSize: 8, fontFamily: 'Alexandria', fontWeight: '500', wordWrap: 'break-word'}}>
-                            {exercise.equipment}
-                          </div>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        
+        {/* Botão fixo na parte inferior com margem */}
+        <div className="w-full pt-4 pb-4">
+          <button
+            onClick={handleNext}
+            disabled={selectedExercises.length === 0}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
       </div>
     </div>
   );
