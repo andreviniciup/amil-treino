@@ -116,21 +116,21 @@ export function CreateWorkoutConfig() {
   };
 
   return (
-    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center">
-      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+    <div className="bg-[#202020] fixed inset-0 overflow-hidden flex items-center justify-center">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-6">
         
         {/* Título fixo */}
-        <div className="w-full mb-4">
-          <p className="font-alexandria font-medium text-[20px] text-white text-left">
+        <div className="w-full mb-3 flex-shrink-0">
+          <p className="font-alexandria font-medium text-[18px] sm:text-[20px] text-white text-left">
             {workoutName}
           </p>
-          <p className="font-alexandria font-normal text-[14px] text-white/70 text-left mt-1">
+          <p className="font-alexandria font-normal text-[13px] sm:text-[14px] text-white/70 text-left mt-1">
             Arraste para reordenar
           </p>
         </div>
         
         {/* Lista de exercícios com scroll */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 min-h-0">
           <div className="space-y-3 pb-4">
             {exercises.map((exercise, index) => (
               <div
@@ -216,12 +216,12 @@ export function CreateWorkoutConfig() {
         </div>
         
         {/* Botão fixo na parte inferior com margem */}
-        <div className="w-full pt-4 pb-4">
+        <div className="w-full pt-4 pb-3 flex-shrink-0">
           <button
             onClick={handleFinalize}
-            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[48px] sm:h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
           >
-            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+            <p className="font-alexandria font-medium text-[18px] sm:text-[20px] text-white">Avançar</p>
           </button>
         </div>
       </div>

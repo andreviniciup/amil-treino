@@ -70,7 +70,7 @@ export function CreateWorkoutReady() {
   };
 
   return (
-    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-ready">
+    <div className="bg-[#202020] fixed inset-0 overflow-hidden flex items-center justify-center" data-name="criar-treino-ready">
       {loading ? (
         <div className="flex flex-col items-center justify-center">
           <div className="text-white text-[20px] font-alexandria font-normal mb-4">
@@ -91,27 +91,27 @@ export function CreateWorkoutReady() {
           </button>
         </div>
       ) : (
-        <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+        <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-6">
           
           {/* Área que centraliza o conteúdo verticalmente */}
           <div className="flex-1 flex items-center justify-center">
             <div className="w-full text-center">
-              <div className="text-[80px] mb-[30px]">
+              <div className="text-[60px] sm:text-[80px] mb-[20px] sm:mb-[30px]">
                 🎉
               </div>
-              <p className="font-alexandria font-bold text-[28px] text-white leading-[1.3]">
+              <p className="font-alexandria font-bold text-[24px] sm:text-[28px] text-white leading-[1.3]">
                 Treino pronto, já pode<br/>começar agora mesmo!!!
               </p>
             </div>
           </div>
           
           {/* Botão fixo na parte inferior com margem */}
-          <div className="w-full pt-6 pb-4">
+          <div className="w-full pt-5 pb-3">
             <button
               onClick={handleFinish}
-              className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+              className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[48px] sm:h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
             >
-              <p className="font-alexandria font-medium text-[20px] text-white">Salvar e Começar</p>
+              <p className="font-alexandria font-medium text-[18px] sm:text-[20px] text-white">Salvar e Começar</p>
             </button>
           </div>
         </div>

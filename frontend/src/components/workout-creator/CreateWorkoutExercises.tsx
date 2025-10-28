@@ -75,8 +75,8 @@ export function CreateWorkoutExercises() {
 
   if (loading) {
     return (
-      <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
-        <p className="text-white text-[18px] font-alexandria font-normal">
+      <div className="bg-[#202020] fixed inset-0 overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
+        <p className="text-white text-[16px] sm:text-[18px] font-alexandria font-normal">
           Carregando exercícios...
         </p>
       </div>
@@ -85,8 +85,8 @@ export function CreateWorkoutExercises() {
 
   if (error) {
     return (
-      <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex flex-col items-center justify-center gap-4" data-name="criar-treino-exercises">
-        <p className="text-red-400 text-[18px] font-alexandria font-normal">
+      <div className="bg-[#202020] fixed inset-0 overflow-hidden flex flex-col items-center justify-center gap-4" data-name="criar-treino-exercises">
+        <p className="text-red-400 text-[16px] sm:text-[18px] font-alexandria font-normal">
           {error}
         </p>
         <button
@@ -100,21 +100,21 @@ export function CreateWorkoutExercises() {
   }
 
   return (
-    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
-      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+    <div className="bg-[#202020] fixed inset-0 overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-6">
         
         {/* Título fixo */}
-        <div className="w-full mb-4">
-          <p className="font-alexandria font-normal text-[20px] text-white text-left">
+        <div className="w-full mb-3 flex-shrink-0">
+          <p className="font-alexandria font-normal text-[18px] sm:text-[20px] text-white text-left">
             Escolha os exercícios
           </p>
-          <p className="font-alexandria font-normal text-[14px] text-white/70 text-left mt-1">
+          <p className="font-alexandria font-normal text-[13px] sm:text-[14px] text-white/70 text-left mt-1">
             {selectedExercises.length} selecionado{selectedExercises.length !== 1 ? 's' : ''}
           </p>
         </div>
         
         {/* Lista de exercícios com scroll */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 min-h-0">
           {exercises.length === 0 ? (
             <p className="text-white text-center mt-10 font-alexandria">
               Nenhum exercício encontrado para os grupos musculares selecionados.
@@ -177,13 +177,13 @@ export function CreateWorkoutExercises() {
         </div>
         
         {/* Botão fixo na parte inferior com margem */}
-        <div className="w-full pt-4 pb-4">
+        <div className="w-full pt-4 pb-3 flex-shrink-0">
           <button
             onClick={handleNext}
             disabled={selectedExercises.length === 0}
-            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center h-[48px] sm:h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
           >
-            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+            <p className="font-alexandria font-medium text-[18px] sm:text-[20px] text-white">Avançar</p>
           </button>
         </div>
       </div>
