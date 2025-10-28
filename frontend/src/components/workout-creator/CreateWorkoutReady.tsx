@@ -27,8 +27,11 @@ export function CreateWorkoutReady() {
           'sunday': 'Domingo'
         };
 
+        const dayName = dayMap[dayKey] || 'Segunda';
+
         return {
-          dayOfWeek: dayMap[dayKey] || 'Segunda',
+          name: workoutData.nomeTreino || 'Treino',
+          dayOfWeek: dayName,
           trainingType: workoutData.tipoTreino || 'Geral',
           exercises: (workoutData.exercises || []).map((exercise, index) => ({
             exerciseId: exercise.id,

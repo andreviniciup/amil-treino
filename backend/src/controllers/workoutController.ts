@@ -50,6 +50,7 @@ export class WorkoutController {
           trainingTypes: JSON.stringify(planData.trainingTypes || []),
           workouts: {
             create: planData.workouts.map(workout => ({
+              name: workout.name,  // Adicionar o nome individual do treino
               dayOfWeek: workout.dayOfWeek,
               trainingType: workout.trainingType,
               exercises: {

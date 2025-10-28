@@ -30,6 +30,7 @@ export interface CreateWorkoutPlanDto {
 }
 
 export interface CreateWorkoutDto {
+  name?: string;  // Nome individual do treino
   dayOfWeek: string;
   trainingType: string;
   exercises: CreateWorkoutExerciseDto[];

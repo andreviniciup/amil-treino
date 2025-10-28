@@ -51,6 +51,7 @@ model WorkoutPlan {
 model Workout {
   id           String   @id @default(uuid())
   planId       String
+  name         String?  // Nome individual do treino
   dayOfWeek    String
   trainingType String
   createdAt    DateTime @default(now())

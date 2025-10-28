@@ -89,6 +89,7 @@ export interface CreateWorkoutPlanDto {
   frequency: number;
   trainingTypes: string[];
   workouts: {
+    name?: string;  // Nome individual do treino
     dayOfWeek: string;
     trainingType: string;
     exercises: {
