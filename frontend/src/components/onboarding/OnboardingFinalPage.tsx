@@ -31,12 +31,8 @@ export function OnboardingFinalPage() {
       // Salvar no backend
       await authApi.updateProfile(profileData);
 
-      // Limpar dados do localStorage
-      localStorage.removeItem('onboarding-personal');
-      localStorage.removeItem('onboarding-interests');
-      localStorage.removeItem('onboarding-days');
-      
-      // Marcar onboarding como completo
+      // NÃO limpar dados do onboarding - são necessários para criar treinos
+      // Apenas marcar como completo
       localStorage.setItem('onboarding-complete', 'true');
       
       navigate('/home');
