@@ -69,23 +69,22 @@ export function OnboardingFinalPage() {
           </button>
         </div>
       ) : (
-        <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8">
+        <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
           
-          {/* Espaçador superior */}
-          <div className="flex-1" />
-          
-          {/* Conteúdo central */}
-          <div className="w-full text-center space-y-2">
-            <p className="font-alexandria font-normal text-[24px] text-white">
-              Agora você já está pronto
-            </p>
-            <p className="font-alexandria font-normal text-[24px] text-white">
-              para começar!
-            </p>
+          {/* Área que centraliza o conteúdo verticalmente */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full text-center space-y-2">
+              <p className="font-alexandria font-normal text-[24px] text-white">
+                Agora você já está pronto
+              </p>
+              <p className="font-alexandria font-normal text-[24px] text-white">
+                para começar!
+              </p>
+            </div>
           </div>
           
-          {/* Botão fixo na parte inferior */}
-          <div className="w-full pb-4">
+          {/* Botão fixo na parte inferior com margem */}
+          <div className="w-full pt-6 pb-4">
             <button
               onClick={handleStart}
               className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"

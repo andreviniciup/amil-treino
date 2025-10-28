@@ -98,32 +98,35 @@ export function OnboardingSplitPage() {
         {!selectedDays ? (
           // PASSO 1: Escolher quantidade de dias
           <>
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="w-full mb-8 text-center">
-                <p className="font-alexandria font-normal text-[24px] text-white mb-3">
-                  Quantos dias por semana você quer treinar?
-                </p>
-                
-                <p className="font-alexandria font-normal text-[14px] text-white/80">
-                  Escolha a frequência que melhor se encaixa na sua rotina
-                </p>
-              </div>
+            {/* Área que centraliza o conteúdo verticalmente */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className="w-full">
+                <div className="w-full mb-8 text-center">
+                  <p className="font-alexandria font-normal text-[24px] text-white mb-3">
+                    Quantos dias por semana você quer treinar?
+                  </p>
+                  
+                  <p className="font-alexandria font-normal text-[14px] text-white/80">
+                    Escolha a frequência que melhor se encaixa na sua rotina
+                  </p>
+                </div>
 
-              <div className="grid grid-cols-2 gap-[16px] px-4">
-                {daysOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => setSelectedDays(option.value)}
-                    className="bg-[#ffffff15] hover:bg-[#ffffff25] active:scale-95 border-2 border-transparent hover:border-[#ffffff30] p-[24px] rounded-[20px] transition-all flex flex-col items-center justify-center min-h-[100px]"
-                  >
-                    <p className="font-alexandria font-medium text-[32px] text-white mb-[4px]">
-                      {option.value}
-                    </p>
-                    <p className="font-alexandria font-normal text-[14px] text-white/70">
-                      dias
-                    </p>
-                  </button>
-                ))}
+                <div className="grid grid-cols-2 gap-[16px] px-4">
+                  {daysOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setSelectedDays(option.value)}
+                      className="bg-[#ffffff15] hover:bg-[#ffffff25] active:scale-95 border-2 border-transparent hover:border-[#ffffff30] p-[24px] rounded-[20px] transition-all flex flex-col items-center justify-center min-h-[100px]"
+                    >
+                      <p className="font-alexandria font-medium text-[32px] text-white mb-[4px]">
+                        {option.value}
+                      </p>
+                      <p className="font-alexandria font-normal text-[14px] text-white/70">
+                        dias
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </>
@@ -211,7 +214,8 @@ export function OnboardingSplitPage() {
               </div>
             </div>
             
-            <div className="w-full pt-4">
+            {/* Botão fixo na parte inferior com margem */}
+            <div className="w-full pt-6 pb-4">
               <button
                 onClick={handleNext}
                 disabled={!selectedSplit}

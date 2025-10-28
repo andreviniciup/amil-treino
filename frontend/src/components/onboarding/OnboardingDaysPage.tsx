@@ -32,43 +32,42 @@ export function OnboardingDaysPage() {
 
   return (
     <div className="bg-[#4f6c25] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="onboarding - 4">
-      <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
         
-        {/* Espaçador superior */}
-        <div className="flex-1" />
-        
-        {/* Conteúdo central */}
-        <div className="w-full space-y-8">
-          {/* Título */}
-          <div className="text-center">
-            <p className="font-alexandria font-normal text-[24px] text-white">
-              Quais dias você
-            </p>
-            <p className="font-alexandria font-normal text-[24px] text-white">
-              pretende treinar?
-            </p>
-          </div>
-          
-          {/* Grid de dias */}
-          <div className="w-full flex justify-between gap-2">
-            {days.map((day, index) => (
-              <button
-                key={`${day.value}-${index}`}
-                onClick={() => toggleDay(day.value)}
-                className={`w-[45px] h-[45px] rounded-full flex items-center justify-center transition-all ${
-                  selectedDays.includes(day.value)
-                    ? 'bg-[#1c1c1c] text-white'
-                    : 'bg-[rgba(0,0,0,0.2)] text-white/70 hover:bg-[rgba(0,0,0,0.3)]'
-                }`}
-              >
-                <p className="font-alexandria font-medium text-[16px]">{day.label}</p>
-              </button>
-            ))}
+        {/* Área que centraliza o conteúdo verticalmente */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full space-y-8">
+            {/* Título */}
+            <div className="text-center">
+              <p className="font-alexandria font-normal text-[24px] text-white">
+                Quais dias você
+              </p>
+              <p className="font-alexandria font-normal text-[24px] text-white">
+                pretende treinar?
+              </p>
+            </div>
+            
+            {/* Grid de dias */}
+            <div className="w-full flex justify-between gap-2">
+              {days.map((day, index) => (
+                <button
+                  key={`${day.value}-${index}`}
+                  onClick={() => toggleDay(day.value)}
+                  className={`w-[45px] h-[45px] rounded-full flex items-center justify-center transition-all ${
+                    selectedDays.includes(day.value)
+                      ? 'bg-[#1c1c1c] text-white'
+                      : 'bg-[rgba(0,0,0,0.2)] text-white/70 hover:bg-[rgba(0,0,0,0.3)]'
+                  }`}
+                >
+                  <p className="font-alexandria font-medium text-[16px]">{day.label}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         
-        {/* Botão fixo na parte inferior */}
-        <div className="w-full pb-4">
+        {/* Botão fixo na parte inferior com margem */}
+        <div className="w-full pt-6 pb-4">
           <button
             onClick={handleNext}
             className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
