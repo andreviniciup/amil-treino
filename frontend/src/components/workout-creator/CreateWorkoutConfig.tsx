@@ -176,18 +176,25 @@ export function CreateWorkoutConfig() {
                           type="text"
                           inputMode="numeric"
                           pattern="[0-9]*"
-                          value={exercise.series}
+                          value={exercise.series || ''}
                           onChange={(e) => {
                             const value = e.target.value.replace(/[^0-9]/g, '');
-                            if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 99)) {
-                              updateSeries(index, value);
+                            // Permite vazio ou números de 1 a 99
+                            if (value === '') {
+                              updateSeries(index, '');
+                            } else {
+                              const num = parseInt(value);
+                              if (num > 0 && num <= 99) {
+                                updateSeries(index, value);
+                              }
                             }
                           }}
                           onClick={(e) => e.stopPropagation()}
                           onTouchStart={(e) => e.stopPropagation()}
                           onTouchMove={(e) => e.stopPropagation()}
                           onTouchEnd={(e) => e.stopPropagation()}
-                          className="w-6 text-white text-[12px] font-alexandria font-medium bg-transparent border-none outline-none text-center"
+                          placeholder="0"
+                          className="w-6 text-white text-[12px] font-alexandria font-medium bg-transparent border-none outline-none text-center placeholder:text-[#666]"
                           maxLength={2}
                         />
                         <span className="text-[#888] text-[10px] font-alexandria whitespace-nowrap">
