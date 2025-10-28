@@ -10,7 +10,7 @@ export function CreateWorkoutConfig() {
   const [exercises, setExercises] = useState(() => {
     return (workoutData.exercises || []).map((ex, index) => ({
       ...ex,
-      series: 3
+      series: ex.series || 3
     }));
   });
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
