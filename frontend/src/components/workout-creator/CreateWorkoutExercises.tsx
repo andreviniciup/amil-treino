@@ -182,10 +182,7 @@ export function CreateWorkoutExercises() {
                   }}>
                     {exercise.gifUrl ? (
                       <img
-                        src={exercise.gifUrl.replace(
-                          'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/',
-                          'https://cdn.jsdelivr.net/gh/andreviniciup/amil-treino-images@main/exercises/'
-                        )}
+                        src={exercise.gifUrl}
                         alt={exercise.name}
                         style={{
                           width: '100%',
