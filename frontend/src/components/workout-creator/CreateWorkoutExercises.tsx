@@ -180,11 +180,11 @@ export function CreateWorkoutExercises() {
                     justifyContent: 'center',
                     overflow: 'hidden'
                   }}>
-                    {exercise.gifUrl && (
+                    {exercise.gifUrl ? (
                       <img
                         src={exercise.gifUrl.replace(
                           'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/',
-                          '/exercises/'
+                          'https://cdn.jsdelivr.net/gh/andreviniciup/amil-treino-images@main/exercises/'
                         )}
                         alt={exercise.name}
                         style={{
@@ -193,12 +193,11 @@ export function CreateWorkoutExercises() {
                           objectFit: 'cover'
                         }}
                         onError={(e: any) => {
-                          // Fallback para imagem do músculo
+                          // Fallback: Imagem do músculo
                           e.target.src = getMuscleImage(exercise.bodyPart);
                         }}
                       />
-                    )}
-                    {!exercise.gifUrl && (
+                    ) : (
                       <img
                         src={getMuscleImage(exercise.bodyPart)}
                         alt={exercise.bodyPart}
