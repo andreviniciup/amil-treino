@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
-import { WorkoutOption } from '../common/WorkoutOption';
 import svgPaths from '../../imports/svg-ws2buulh19';
 
 export function CreateWorkoutType() {
@@ -27,19 +25,49 @@ export function CreateWorkoutType() {
   };
 
   return (
-    <div className="bg-[#202020] relative size-full" data-name="criar-treino-tipo">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      <p className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[36px] text-[24px] text-nowrap text-white top-[234px] whitespace-pre">Qual tipo de treino?</p>
-      {workouts.map((workout) => (
-        <WorkoutOption
-          key={workout.label}
-          label={workout.label}
-          svgPath={workout.svgPath}
-          isSelected={selectedWorkout === workout.label}
-          onClick={() => toggleWorkout(workout.label)}
-          top={workout.top}
-        />
-      ))}
+    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-tipo">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+        
+        {/* Área que centraliza o conteúdo verticalmente */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full space-y-6">
+            {/* Título */}
+            <p className="font-alexandria font-normal text-[24px] text-white text-left">
+              Qual tipo de treino?
+            </p>
+            
+            {/* Lista de opções */}
+            <div className="w-full space-y-3">
+              {workouts.map((workout) => (
+                <button
+                  key={workout.label}
+                  onClick={() => toggleWorkout(workout.label)}
+                  className={`w-full h-[60px] rounded-[20px] flex items-center px-6 gap-4 transition-all ${
+                    selectedWorkout === workout.label
+                      ? 'bg-[#1c1c1c] text-white'
+                      : 'bg-[rgba(61,61,61,0.5)] text-white/70 hover:bg-[rgba(61,61,61,0.7)]'
+                  }`}
+                >
+                  <svg className="w-[24px] h-[24px]">
+                    <path d={workout.svgPath} fill="currentColor" />
+                  </svg>
+                  <p className="font-alexandria font-normal text-[18px]">{workout.label}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Botão fixo na parte inferior com margem */}
+        <div className="w-full pt-6 pb-4">
+          <button
+            onClick={handleNext}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

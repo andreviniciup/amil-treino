@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
-import { SelectOptionInteresse } from '../common/SelectOptionInteresse';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 
 // Mapeamento de grupos musculares para bodyParts do banco de dados
@@ -85,12 +83,67 @@ export function CreateWorkoutMuscles() {
   };
 
   return (
-    <div className="bg-[#202020] relative size-full" data-name="criar-treino-03">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      <Frame55 selectedMuscles={selectedMuscles} onToggle={toggleMuscle} />
-      <div className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[191.5px] text-[24px] text-center text-white top-[291px] translate-x-[-50%]">
-        <p className="mb-0">{`qual músculos serão `}</p>
-        <p>{`trabalhados? `}</p>
+    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-03">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+        
+        {/* Área que centraliza o conteúdo verticalmente */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full space-y-8">
+            {/* Título */}
+            <div className="text-center">
+              <p className="font-alexandria font-normal text-[24px] text-white">
+                qual músculos serão trabalhados?
+              </p>
+            </div>
+            
+            {/* Grid de músculos - 2 linhas */}
+            <div className="w-full space-y-3">
+              {/* Linha 1 */}
+              <div className="grid grid-cols-4 gap-2">
+                {['Peito', 'Costas', 'Ombros', 'Braços'].map((muscle) => (
+                  <button
+                    key={muscle}
+                    onClick={() => toggleMuscle(muscle)}
+                    className={`h-[50px] rounded-[999px] flex items-center justify-center transition-all ${
+                      selectedMuscles.includes(muscle)
+                        ? 'bg-[#1c1c1c] text-white'
+                        : 'bg-[rgba(61,61,61,0.5)] text-white/70 hover:bg-[rgba(61,61,61,0.7)]'
+                    }`}
+                  >
+                    <p className="font-alexandria font-normal text-[12px]">{muscle}</p>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Linha 2 */}
+              <div className="grid grid-cols-4 gap-2">
+                {['Pernas', 'Glúteos', 'Core', 'Cardio'].map((muscle) => (
+                  <button
+                    key={muscle}
+                    onClick={() => toggleMuscle(muscle)}
+                    className={`h-[50px] rounded-[999px] flex items-center justify-center transition-all ${
+                      selectedMuscles.includes(muscle)
+                        ? 'bg-[#1c1c1c] text-white'
+                        : 'bg-[rgba(61,61,61,0.5)] text-white/70 hover:bg-[rgba(61,61,61,0.7)]'
+                    }`}
+                  >
+                    <p className="font-alexandria font-normal text-[12px]">{muscle}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Botão fixo na parte inferior com margem */}
+        <div className="w-full pt-6 pb-4">
+          <button
+            onClick={handleNext}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
 import { useWorkoutCreator } from '../../contexts/WorkoutCreatorContext';
 import { workoutApi, CreateWorkoutPlanDto } from '../../services/api';
 
@@ -71,37 +70,51 @@ export function CreateWorkoutReady() {
   };
 
   return (
-    <div className="bg-[#202020] relative size-full flex flex-col justify-center items-center" data-name="criar-treino-ready">
+    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-ready">
       {loading ? (
-        <>
-          <div className="text-white text-[24px] font-['Alexandria:Regular',_sans-serif] mb-4">
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-white text-[20px] font-alexandria font-normal mb-4">
             Salvando treino...
           </div>
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white"></div>
-        </>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+        </div>
       ) : error ? (
-        <>
-          <div className="text-red-400 text-[20px] font-['Alexandria:Regular',_sans-serif] mb-4 text-center px-8">
+        <div className="flex flex-col items-center justify-center px-8">
+          <div className="text-white text-[18px] font-alexandria font-normal mb-4 text-center">
             {error}
           </div>
           <button
             onClick={handleFinish}
-            className="bg-[#d9d9d9] px-8 py-4 rounded-full text-[#202020] font-['Alexandria:Medium',_sans-serif]"
+            className="bg-white px-8 py-4 rounded-full text-[#202020] font-alexandria font-medium"
           >
             Tentar novamente
           </button>
-        </>
+        </div>
       ) : (
-        <>
-          <div className="text-[80px] mb-[30px]">
-            🎉
-          </div>
-          <div className="text-white text-[28px] font-['Alexandria:Bold',_sans-serif] font-bold text-center leading-[1.3] mb-[50px]">
-            Treino pronto, já pode<br/>começar agora mesmo!!!
+        <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+          
+          {/* Área que centraliza o conteúdo verticalmente */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full text-center">
+              <div className="text-[80px] mb-[30px]">
+                🎉
+              </div>
+              <p className="font-alexandria font-bold text-[28px] text-white leading-[1.3]">
+                Treino pronto, já pode<br/>começar agora mesmo!!!
+              </p>
+            </div>
           </div>
           
-          <Frame106 onClick={handleFinish} text="Salvar e Começar" />
-        </>
+          {/* Botão fixo na parte inferior com margem */}
+          <div className="w-full pt-6 pb-4">
+            <button
+              onClick={handleFinish}
+              className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+            >
+              <p className="font-alexandria font-medium text-[20px] text-white">Salvar e Começar</p>
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

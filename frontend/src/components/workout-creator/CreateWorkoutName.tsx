@@ -1,20 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
-
-function InputFormsOverboarding({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return (
-    <div className="absolute content-stretch flex flex-col gap-[5px] items-start left-[18px] top-[382px] w-[354px]" data-name="input-forms-overboarding">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Digite o nome do treino"
-        className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] shrink-0 w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors placeholder:text-gray-400"
-      />
-    </div>
-  );
-}
 
 export function CreateWorkoutName() {
   const navigate = useNavigate();
@@ -28,10 +13,38 @@ export function CreateWorkoutName() {
   };
 
   return (
-    <div className="bg-[#202020] relative size-full" data-name="criar-treino-02">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      <InputFormsOverboarding value={nomeTreino} onChange={setNomeTreino} />
-      <p className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[calc(20%+24px)] text-[24px] text-nowrap text-white top-[342px] whitespace-pre">nome do treino</p>
+    <div className="bg-[#202020] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="criar-treino-02">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-8">
+        
+        {/* Área que centraliza o conteúdo verticalmente */}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-full space-y-6">
+            {/* Título */}
+            <p className="font-alexandria font-normal text-[24px] text-white text-left">
+              nome do treino
+            </p>
+            
+            {/* Input */}
+            <input
+              type="text"
+              value={nomeTreino}
+              onChange={(e) => setNomeTreino(e.target.value)}
+              placeholder="Digite o nome do treino"
+              className="bg-[rgba(61,61,61,0.5)] h-[45px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors placeholder:text-gray-400"
+            />
+          </div>
+        </div>
+        
+        {/* Botão fixo na parte inferior com margem */}
+        <div className="w-full pt-6 pb-4">
+          <button
+            onClick={handleNext}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
