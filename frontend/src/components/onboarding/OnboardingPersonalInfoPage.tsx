@@ -96,6 +96,9 @@ export function OnboardingPersonalInfoPage() {
           </div>
         </div>
         
+        {/* Espaçador antes do botão */}
+        <div className="h-8" />
+        
         {/* Botão fixo na parte inferior */}
         <div className="w-full pb-4">
           <button
