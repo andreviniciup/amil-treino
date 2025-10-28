@@ -20,6 +20,8 @@ export function CreateWorkoutDay() {
   const onboardingDays = JSON.parse(localStorage.getItem('onboarding-days') || '[]');
   const onboardingSplit = JSON.parse(localStorage.getItem('onboarding-split') || '{}');
   
+  console.log('📅 Dias do onboarding:', onboardingDays);
+  
   // Buscar treinos já criados do localStorage
   const existingWorkouts = JSON.parse(localStorage.getItem('created-workouts') || '[]');
   
@@ -35,7 +37,13 @@ export function CreateWorkoutDay() {
   };
   
   // Converter dias do onboarding para o formato correto
-  const recommendedDays = onboardingDays.map((day: string) => dayMapping[day] || day).filter(Boolean);
+  const recommendedDays = onboardingDays.map((day: string) => {
+    const mapped = dayMapping[day] || day;
+    console.log(`🔄 Mapeando "${day}" -> "${mapped}"`);
+    return mapped;
+  }).filter(Boolean);
+  
+  console.log('✅ Dias recomendados finais:', recommendedDays);
   
   // Selecionar apenas 1 dia
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
