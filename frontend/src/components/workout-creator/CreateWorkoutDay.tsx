@@ -51,24 +51,19 @@ export function CreateWorkoutDay() {
   // Informação sobre a divisão de treino
   const splitInfo = onboardingSplit.days ? `Divisão ${onboardingSplit.name} (${onboardingSplit.days} dias)` : null;
 
-  // Função para verificar se um dia já tem treino com os mesmos músculos
+  // Função para verificar se um dia já tem treino
   const isDayBlocked = (dayKey: string): boolean => {
-    const currentMuscles = workoutData.musculos || [];
+    // Se o dia não está nos dias recomendados do onboarding, bloqueia
+    if (!recommendedDays.includes(dayKey)) {
+      return true;
+    }
     
-    // Verificar se já existe treino neste dia com músculos em comum
-    const workoutOnDay = existingWorkouts.find((w: any) => 
+    // Verificar se já existe algum treino neste dia (bloqueio completo)
+    const hasWorkoutOnDay = existingWorkouts.some((w: any) => 
       w.trainingDays && w.trainingDays.includes(dayKey)
     );
     
-    if (!workoutOnDay) return false;
-    
-    // Verificar se há músculos em comum
-    const workoutMuscles = workoutOnDay.musculos || [];
-    const hasCommonMuscles = currentMuscles.some((muscle: string) => 
-      workoutMuscles.includes(muscle)
-    );
-    
-    return hasCommonMuscles;
+    return hasWorkoutOnDay;
   };
 
   const handleDaySelect = (dayKey: string) => {

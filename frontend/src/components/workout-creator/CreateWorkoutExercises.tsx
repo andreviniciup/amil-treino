@@ -23,12 +23,39 @@ export function CreateWorkoutExercises() {
         
         if (workoutData.musculos && workoutData.musculos.length > 0) {
           // Backend agora retorna dados em português, buscar diretamente
-          console.log('� Buscando exercícios para:', workoutData.musculos);
+          console.log('🎯 Buscando exercícios para:', workoutData.musculos);
           
-          // Buscar exercícios por grupo muscular (agora em português)
-          const exercisePromises = workoutData.musculos.map(muscle => 
-            exerciseApi.getByBodyPart(muscle)
-          );
+          // Mapeamento de português para o nome exato do banco
+          const muscleNameMapping: Record<string, string> = {
+            'Peito': 'peito',
+            'Costas': 'costas',
+            'Lombar': 'lombar',
+            'Ombros': 'ombros',
+            'Trapézio': 'trapézio',
+            'Bíceps': 'bíceps',
+            'Tríceps': 'tríceps',
+            'Antebraços': 'antebraços',
+            'Quadríceps': 'quadríceps',
+            'Posteriores de Coxa': 'posteriores',
+            'Panturrilhas': 'panturrilhas',
+            'Adutores': 'adutores',
+            'Abdutores': 'abdutores',
+            'Glúteos': 'glúteos',
+            'Abdômen': 'abdômen',
+            'Cardio': 'cardio'
+          };
+          
+          // Buscar exercícios por grupo muscular
+          const exercisePromises = workoutData.musculos.map(async (muscle) => {
+            const searchTerm = muscleNameMapping[muscle] || muscle.toLowerCase();
+            console.log(`🔍 Buscando: "${muscle}" -> "${searchTerm}"`);
+            try {
+              return await exerciseApi.getByBodyPart(searchTerm);
+            } catch (err) {
+              console.warn(`⚠️ Erro ao buscar "${searchTerm}":`, err);
+              return [];
+            }
+          });
           const results = await Promise.all(exercisePromises);
           // Combinar e remover duplicatas
           fetchedExercises = results.flat().filter((exercise, index, self) =>
@@ -42,8 +69,12 @@ export function CreateWorkoutExercises() {
         // Exercícios já vêm traduzidos do backend
         setExercises(fetchedExercises);
         
-        console.log('✅ Exercícios carregados:', fetchedExercises.length);
-        console.log('🖼️ Primeiro exercício:', fetchedExercises[0]);
+        console.log('✅ Exercícios encontrados:', fetchedExercises.length);
+        if (fetchedExercises.length > 0) {
+          console.log('🖼️ Primeiro exercício:', fetchedExercises[0]);
+        } else {
+          console.warn('⚠️ Nenhum exercício encontrado para os músculos selecionados');
+        }
       } catch (err) {
         console.error('Erro ao carregar exercícios:', err);
         setError('Erro ao carregar exercícios. Tente novamente.');
