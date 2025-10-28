@@ -25,34 +25,49 @@ export function CreateWorkoutExercises() {
           // Backend agora retorna dados em português, buscar diretamente
           console.log('🎯 Buscando exercícios para:', workoutData.musculos);
           
-          // Mapeamento de português para o nome exato do banco
+          // Mapeamento para os nomes EXATOS do banco de dados
           const muscleNameMapping: Record<string, string> = {
+            // Peito
             'Peito': 'peito',
+            // Costas
             'Costas': 'costas',
-            'Lombar': 'lombar',
+            'Lombar': 'costas',
+            // Ombros
             'Ombros': 'ombros',
-            'Trapézio': 'trapézio',
-            'Bíceps': 'bíceps',
-            'Tríceps': 'tríceps',
-            'Antebraços': 'antebraços',
-            'Quadríceps': 'quadríceps',
-            'Posteriores de Coxa': 'posteriores',
-            'Panturrilhas': 'panturrilhas',
-            'Adutores': 'adutores',
-            'Abdutores': 'abdutores',
-            'Glúteos': 'glúteos',
+            'Trapézio': 'ombros',
+            // Braços
+            'Bíceps': 'braços',
+            'Tríceps': 'braços',
+            'Antebraços': 'braços',
+            // Pernas - TODOS mapeiam para 'pernas' no banco
+            'Quadríceps': 'pernas',
+            'Posteriores de Coxa': 'pernas',
+            'Panturrilhas': 'pernas',
+            'Adutores': 'pernas',
+            'Abdutores': 'pernas',
+            'Glúteos': 'pernas',
+            // Core
             'Abdômen': 'abdômen',
+            // Cardio
             'Cardio': 'cardio'
           };
           
+          // Mapear e remover duplicatas (ex: quadríceps e glúteos = ambos 'pernas')
+          const uniqueMuscles = [...new Set(
+            workoutData.musculos.map(muscle => muscleNameMapping[muscle] || muscle.toLowerCase())
+          )];
+          
+          console.log('�️ Músculos únicos para busca:', uniqueMuscles);
+          
           // Buscar exercícios por grupo muscular
-          const exercisePromises = workoutData.musculos.map(async (muscle) => {
-            const searchTerm = muscleNameMapping[muscle] || muscle.toLowerCase();
-            console.log(`🔍 Buscando: "${muscle}" -> "${searchTerm}"`);
+          const exercisePromises = uniqueMuscles.map(async (muscle) => {
+            console.log(`🔍 Buscando exercícios de: "${muscle}"`);
             try {
-              return await exerciseApi.getByBodyPart(searchTerm);
+              const result = await exerciseApi.getByBodyPart(muscle);
+              console.log(`✅ Encontrados ${result.length} exercícios de "${muscle}"`);
+              return result;
             } catch (err) {
-              console.warn(`⚠️ Erro ao buscar "${searchTerm}":`, err);
+              console.warn(`⚠️ Erro ao buscar "${muscle}":`, err);
               return [];
             }
           });
