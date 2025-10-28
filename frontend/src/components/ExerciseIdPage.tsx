@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
 import { SeriesCard } from "./SeriesCard";
 import { SlideToComplete } from "./SlideToComplete";
 import { workoutApi } from "../services/api";
@@ -175,10 +176,11 @@ export function ExerciseIdPage() {
       <div className="absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] top-[56px] w-[350px]">
         {/* Imagem do Exercício */}
         <div className="bg-[#202020] h-[350px] relative rounded-[30px] shrink-0 w-full overflow-hidden">
-          <ImageWithFallback
-            src={exerciseGifUrl || "https://images.unsplash.com/photo-1590150392093-a552544eed09?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxneW0lMjB3ZWlnaHQlMjB0cmFpbmluZ3xlbnwxfHx8fDE3NjA4ODY0NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"}
-            alt="foto do exercicio"
-            className="size-full object-cover"
+          <AnimatedExerciseImage
+            gifUrl={exerciseGifUrl || ""}
+            alt={exerciseName}
+            className="size-full"
+            transitionSpeed={800}
           />
         </div>
 
