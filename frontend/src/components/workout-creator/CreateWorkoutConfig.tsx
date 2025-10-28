@@ -95,8 +95,7 @@ export function CreateWorkoutConfig() {
 
   const updateSeries = (index: number, value: string) => {
     const newExercises = [...exercises];
-    const numValue = parseInt(value) || 3;
-    newExercises[index].series = Math.max(1, numValue);
+    newExercises[index].series = value;
     setExercises(newExercises);
   };
 
@@ -105,7 +104,8 @@ export function CreateWorkoutConfig() {
       exercises: exercises.map((ex, index) => ({
         ...ex,
         order: index,
-        sets: ex.series
+        sets: parseInt(ex.series) || 3, // Converte para número, usa 3 como padrão se vazio
+        series: parseInt(ex.series) || 3 // Mantém também em series
       }))
     });
     navigate('/workout/create/day');
