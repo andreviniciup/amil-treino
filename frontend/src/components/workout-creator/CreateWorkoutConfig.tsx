@@ -173,13 +173,22 @@ export function CreateWorkoutConfig() {
                       {/* Input de séries */}
                       <div className="flex-shrink-0 px-3 py-1 bg-[#252525] rounded-full flex items-center gap-1.5">
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={exercise.series}
-                          onChange={(e) => updateSeries(index, e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            if (value === '' || (parseInt(value) > 0 && parseInt(value) <= 99)) {
+                              updateSeries(index, value);
+                            }
+                          }}
                           onClick={(e) => e.stopPropagation()}
                           onTouchStart={(e) => e.stopPropagation()}
-                          className="w-5 text-[#888] text-[10px] font-alexandria bg-transparent border-none outline-none text-center"
-                          min="1"
+                          onTouchMove={(e) => e.stopPropagation()}
+                          onTouchEnd={(e) => e.stopPropagation()}
+                          className="w-6 text-white text-[12px] font-alexandria font-medium bg-transparent border-none outline-none text-center"
+                          maxLength={2}
                         />
                         <span className="text-[#888] text-[10px] font-alexandria whitespace-nowrap">
                           séries
