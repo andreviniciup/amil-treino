@@ -5,9 +5,8 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "build": "prisma generate && prisma migrate deploy && tsc && npm run postbuild && npm run auto-seed",
+    "build": "prisma generate && prisma migrate deploy && tsc && npm run postbuild",
     "postbuild": "node scripts/postbuild.js",
-    "auto-seed": "node scripts/auto-seed-production.js",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -17,6 +16,8 @@
     "seed:exercises:api:prod": "node dist/scripts/seedExercisesFromAPI.js",
     "seed:production": "ts-node scripts/seed-production.ts",
     "seed:json": "node scripts/seed-from-json.js",
+    "seed:db": "node scripts/seed-exercises-to-db.js",
+    "generate:migration": "node scripts/generate-exercises-migration.js",
     "reset:database": "node scripts/reset-database.js",
     "test:gifs": "ts-node src/scripts/testGifs.ts"
   },
