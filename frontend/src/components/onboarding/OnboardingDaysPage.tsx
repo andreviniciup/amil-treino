@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
-import { DayButton } from '../common/DayButton';
 
-interface Frame469Props {
-  selectedDays: string[];
-  onToggle: (day: string) => void;
-}
+export function OnboardingDaysPage() {
+  const navigate = useNavigate();
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
-function Frame469({ selectedDays, onToggle }: Frame469Props) {
   const days = [
     { label: 'S', value: 'Segunda' },
     { label: 'T', value: 'Terça' },
@@ -18,32 +14,6 @@ function Frame469({ selectedDays, onToggle }: Frame469Props) {
     { label: 'S', value: 'Sábado' },
     { label: 'D', value: 'Domingo' },
   ];
-
-  return (
-    <div className="content-stretch flex gap-[10px] items-center relative shrink-0">
-      {days.map((day, index) => (
-        <DayButton
-          key={`${day.value}-${index}`}
-          day={day.label}
-          isSelected={selectedDays.includes(day.value)}
-          onClick={() => onToggle(day.value)}
-        />
-      ))}
-    </div>
-  );
-}
-
-function Frame470({ selectedDays, onToggle }: Frame469Props) {
-  return (
-    <div className="absolute content-stretch flex flex-col gap-[4px] items-start left-[25px] top-[395px]">
-      <Frame469 selectedDays={selectedDays} onToggle={onToggle} />
-    </div>
-  );
-}
-
-export function OnboardingDaysPage() {
-  const navigate = useNavigate();
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
@@ -61,12 +31,51 @@ export function OnboardingDaysPage() {
   };
 
   return (
-    <div className="bg-[#4f6c25] relative size-full" data-name="onboarding - 4">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      <Frame470 selectedDays={selectedDays} onToggle={toggleDay} />
-      <div className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[calc(20%+110px)] text-[24px] text-center text-nowrap text-white top-[313px] translate-x-[-50%] whitespace-pre">
-        <p className="mb-0">Quais dias você</p>
-        <p>{`pretente treinar? `}</p>
+    <div className="bg-[#4f6c25] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="onboarding - 4">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8">
+        
+        {/* Espaçador superior */}
+        <div className="flex-1" />
+        
+        {/* Conteúdo central */}
+        <div className="w-full space-y-8">
+          {/* Título */}
+          <div className="text-center">
+            <p className="font-alexandria font-normal text-[24px] text-white">
+              Quais dias você
+            </p>
+            <p className="font-alexandria font-normal text-[24px] text-white">
+              pretende treinar?
+            </p>
+          </div>
+          
+          {/* Grid de dias */}
+          <div className="w-full flex justify-between gap-2">
+            {days.map((day, index) => (
+              <button
+                key={`${day.value}-${index}`}
+                onClick={() => toggleDay(day.value)}
+                className={`w-[45px] h-[45px] rounded-full flex items-center justify-center transition-all ${
+                  selectedDays.includes(day.value)
+                    ? 'bg-[#1c1c1c] text-white'
+                    : 'bg-[rgba(0,0,0,0.2)] text-white/70 hover:bg-[rgba(0,0,0,0.3)]'
+                }`}
+              >
+                <p className="font-alexandria font-medium text-[16px]">{day.label}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Botão fixo na parte inferior */}
+        <div className="w-full pb-4">
+          <button
+            onClick={handleNext}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
       </div>
     </div>
   );

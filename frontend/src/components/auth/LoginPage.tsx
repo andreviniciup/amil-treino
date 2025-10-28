@@ -78,32 +78,35 @@ export function LoginPage() {
   };
 
   return (
-    <div className="bg-[#288b9f] relative w-full min-h-screen overflow-y-auto" data-name="login">
-      {/* Container centralizado horizontalmente */}
-      <div className="relative w-[393px] max-w-[90vw] h-auto mx-auto py-8">
+    <div className="bg-[#288B9F] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="entrar">
+      
+      {/* Container principal centralizado */}
+      <div className="relative w-full max-w-[393px] px-5">
         
         {/* Título */}
-        <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[32px] text-center text-white mb-6">entrar</p>
+        <div className="w-full mb-10">
+          <p className="font-alexandria font-medium text-[32px] text-center text-white">entrar</p>
+        </div>
         
         {/* Inputs */}
-        <div className="w-full space-y-6 px-5">
-          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
-            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">email</p>
+        <div className="w-full space-y-5">
+          <div className="flex flex-col gap-[5px] items-start w-full">
+            <p className="font-alexandria font-normal text-[16px] text-white w-full">email</p>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+              className="bg-[rgba(0,0,0,0.2)] h-[45px] sm:h-[50px] rounded-[999px] w-full px-[20px] text-white placeholder-white/60 outline-none focus:bg-[rgba(0,0,0,0.3)] transition-colors"
             />
           </div>
           
-          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
-            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">senha</p>
+          <div className="flex flex-col gap-[5px] items-start w-full">
+            <p className="font-alexandria font-normal text-[16px] text-white w-full">senha</p>
             <input
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+              className="bg-[rgba(0,0,0,0.2)] h-[45px] sm:h-[50px] rounded-[999px] w-full px-[20px] text-white placeholder-white/60 outline-none focus:bg-[rgba(0,0,0,0.3)] transition-colors"
             />
           </div>
           
@@ -115,19 +118,19 @@ export function LoginPage() {
         </div>
         
         {/* Termos */}
-        <div className="content-stretch flex gap-[10px] items-center justify-center mt-6">
-          <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[10px] text-center text-neutral-200 max-w-[200px]">
+        <div className="flex items-center justify-center mt-5">
+          <p className="font-alexandria font-normal text-[10px] text-center text-neutral-200 max-w-[250px]">
             <span>{`Criando uma conta, você concorda com todos os nossos `}</span>
-            <span className="[text-underline-position:from-font] decoration-solid underline">termos e condições</span>.
+            <span className="underline">termos e condições</span>.
           </p>
         </div>
         
         {/* Botão */}
         <button 
           onClick={handleSubmit}
-          className="bg-[#1c1c1c] box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] cursor-pointer hover:bg-[#2c2c2c] transition-colors mt-8"
+          className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] sm:h-[56px] rounded-[999px] w-full cursor-pointer transition-all mt-10"
         >
-          <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">entrar</p>
+          <p className="font-alexandria font-medium text-[20px] text-white">entrar</p>
         </button>
       </div>
     </div>

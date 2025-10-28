@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
 import { authApi } from '../../services/api';
 
 export function OnboardingFinalPage() {
@@ -49,34 +48,52 @@ export function OnboardingFinalPage() {
   };
 
   return (
-    <div className="bg-[#4f6c25] relative size-full" data-name="onboarding - 5">
+    <div className="bg-[#4f6c25] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="onboarding - 5">
       {loading ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-white text-[20px] font-['Alexandria:Regular',_sans-serif] mb-4">
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-white text-[20px] font-alexandria font-normal mb-4">
             Salvando seus dados...
           </div>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
         </div>
       ) : error ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-8">
-          <div className="text-white text-[18px] font-['Alexandria:Regular',_sans-serif] mb-4 text-center">
+        <div className="flex flex-col items-center justify-center px-8">
+          <div className="text-white text-[18px] font-alexandria font-normal mb-4 text-center">
             {error}
           </div>
           <button
             onClick={handleStart}
-            className="bg-white px-8 py-4 rounded-full text-[#4f6c25] font-['Alexandria:Medium',_sans-serif]"
+            className="bg-white px-8 py-4 rounded-full text-[#4f6c25] font-alexandria font-medium"
           >
             Tentar novamente
           </button>
         </div>
       ) : (
-        <>
-          <Frame106 onClick={handleStart} text="Começar" />
-          <div className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[195px] text-[24px] text-center text-nowrap text-white top-[393px] translate-x-[-50%] whitespace-pre">
-            <p className="mb-0">Agora você ja está pronto</p>
-            <p>{` para começar!`}</p>
+        <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8">
+          
+          {/* Espaçador superior */}
+          <div className="flex-1" />
+          
+          {/* Conteúdo central */}
+          <div className="w-full text-center space-y-2">
+            <p className="font-alexandria font-normal text-[24px] text-white">
+              Agora você já está pronto
+            </p>
+            <p className="font-alexandria font-normal text-[24px] text-white">
+              para começar!
+            </p>
           </div>
-        </>
+          
+          {/* Botão fixo na parte inferior */}
+          <div className="w-full pb-4">
+            <button
+              onClick={handleStart}
+              className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+            >
+              <p className="font-alexandria font-medium text-[20px] text-white">Começar</p>
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

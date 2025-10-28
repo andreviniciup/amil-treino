@@ -84,66 +84,69 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="bg-[#288b9f] relative w-full min-h-screen overflow-y-auto" data-name="registro">
-      {/* Container centralizado horizontalmente */}
-      <div className="relative w-[393px] max-w-[90vw] h-auto mx-auto py-8">
+    <div className="bg-[#FDCB1A] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="registro">
+      
+      {/* Container principal centralizado */}
+      <div className="relative w-full max-w-[393px] px-5">
         
         {/* Título */}
-        <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[32px] text-center text-white mb-6">Crie sua conta!</p>
+        <div className="w-full mb-8">
+          <p className="font-alexandria font-medium text-[32px] text-center text-[#1c1c1c]">Crie sua conta!</p>
+        </div>
         
         {/* Inputs */}
-        <div className="w-full space-y-6 px-5">
-          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
-            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">email</p>
+        <div className="w-full space-y-5">
+          <div className="flex flex-col gap-[5px] items-start w-full">
+            <p className="font-alexandria font-normal text-[16px] text-[#1c1c1c] w-full">email</p>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+              className="bg-[rgba(0,0,0,0.15)] h-[45px] sm:h-[50px] rounded-[999px] w-full px-[20px] text-[#1c1c1c] placeholder-black/40 outline-none focus:bg-[rgba(0,0,0,0.25)] transition-colors"
             />
           </div>
           
-          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
-            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">senha</p>
+          <div className="flex flex-col gap-[5px] items-start w-full">
+            <p className="font-alexandria font-normal text-[16px] text-[#1c1c1c] w-full">senha</p>
             <input
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+              className="bg-[rgba(0,0,0,0.15)] h-[45px] sm:h-[50px] rounded-[999px] w-full px-[20px] text-[#1c1c1c] placeholder-black/40 outline-none focus:bg-[rgba(0,0,0,0.25)] transition-colors"
             />
           </div>
           
-          <div className="content-stretch flex flex-col gap-[5px] items-start w-full" data-name="input-forms-overboarding">
-            <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[16px] text-white w-full">confirmar senha</p>
+          <div className="flex flex-col gap-[5px] items-start w-full">
+            <p className="font-alexandria font-normal text-[16px] text-[#1c1c1c] w-full">confirmar senha</p>
             <input
               type="password"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              className="bg-[rgba(61,61,61,0.5)] h-[40px] rounded-[999px] w-full px-[20px] text-white outline-none focus:bg-[rgba(61,61,61,0.7)] transition-colors"
+              className="bg-[rgba(0,0,0,0.15)] h-[45px] sm:h-[50px] rounded-[999px] w-full px-[20px] text-[#1c1c1c] placeholder-black/40 outline-none focus:bg-[rgba(0,0,0,0.25)] transition-colors"
             />
           </div>
           
           {error && (
             <div className="w-full">
-              <p className="font-['Alexandria:Regular',_sans-serif] text-[#ff6b6b] text-[12px]">{error}</p>
+              <p className="font-alexandria font-normal text-[#ff6b6b] text-[12px]">{error}</p>
             </div>
           )}
         </div>
         
         {/* Termos */}
-        <div className="content-stretch flex gap-[10px] items-center justify-center mt-6">
-          <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] text-[10px] text-center text-neutral-200 max-w-[200px]">
+        <div className="flex items-center justify-center mt-5">
+          <p className="font-alexandria font-normal text-[10px] text-center text-[#1c1c1c]/70 max-w-[250px]">
             <span>{`Criando uma conta, você concorda com todos os nossos `}</span>
-            <span className="[text-underline-position:from-font] decoration-solid underline">termos e condições</span>.
+            <span className="underline">termos e condições</span>.
           </p>
         </div>
         
         {/* Botão */}
         <button 
           onClick={handleSubmit}
-          className="bg-[#1c1c1c] box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] cursor-pointer hover:bg-[#2c2c2c] transition-colors mt-8"
+          className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] sm:h-[56px] rounded-[999px] w-full cursor-pointer transition-all mt-8"
         >
-          <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">Criar</p>
+          <p className="font-alexandria font-medium text-[20px] text-white">Criar</p>
         </button>
       </div>
     </div>

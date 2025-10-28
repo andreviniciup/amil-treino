@@ -1,49 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
-import { SelectOptionInteresse } from '../common/SelectOptionInteresse';
-
-interface Frame52Props {
-  interests: string[];
-  selectedInterests: string[];
-  onToggle: (interest: string) => void;
-}
-
-function Frame52({ interests, selectedInterests, onToggle }: Frame52Props) {
-  return (
-    <div className="content-stretch flex items-center justify-between relative shrink-0 w-full">
-      {interests.map((interest) => (
-        <SelectOptionInteresse
-          key={interest}
-          label={interest}
-          isSelected={selectedInterests.includes(interest)}
-          onClick={() => onToggle(interest)}
-        />
-      ))}
-    </div>
-  );
-}
-
-interface Frame55Props {
-  selectedInterests: string[];
-  onToggle: (interest: string) => void;
-}
-
-function Frame55({ selectedInterests, onToggle }: Frame55Props) {
-  const row1 = ['Hipertrofia', 'Força', 'Resistência', 'Definição'];
-  const row2 = ['Perda de Peso', 'Condicionamento', 'Reabilitação', 'Performance'];
-
-  return (
-    <div className="absolute content-stretch flex flex-col gap-[10px] items-start left-[18px] top-[358px] w-[354px]">
-      <Frame52 interests={row1} selectedInterests={selectedInterests} onToggle={onToggle} />
-      <Frame52 interests={row2} selectedInterests={selectedInterests} onToggle={onToggle} />
-    </div>
-  );
-}
 
 export function OnboardingGoalPage() {
   const navigate = useNavigate();
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+
+  const goals = [
+    'Hipertrofia', 'Força', 'Resistência', 'Definição',
+    'Perda de Peso', 'Condicionamento', 'Reabilitação', 'Performance'
+  ];
 
   const toggleInterest = (interest: string) => {
     setSelectedInterests((prev) =>
@@ -61,10 +26,47 @@ export function OnboardingGoalPage() {
   };
 
   return (
-    <div className="bg-[#4f6c25] relative size-full" data-name="onboarding - 2">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      <Frame55 selectedInterests={selectedInterests} onToggle={toggleInterest} />
-      <p className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[calc(20%+20px)] text-[24px] text-nowrap text-white top-[292px] whitespace-pre">Qual o seu foco?</p>
+    <div className="bg-[#4f6c25] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="onboarding - 2">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8">
+        
+        {/* Espaçador superior */}
+        <div className="flex-1" />
+        
+        {/* Conteúdo central */}
+        <div className="w-full space-y-8">
+          {/* Título */}
+          <p className="font-alexandria font-normal text-[24px] text-white text-center">
+            Qual o seu foco?
+          </p>
+          
+          {/* Grid de opções */}
+          <div className="w-full grid grid-cols-2 gap-3">
+            {goals.map((goal) => (
+              <button
+                key={goal}
+                onClick={() => toggleInterest(goal)}
+                className={`h-[50px] rounded-[999px] flex items-center justify-center transition-all ${
+                  selectedInterests.includes(goal)
+                    ? 'bg-[#1c1c1c] text-white'
+                    : 'bg-[rgba(0,0,0,0.2)] text-white/70 hover:bg-[rgba(0,0,0,0.3)]'
+                }`}
+              >
+                <p className="font-alexandria font-normal text-[14px]">{goal}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Botão fixo na parte inferior */}
+        <div className="w-full pb-4">
+          <button
+            onClick={handleNext}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

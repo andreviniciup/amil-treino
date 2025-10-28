@@ -129,22 +129,22 @@ interface LandingPageProps {
 
 export function LandingPage({ onLogin, onRegister }: LandingPageProps) {
   return (
-    <div className="bg-[#181818] relative w-full min-h-screen overflow-y-auto overflow-x-hidden" data-name="ladingpage/inicio">
+    <div className="bg-[#181818] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="ladingpage/inicio">
       <MaskGroup />
       
       {/* Adicionando CSS da animação inline */}
       <style>{`
         @keyframes expand-exit {
           0% {
-            transform: translate(-50%, 0) scale(1);
+            transform: scale(1);
             opacity: 1;
           }
           50% {
-            transform: translate(-50%, 0) scale(1.5);
+            transform: scale(1.5);
             opacity: 0.5;
           }
           100% {
-            transform: translate(-50%, 0) scale(10);
+            transform: scale(10);
             opacity: 0;
           }
         }
@@ -153,49 +153,39 @@ export function LandingPage({ onLogin, onRegister }: LandingPageProps) {
         }
       `}</style>
       
-      {/* Container centralizado horizontalmente */}
-      <div className="relative w-[393px] max-w-[90vw] h-auto mx-auto min-h-screen flex flex-col items-center justify-center py-8">
-        {/* Texto alinhado à esquerda dos botões */}
-        <div className="w-full px-5 mb-6">
-          <p className="font-['Alexandria:Medium',_sans-serif] font-medium text-[16px] text-left text-white leading-relaxed">
-            Transforme seu corpo, supere seus limites e alcance seus objetivos com treinos personalizados.
+      {/* Container principal - ocupa toda a altura */}
+      <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8 sm:py-12">
+        
+        {/* Espaçador superior */}
+        <div className="flex-1" />
+        
+        {/* Texto central */}
+        <div className="w-full mb-8 sm:mb-12">
+          <p className="font-alexandria font-normal text-[14px] sm:text-[16px] text-left text-white leading-relaxed max-w-[280px]">
+            Lorem ipsum is simply dummy text of the printing and typesetting industry.
           </p>
         </div>
         
-        {/* Botões */}
-        <div className="w-full px-5 space-y-4">
+        {/* Botões fixos na parte inferior */}
+        <div className="w-full space-y-3 sm:space-y-4 pb-4 sm:pb-8">
           <button
-            id="btn-criar"
-            onClick={() => {
-              const button = document.getElementById('btn-criar');
-              if (button) {
-                button.classList.add('animate-expand-exit');
-                setTimeout(() => onRegister(), 600);
-              }
-            }}
-            className="bg-[rgba(187,187,187,0.73)] hover:bg-[rgba(187,187,187,0.85)] 
-                       box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
-                       px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] mx-auto
-                       cursor-pointer transition-colors"
+            onClick={onRegister}
+            className="bg-[#FDCB1A] hover:bg-[#e5b717] 
+                       active:scale-95 box-border flex items-center justify-center 
+                       h-[50px] sm:h-[56px] rounded-[999px] w-full
+                       cursor-pointer transition-all"
           >
-            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">criar conta</p>
+            <p className="font-alexandria font-medium text-[18px] sm:text-[20px] text-[#1c1c1c]">criar conta</p>
           </button>
           
           <button
-            id="btn-entrar"
-            onClick={() => {
-              const button = document.getElementById('btn-entrar');
-              if (button) {
-                button.classList.add('animate-expand-exit');
-                setTimeout(() => onLogin(), 600);
-              }
-            }}
-            className="bg-[rgba(187,187,187,0.73)] hover:bg-[rgba(187,187,187,0.85)] 
-                       box-border content-stretch flex gap-[10px] h-[50px] items-center justify-center 
-                       px-[129px] py-[13px] rounded-[999px] w-full max-w-[353px] mx-auto
-                       cursor-pointer transition-colors"
+            onClick={onLogin}
+            className="bg-[#288B9F] hover:bg-[#237a8a] 
+                       active:scale-95 box-border flex items-center justify-center 
+                       h-[50px] sm:h-[56px] rounded-[999px] w-full
+                       cursor-pointer transition-all"
           >
-            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[20px] text-nowrap text-white whitespace-pre">entrar</p>
+            <p className="font-alexandria font-medium text-[18px] sm:text-[20px] text-white">entrar</p>
           </button>
         </div>
       </div>

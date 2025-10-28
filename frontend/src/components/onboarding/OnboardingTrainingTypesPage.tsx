@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Frame106 } from '../common/Frame106';
-import { WorkoutOption } from '../common/WorkoutOption';
-import svgPaths from '../../imports/svg-ws2buulh19';
 
 export function OnboardingTrainingTypesPage() {
   const navigate = useNavigate();
   const [selectedWorkouts, setSelectedWorkouts] = useState<string[]>([]);
 
   const workouts = [
-    { label: 'Musculação', svgPath: svgPaths.p154ef700, top: '280px' },
-    { label: 'Cardio', svgPath: svgPaths.p38fa7800, top: '355px' },
-    { label: 'Mobilidade', svgPath: svgPaths.pd5ec0c0, top: '430px' },
-    { label: 'Yoga', svgPath: svgPaths.p15911000, top: '505px' },
+    { label: 'Musculação', icon: '💪' },
+    { label: 'Cardio', icon: '🏃' },
+    { label: 'Mobilidade', icon: '🧘' },
+    { label: 'Yoga', icon: '🕉️' },
   ];
 
   const toggleWorkout = (workout: string) => {
@@ -31,19 +28,48 @@ export function OnboardingTrainingTypesPage() {
   };
 
   return (
-    <div className="bg-[#4f6c25] relative size-full" data-name="onboarding - 3">
-      <Frame106 onClick={handleNext} text="Avançar" />
-      <p className="absolute font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] left-[36px] text-[24px] text-nowrap text-white top-[234px] whitespace-pre">Quais seus tipos de treino?</p>
-      {workouts.map((workout) => (
-        <WorkoutOption
-          key={workout.label}
-          label={workout.label}
-          svgPath={workout.svgPath}
-          isSelected={selectedWorkouts.includes(workout.label)}
-          onClick={() => toggleWorkout(workout.label)}
-          top={workout.top}
-        />
-      ))}
+    <div className="bg-[#4f6c25] relative w-full h-screen overflow-hidden flex items-center justify-center" data-name="onboarding - 3">
+      <div className="relative w-full max-w-[393px] h-full flex flex-col justify-between px-5 py-8">
+        
+        {/* Espaçador superior */}
+        <div className="flex-1" />
+        
+        {/* Conteúdo central */}
+        <div className="w-full space-y-6">
+          {/* Título */}
+          <p className="font-alexandria font-normal text-[24px] text-white text-left">
+            Quais seus tipos de treino?
+          </p>
+          
+          {/* Lista de opções */}
+          <div className="w-full space-y-3">
+            {workouts.map((workout) => (
+              <button
+                key={workout.label}
+                onClick={() => toggleWorkout(workout.label)}
+                className={`w-full h-[60px] rounded-[20px] flex items-center px-6 gap-4 transition-all ${
+                  selectedWorkouts.includes(workout.label)
+                    ? 'bg-[#1c1c1c] text-white'
+                    : 'bg-[rgba(0,0,0,0.2)] text-white/70 hover:bg-[rgba(0,0,0,0.3)]'
+                }`}
+              >
+                <span className="text-[24px]">{workout.icon}</span>
+                <p className="font-alexandria font-normal text-[18px]">{workout.label}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Botão fixo na parte inferior */}
+        <div className="w-full pb-4">
+          <button
+            onClick={handleNext}
+            className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] rounded-[999px] w-full cursor-pointer transition-all"
+          >
+            <p className="font-alexandria font-medium text-[20px] text-white">Avançar</p>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
