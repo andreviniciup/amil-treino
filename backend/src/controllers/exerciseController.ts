@@ -154,7 +154,7 @@ export class ExerciseController {
   async getHistory(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const userId = (req as any).user?.id; // Pega do middleware de autenticação
+      const userId = (req as any).user?.userId; // Corrigido: usar userId em vez de id
 
       if (!userId) {
         return res.status(401).json({

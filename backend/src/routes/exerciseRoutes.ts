@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import exerciseController from '../controllers/exerciseController';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
@@ -21,8 +22,8 @@ router.get('/category/:category', exerciseController.getByCategory.bind(exercise
 // GET /api/exercises/stats - Estatísticas do banco interno (ANTES de :id)
 router.get('/stats', exerciseController.getStats.bind(exerciseController));
 
-// GET /api/exercises/:id/history - Histórico de um exercício específico
-router.get('/:id/history', exerciseController.getHistory.bind(exerciseController));
+// GET /api/exercises/:id/history - Histórico de um exercício específico (PROTEGIDO)
+router.get('/:id/history', authenticate, exerciseController.getHistory.bind(exerciseController));
 
 // GET /api/exercises/:id - Exercício específico (por último)
 router.get('/:id', exerciseController.getById.bind(exerciseController));
