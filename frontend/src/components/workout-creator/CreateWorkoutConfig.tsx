@@ -100,13 +100,24 @@ export function CreateWorkoutConfig() {
   };
 
   const handleFinalize = () => {
+    const updatedExercises = exercises.map((ex, index) => ({
+      ...ex,
+      order: index,
+      sets: parseInt(ex.series) || 3, // Converte para número, usa 3 como padrão se vazio
+      series: parseInt(ex.series) || 3 // Mantém também em series
+    }));
+    
+    console.log('=== DEBUG: Finalizando config ===');
+    updatedExercises.forEach((ex, idx) => {
+      console.log(`Exercício ${idx + 1}:`, {
+        name: ex.name,
+        sets: ex.sets,
+        series: ex.series
+      });
+    });
+    
     updateWorkoutData({ 
-      exercises: exercises.map((ex, index) => ({
-        ...ex,
-        order: index,
-        sets: parseInt(ex.series) || 3, // Converte para número, usa 3 como padrão se vazio
-        series: parseInt(ex.series) || 3 // Mantém também em series
-      }))
+      exercises: updatedExercises
     });
     navigate('/workout/create/day');
   };
@@ -116,7 +127,7 @@ export function CreateWorkoutConfig() {
   };
 
   return (
-    <div className="bg-[#202020] fixed inset-0 overflow-hidden flex items-center justify-center">
+    <div className="bg-[#202020] fixed inset-0 flex items-center justify-center">
       <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-6">
         
         {/* Título fixo */}
@@ -129,8 +140,8 @@ export function CreateWorkoutConfig() {
           </p>
         </div>
         
-        {/* Lista de exercícios com scroll */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 min-h-0">
+        {/* Lista de exercícios com scroll - IMPORTANTE: overflow-y-auto permite scroll */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 min-h-0 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
           <div className="space-y-3 pb-4">
             {exercises.map((exercise, index) => (
               <div

@@ -14,6 +14,7 @@ import { RegisterPage } from './components/auth/RegisterPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { OnboardingProvider } from './contexts/OnboardingContext';
 import { WorkoutCreatorProvider } from './contexts/WorkoutCreatorContext';
+import { WorkoutTimerProvider, useWorkoutTimer } from './contexts/WorkoutTimerContext';
 import { OnboardingPersonalInfoPage } from './components/onboarding/OnboardingPersonalInfoPage';
 import { OnboardingGoalPage } from './components/onboarding/OnboardingGoalPage';
 import { OnboardingTrainingTypesPage } from './components/onboarding/OnboardingTrainingTypesPage';
@@ -40,10 +41,10 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
+  const { isRunning, elapsedTime, formatTime, stopTimer, resetTimer } = useWorkoutTimer();
   const [currentPage, setCurrentPage] = useState('home' as Page);
-  const [isWorkoutActive, setIsWorkoutActive] = useState(false);
-  const [workoutTime, setWorkoutTime] = useState(0);
   const [showSplash, setShowSplash] = useState(true);
+  const [workoutName, setWorkoutName] = useState('Treino');
 
   // Splash screen timer
   useEffect(() => {
@@ -58,35 +59,9 @@ function AppContent() {
     }
   }, [location.pathname, isAuthenticated, navigate]);
 
-  // Timer for workout
-  useEffect(() => {
-    let interval: any;
-    
-    if (isWorkoutActive) {
-      interval = setInterval(() => {
-        setWorkoutTime(prev => prev + 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isWorkoutActive]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
-
-  const handleStartWorkout = () => {
-    setIsWorkoutActive(true);
-    setWorkoutTime(0);
-  };
-
   const handleStopWorkout = () => {
-    setIsWorkoutActive(false);
-    setWorkoutTime(0);
+    stopTimer();
+    resetTimer();
     setCurrentPage('treino');
   };
 
@@ -191,7 +166,7 @@ function AppContent() {
           <Route path="/pagina/streak" element={<Navigate to="/streak" replace />} />
           <Route 
             path="/treino" 
-            element={<TreinoPage onStartWorkout={handleStartWorkout} onExerciseClick={(exercise) => navigate('/exercise-id', { state: { exercise } })} />} 
+            element={<TreinoPage onExerciseClick={(exercise) => navigate('/exercise-id', { state: { exercise } })} />} 
           />
           <Route path="/pagina/treino" element={<Navigate to="/treino" replace />} />
           <Route path="/treino-iniciado" element={<div onClick={() => navigate('/exercise-id')}><TreinoIniciado /></div>} />
@@ -215,9 +190,9 @@ function AppContent() {
         <MenuBar 
           currentPage={currentPage} 
           onNavigate={handleMenuNavigate}
-          isWorkoutActive={isWorkoutActive}
-          workoutTime={formatTime(workoutTime)}
-          workoutName="Treino de Peito"
+          isWorkoutActive={isRunning}
+          workoutTime={formatTime(elapsedTime)}
+          workoutName={workoutName}
           onStopWorkout={handleStopWorkout}
         />
       )}
@@ -230,7 +205,9 @@ export default function App() {
     <AuthProvider>
       <OnboardingProvider>
         <WorkoutCreatorProvider>
-          <AppContent />
+          <WorkoutTimerProvider>
+            <AppContent />
+          </WorkoutTimerProvider>
         </WorkoutCreatorProvider>
       </OnboardingProvider>
     </AuthProvider>

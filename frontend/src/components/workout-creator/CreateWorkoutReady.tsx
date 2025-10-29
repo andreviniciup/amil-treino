@@ -14,6 +14,19 @@ export function CreateWorkoutReady() {
       setLoading(true);
       setError(null);
 
+      console.log('=== DEBUG: Salvando treino ===');
+      console.log('workoutData.exercises:', workoutData.exercises);
+      
+      if (workoutData.exercises && workoutData.exercises.length > 0) {
+        workoutData.exercises.forEach((ex, idx) => {
+          console.log(`Exercício ${idx + 1}:`, {
+            name: ex.name,
+            sets: ex.sets,
+            series: (ex as any).series
+          });
+        });
+      }
+
       // Criar um workout para cada dia selecionado
       const workouts = (workoutData.trainingDays || ['monday']).map(dayKey => {
         const dayMap: { [key: string]: string } = {
@@ -35,7 +48,7 @@ export function CreateWorkoutReady() {
           exercises: (workoutData.exercises || []).map((exercise, index) => ({
             exerciseId: exercise.id,
             exerciseName: exercise.name,
-            sets: parseInt(workoutData.series || '3'),
+            sets: exercise.sets || 3, // Usa o sets individual de cada exercício
             reps: workoutData.reps || '8-12',
             restTime: workoutData.restTime || 90,
             order: index + 1,

@@ -5,6 +5,7 @@ import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
 import { SeriesCard } from "./SeriesCard";
 import { SlideToComplete } from "./SlideToComplete";
 import { workoutApi } from "../services/api";
+import { useWorkoutTimer } from "../contexts/WorkoutTimerContext";
 
 interface SeriesData {
   repetitions: string;
@@ -16,6 +17,7 @@ interface SeriesData {
 export function ExerciseIdPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { stopTimer, elapsedTime, isRunning } = useWorkoutTimer();
   
   // Obter dados do exercício ou treino do estado
   const exercise = location.state?.exercise;
@@ -124,6 +126,17 @@ export function ExerciseIdPage() {
     try {
       setSaving(true);
       
+      // Verificar se é o último exercício do treino
+      const isLastExercise = fromWorkout && 
+        workout?.workouts?.[0]?.exercises && 
+        currentExerciseIndex === workout.workouts[0].exercises.length - 1;
+      
+      // Se for o último exercício, parar o timer
+      if (isLastExercise) {
+        stopTimer();
+        console.log(`Treino finalizado! Tempo total: ${elapsedTime} segundos`);
+      }
+      
       // Coletar dados das séries completadas
       const repsArray = series.map(s => {
         const reps = s.repetitions.split(' ')[0]; // Pega apenas o primeiro número
@@ -135,7 +148,7 @@ export function ExerciseIdPage() {
       // Criar log do treino (simplificado - workoutId seria obtido do contexto/props)
       const logData = {
         workoutId: '1', // Este ID deveria vir do workout atual
-        duration: 0, // Pode ser calculado com timer
+        duration: elapsedTime, // Usa o tempo do cronômetro
         exercises: [{
           exerciseId: '1', // Este ID deveria vir do exercício atual
           sets: series.length,
@@ -152,7 +165,8 @@ export function ExerciseIdPage() {
       navigate("/treino", { 
         state: { 
           exerciseCompleted: true,
-          exerciseName: exerciseName 
+          exerciseName: exerciseName,
+          workoutCompleted: isLastExercise
         } 
       });
     } catch (err) {
@@ -170,10 +184,13 @@ export function ExerciseIdPage() {
   };
 
   const allSeriesCompleted = series.every((s) => s.status === "completed");
+  
+  // Ajustar top baseado se o treino está ativo
+  const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
 
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-id">
-      <div className="absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] top-[56px] w-[350px]">
+      <div className={`absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] ${topPosition} w-[350px]`}>
         {/* Imagem do Exercício */}
         <div className="bg-[#202020] h-[350px] relative rounded-[30px] shrink-0 w-full overflow-hidden">
           <AnimatedExerciseImage

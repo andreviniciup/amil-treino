@@ -1,11 +1,18 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { ExerciseDB } from '../services/api';
 
+// Estender ExerciseDB para incluir campos do workout creator
+export interface WorkoutExercise extends ExerciseDB {
+  sets?: number;
+  series?: string;
+  order?: number;
+}
+
 interface WorkoutData {
   tipoTreino: string | null;
   nomeTreino: string | null;
   musculos: string[];
-  exercises?: ExerciseDB[];
+  exercises?: WorkoutExercise[];
   series?: string;
   hasWarmup?: boolean;
   reps?: string;

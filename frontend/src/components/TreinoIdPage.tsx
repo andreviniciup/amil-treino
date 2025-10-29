@@ -4,6 +4,7 @@ import { ExerciseCard } from './ExerciseCard';
 import svgPaths from "../imports/svg-c71qf4vhvy";
 import { workoutApi, WorkoutPlan } from '../services/api';
 import { getMuscleImage, getUniqueMuscles } from '../utils/muscleMapping';
+import { useWorkoutTimer } from '../contexts/WorkoutTimerContext';
 
 interface Exercise {
   id: string;
@@ -44,6 +45,7 @@ export function TreinoIdPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { startTimer, stopTimer, resetTimer, isRunning, elapsedTime, formatTime } = useWorkoutTimer();
   
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +53,9 @@ export function TreinoIdPage() {
   const [currentPlan, setCurrentPlan] = useState<WorkoutPlan | null>(null);
   const [workoutName, setWorkoutName] = useState<string>('Treino');
   const [musclesWorked, setMusclesWorked] = useState<Array<{ name: string; imageUrl: string }>>([]);
+  
+  // Ajustar padding-top baseado se o treino está ativo
+  const topPadding = isRunning ? 'pt-[120px]' : 'pt-[98px]';
 
   // Carregar planos e workout do dia
   useEffect(() => {
@@ -184,6 +189,10 @@ export function TreinoIdPage() {
 
   const handleStartWorkout = () => {
     if (exercises.length > 0) {
+      // Resetar e iniciar o timer
+      resetTimer();
+      startTimer();
+      
       navigate('/exercise-id', {
         state: {
           workout: currentPlan,
@@ -249,56 +258,61 @@ export function TreinoIdPage() {
   }
 
   return (
-    <div className="bg-[#181818] relative size-full overflow-hidden" data-name="treino">
-      <div className="absolute content-stretch flex flex-col gap-[18px] items-start left-[20px] top-[98px] right-[20px] pb-[100px]">
-        {/* Header */}
-        <div className="content-stretch flex font-['Alexandria:Regular',_sans-serif] font-normal items-center justify-between leading-[normal] relative shrink-0 text-[20px] text-nowrap w-full whitespace-pre">
-          <p className="relative shrink-0 text-white">Hoje</p>
-          <p className="relative shrink-0 text-[#2c2c2c]">{workoutName}</p>
-        </div>
-        
-        {/* Muscle Groups Carousel */}
-        <div className="relative w-full">
-          <div 
-            ref={scrollRef}
-            className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full overflow-x-auto scrollbar-hide touch-pan-x"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {musclesWorked.length > 0 ? (
-              musclesWorked.map((muscle, index) => (
-                <MuscleGroup 
-                  key={index} 
-                  label={muscle.name} 
-                  imageUrl={muscle.imageUrl}
-                />
-              ))
-            ) : (
-              <p className="text-[#2c2c2c] text-[14px] font-['Alexandria:Regular',_sans-serif]">
-                Nenhum músculo identificado
-              </p>
-            )}
+    <div className="bg-[#181818] fixed inset-0 flex flex-col" data-name="treino">
+      {/* Container com scroll */}
+      <div className={`flex-1 overflow-y-auto overflow-x-hidden px-5 ${topPadding} pb-5`}>
+        <div className="flex flex-col gap-[18px] max-w-[393px] mx-auto">
+          {/* Header */}
+          <div className="content-stretch flex font-['Alexandria:Regular',_sans-serif] font-normal items-center justify-between leading-[normal] relative shrink-0 text-[20px] text-nowrap w-full whitespace-pre">
+            <p className="relative shrink-0 text-white">Hoje</p>
+            <p className="relative shrink-0 text-[#2c2c2c]">{workoutName}</p>
+          </div>
+          
+          {/* Muscle Groups Carousel */}
+          <div className="relative w-full">
+            <div 
+              ref={scrollRef}
+              className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full overflow-x-auto scrollbar-hide touch-pan-x"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {musclesWorked.length > 0 ? (
+                musclesWorked.map((muscle, index) => (
+                  <MuscleGroup 
+                    key={index} 
+                    label={muscle.name} 
+                    imageUrl={muscle.imageUrl}
+                  />
+                ))
+              ) : (
+                <p className="text-[#2c2c2c] text-[14px] font-['Alexandria:Regular',_sans-serif]">
+                  Nenhum músculo identificado
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Exercises List */}
+          <div className="content-stretch flex flex-col gap-[10px] items-start relative shrink-0 w-full">
+            {exercises.map((exercise, index) => (
+              <ExerciseCard 
+                key={exercise.id}
+                name={exercise.name}
+                sets={exercise.sets}
+                completed={exercise.completed}
+                improvement={exercise.improvement}
+                onExerciseClick={() => handleExerciseClick(exercise)}
+                defaultExpanded={index === 0}
+              />
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Exercises List */}
-        <div className="content-stretch flex flex-col gap-[10px] items-start relative shrink-0 w-full">
-          {exercises.map((exercise, index) => (
-            <ExerciseCard 
-              key={exercise.id}
-              name={exercise.name}
-              sets={exercise.sets}
-              completed={exercise.completed}
-              improvement={exercise.improvement}
-              onExerciseClick={() => handleExerciseClick(exercise)}
-              defaultExpanded={index === 0}
-            />
-          ))}
-        </div>
-
-        {/* Start Workout Button */}
+      {/* Botão fixo na parte inferior */}
+      <div className="flex-shrink-0 px-5 py-4 bg-[#181818]">
         <button
           onClick={handleStartWorkout}
-          className="bg-[#d9d9d9] hover:bg-[#e9e9e9] transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full"
+          className="bg-[#d9d9d9] hover:bg-[#e9e9e9] transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto"
         >
           <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
             <div className="h-[18px] relative shrink-0 w-[15px]" data-name="Vector">

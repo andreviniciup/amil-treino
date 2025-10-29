@@ -146,7 +146,7 @@ export function CreateWorkoutExercises() {
   }
 
   return (
-    <div className="bg-[#202020] fixed inset-0 overflow-hidden flex items-center justify-center" data-name="criar-treino-exercises">
+    <div className="bg-[#202020] fixed inset-0 flex items-center justify-center" data-name="criar-treino-exercises">
       <div className="relative w-full max-w-[393px] h-full flex flex-col px-5 py-6">
         
         {/* Título fixo */}
@@ -159,8 +159,8 @@ export function CreateWorkoutExercises() {
           </p>
         </div>
         
-        {/* Lista de exercícios com scroll */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 min-h-0">
+        {/* Lista de exercícios com scroll - IMPORTANTE: overflow-y-auto permite scroll */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 -mr-2 min-h-0 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
           {exercises.length === 0 ? (
             <p className="text-white text-center mt-10 font-alexandria">
               Nenhum exercício encontrado para os grupos musculares selecionados.

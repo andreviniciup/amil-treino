@@ -23,15 +23,17 @@ export function ExerciseCard({
   sets, 
   completed = false,
   improvement,
-  series = [
-    { reps: '6 a 8 repetições', weight: '12kg' },
-    { reps: '6 a 8 repetições', weight: '12kg' },
-    { reps: '6 a 8 repetições', weight: '12kg' }
-  ],
+  series,
   onExerciseClick,
   defaultExpanded = false
 }: ExerciseCardProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  // Gera séries dinamicamente baseado no número de sets
+  const displaySeries = series || Array.from({ length: sets }, () => ({
+    reps: '6 a 8 repetições',
+    weight: '12kg'
+  }));
 
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
@@ -71,7 +73,7 @@ export function ExerciseCard({
       {isExpanded && (
         <div className="px-[13px] pb-[13px] pt-[10px]">
           <div className="content-stretch flex flex-col gap-[10px] items-start w-full">
-            {series.map((serie, index) => (
+            {displaySeries.map((serie, index) => (
               <div key={index} className="bg-[#252525] h-[35px] relative rounded-[28px] shrink-0 w-full">
                 <div className="flex flex-row items-center size-full px-[24px]">
                   <div className="flex items-center justify-between w-full">
