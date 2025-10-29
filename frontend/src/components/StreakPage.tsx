@@ -3,15 +3,15 @@ import { DynamicStreak } from './DynamicStreak';
 import { WorkoutDayPopup } from './WorkoutDayPopup';
 import { workoutApi } from '../services/api';
 
-interface WorkoutDayData {
-  date: string;
+interface WorkoutInfo {
   workoutName: string;
   duration: string;
-  improvement: {
-    type: 'weight' | 'reps' | 'none';
-    value: string;
-    direction: 'up' | 'down' | 'same';
-  };
+  completedAt: string;
+}
+
+interface WorkoutDayData {
+  date: string;
+  workouts: WorkoutInfo[];
 }
 
 export function StreakPage() {
@@ -29,8 +29,8 @@ export function StreakPage() {
 
         const logs = await workoutApi.getUserLogs(50, 0);
         
-        // Transformar logs em formato do componente
-        const transformedDays: Record<number, WorkoutDayData> = {};
+        // Agrupar logs por dia
+        const groupedByDay: Record<number, WorkoutDayData> = {};
         
         logs.forEach((log: any) => {
           const logDate = new Date(log.completedAt);
@@ -41,19 +41,29 @@ export function StreakPage() {
           const durationSeconds = log.duration ? log.duration % 60 : 0;
           const formattedDuration = `${durationMinutes}:${durationSeconds.toString().padStart(2, '0')}`;
           
-          transformedDays[day] = {
-            date: logDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }),
+          // Formatar hora de conclusão
+          const completedAtTime = logDate.toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+          
+          const workoutInfo: WorkoutInfo = {
             workoutName: log.workout?.trainingType || 'Treino',
             duration: formattedDuration,
-            improvement: {
-              type: 'none',
-              value: '',
-              direction: 'same'
-            }
+            completedAt: completedAtTime
           };
+          
+          if (!groupedByDay[day]) {
+            groupedByDay[day] = {
+              date: logDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }),
+              workouts: []
+            };
+          }
+          
+          groupedByDay[day].workouts.push(workoutInfo);
         });
         
-        setWorkoutDays(transformedDays);
+        setWorkoutDays(groupedByDay);
       } catch (err) {
         console.error('Erro ao carregar histórico:', err);
         setError('Erro ao carregar histórico de treinos.');
@@ -110,13 +120,11 @@ export function StreakPage() {
         <DynamicStreak />
       </div>
 
-      {selectedDay && workoutDays[selectedDay] && (
+      {selectedDay !== null && workoutDays[selectedDay] && (
         <WorkoutDayPopup
           day={selectedDay}
           date={workoutDays[selectedDay].date}
-          workoutName={workoutDays[selectedDay].workoutName}
-          duration={workoutDays[selectedDay].duration}
-          improvement={workoutDays[selectedDay].improvement}
+          workouts={workoutDays[selectedDay].workouts}
           onClose={() => setSelectedDay(null)}
         />
       )}

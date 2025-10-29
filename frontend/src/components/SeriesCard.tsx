@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Minus, Plus, Check } from 'lucide-react';
 import svgPaths from "../imports/svg-t2f7wjh7pn";
 import svgPathsCompleted from "../imports/svg-k8lz78timb";
 
@@ -11,6 +13,9 @@ interface SeriesCardProps {
   onRepetitionsChange?: (value: string) => void;
   onWeightChange?: (value: string) => void;
   onRestTimeChange?: (value: string) => void;
+  onComplete?: () => void;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
 export function SeriesCard({
@@ -23,7 +28,46 @@ export function SeriesCard({
   onRepetitionsChange,
   onWeightChange,
   onRestTimeChange,
+  onComplete,
+  isExpanded = false,
+  onToggleExpand,
 }: SeriesCardProps) {
+  const [localWeight, setLocalWeight] = useState(parseFloat(weight) || 12);
+  const [localReps, setLocalReps] = useState(parseInt(repetitions) || 8);
+
+  const handleWeightIncrease = () => {
+    const newWeight = localWeight + 2.5;
+    setLocalWeight(newWeight);
+    onWeightChange?.(newWeight.toString());
+  };
+
+  const handleWeightDecrease = () => {
+    if (localWeight > 0) {
+      const newWeight = Math.max(0, localWeight - 2.5);
+      setLocalWeight(newWeight);
+      onWeightChange?.(newWeight.toString());
+    }
+  };
+
+  const handleRepsIncrease = () => {
+    const newReps = localReps + 1;
+    setLocalReps(newReps);
+    onRepetitionsChange?.(newReps.toString());
+  };
+
+  const handleRepsDecrease = () => {
+    if (localReps > 0) {
+      const newReps = Math.max(0, localReps - 1);
+      setLocalReps(newReps);
+      onRepetitionsChange?.(newReps.toString());
+    }
+  };
+
+  const handleConfirm = () => {
+    onComplete?.();
+    onToggleExpand?.();
+  };
+
   // Estados completados (verde)
   if (status === "completed") {
     return (
@@ -115,13 +159,126 @@ export function SeriesCard({
     );
   }
 
-  // Estados pendentes (cinza simples)
+  // Estados pendentes (cinza simples) - Pode expandir ao clicar
   if (status === "pending") {
+    // Se expandido, mostra interface completa de input
+    if (isExpanded) {
+      return (
+        <div className="bg-[#202020] relative rounded-[20px] shrink-0 w-full p-5 transition-all duration-300">
+          {/* Header com número da série */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
+              Série {seriesNumber}
+            </p>
+            <button
+              onClick={onToggleExpand}
+              className="text-[rgba(255,255,255,0.5)] text-[12px] font-['Alexandria:Regular',_sans-serif]"
+            >
+              Minimizar
+            </button>
+          </div>
+
+          {/* Inputs de Peso e Reps */}
+          <div className="flex items-center gap-4 mb-4">
+            {/* Peso */}
+            <div className="flex-1">
+              <p className="font-['Alexandria:Regular',_sans-serif] text-[rgba(255,255,255,0.5)] text-[11px] mb-2">
+                Peso (kg)
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleWeightDecrease}
+                  disabled={localWeight <= 0}
+                  className="w-[36px] h-[36px] bg-[#2c2c2c] hover:bg-[#3c3c3c] disabled:opacity-30 rounded-full flex items-center justify-center transition-colors active:scale-95"
+                >
+                  <Minus className="w-4 h-4 text-white" />
+                </button>
+                
+                <div className="flex-1 bg-[#2c2c2c] rounded-[12px] h-[48px] flex items-center justify-center">
+                  <p className="font-['Alexandria:Bold',_sans-serif] text-white text-[20px]">
+                    {localWeight.toFixed(1)}
+                  </p>
+                </div>
+                
+                <button
+                  onClick={handleWeightIncrease}
+                  className="w-[36px] h-[36px] bg-[#2c2c2c] hover:bg-[#3c3c3c] rounded-full flex items-center justify-center transition-colors active:scale-95"
+                >
+                  <Plus className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </div>
+
+            {/* Repetições */}
+            <div className="flex-1">
+              <p className="font-['Alexandria:Regular',_sans-serif] text-[rgba(255,255,255,0.5)] text-[11px] mb-2">
+                Repetições
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleRepsDecrease}
+                  disabled={localReps <= 0}
+                  className="w-[36px] h-[36px] bg-[#2c2c2c] hover:bg-[#3c3c3c] disabled:opacity-30 rounded-full flex items-center justify-center transition-colors active:scale-95"
+                >
+                  <Minus className="w-4 h-4 text-white" />
+                </button>
+                
+                <div className="flex-1 bg-[#2c2c2c] rounded-[12px] h-[48px] flex items-center justify-center">
+                  <p className="font-['Alexandria:Bold',_sans-serif] text-white text-[20px]">
+                    {localReps}
+                  </p>
+                </div>
+                
+                <button
+                  onClick={handleRepsIncrease}
+                  className="w-[36px] h-[36px] bg-[#2c2c2c] hover:bg-[#3c3c3c] rounded-full flex items-center justify-center transition-colors active:scale-95"
+                >
+                  <Plus className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Botão de Confirmar */}
+          <button
+            onClick={handleConfirm}
+            disabled={localWeight === 0 || localReps === 0}
+            className="w-full bg-[#6d9f28] hover:bg-[#7db030] disabled:opacity-30 disabled:cursor-not-allowed rounded-full h-[48px] flex items-center justify-center gap-2 transition-all active:scale-95"
+          >
+            <Check className="w-5 h-5 text-white" />
+            <p className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
+              Confirmar Série
+            </p>
+          </button>
+
+          {/* Timer de descanso */}
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 12 12">
+              <path
+                d={svgPaths.p2eb65600}
+                stroke="#484848"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+              />
+            </svg>
+            <p className="font-['Alexandria:Regular',_sans-serif] text-[#484848] text-[12px]">
+              {restTime} segundos
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // Modo minimizado - clicável
     return (
-      <div className="bg-[#202020] h-[35px] relative rounded-[28px] shrink-0 w-full">
+      <button
+        onClick={onToggleExpand}
+        className="bg-[#202020] h-[35px] relative rounded-[28px] shrink-0 w-full hover:bg-[#252525] transition-colors cursor-pointer"
+      >
         <div className="size-full">
           <div className="box-border content-stretch flex flex-col gap-[10px] h-[35px] items-start px-[26px] py-[5px] relative w-full">
-            <div className="content-stretch flex items-center justify-between relative shrink-0 w-[296px]">
+            <div className="content-stretch flex items-center justify-between relative shrink-0 w-full">
               <div className="content-stretch flex gap-[23px] items-center relative shrink-0">
                 <div className="content-stretch flex items-center justify-between relative shrink-0 w-[17px]">
                   <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[14px] text-white w-[10px]">
@@ -160,15 +317,9 @@ export function SeriesCard({
                     </div>
                   </div>
                 </div>
-                <input 
-                  type="text" 
-                  value={`${repetitions} repetições`}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(' repetições', '');
-                    onRepetitionsChange?.(val);
-                  }}
-                  className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[12px] text-[rgba(187,187,187,0.73)] w-[101px] bg-transparent border-none outline-none p-0"
-                />
+                <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[12px] text-[rgba(187,187,187,0.73)]">
+                  {repetitions} repetições
+                </p>
               </div>
               <div className="content-stretch flex gap-[12px] items-center relative shrink-0">
                 <div className="h-[10px] relative shrink-0 w-[17px]" data-name="Vector">
@@ -190,24 +341,18 @@ export function SeriesCard({
                     </svg>
                   </div>
                 </div>
-                <input 
-                  type="text" 
-                  value={`${weight}kg`}
-                  onChange={(e) => {
-                    const val = e.target.value.replace('kg', '');
-                    onWeightChange?.(val);
-                  }}
-                  className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[12px] text-[rgba(187,187,187,0.73)] w-[29px] bg-transparent border-none outline-none p-0"
-                />
+                <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[12px] text-[rgba(187,187,187,0.73)]">
+                  {weight}kg
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </button>
     );
   }
 
-  // Estado ativo (primeira série com botão)
+  // Estado ativo (primeira série com botão "iniciar")
   return (
     <div className="bg-[#202020] h-[80px] relative rounded-[28px] shrink-0 w-full">
       <div className="flex flex-col items-center size-full">

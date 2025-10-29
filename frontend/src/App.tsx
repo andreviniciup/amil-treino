@@ -8,6 +8,7 @@ import TreinoIniciado from './imports/TreinoIniciado';
 import { TreinoIdPage } from './components/TreinoIdPage';
 import { ExerciseIdPage } from './components/ExerciseIdPage';
 import { TreinoTempoDescansoPage } from './components/TreinoTempoDescansoPage';
+import { WorkoutCompletionPage } from './components/WorkoutCompletionPage';
 import { MenuBar } from './components/MenuBar';
 import { LoginPage } from './components/auth/LoginPage';
 import { RegisterPage } from './components/auth/RegisterPage';
@@ -177,6 +178,7 @@ function AppContent() {
           <Route path="/pagina/exercise-id" element={<Navigate to="/exercise-id" replace />} />
           <Route path="/treino-tempo-descanso" element={<TreinoTempoDescansoPage onFinish={() => navigate('/treino-id', { state: { fromRest: true } })} />} />
           <Route path="/pagina/treino-tempo-descanso" element={<Navigate to="/treino-tempo-descanso" replace />} />
+          <Route path="/workout-completion" element={<WorkoutCompletionPage />} />
           <Route path="/my-workouts" element={<MyWorkoutsPage />} />
           <Route path="/workout-list" element={<WorkoutList />} />
           

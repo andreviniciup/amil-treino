@@ -1,39 +1,33 @@
-import { X, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { X, Clock, Dumbbell } from 'lucide-react';
+
+interface WorkoutInfo {
+  workoutName: string;
+  duration: string; // Formato MM:SS
+  completedAt: string; // Hora de conclusão
+}
 
 interface WorkoutDayPopupProps {
   day: number;
   date: string;
-  workoutName: string;
-  duration: string;
-  improvement?: {
-    type: 'weight' | 'reps' | 'none';
-    value: string;
-    direction: 'up' | 'down' | 'same';
-  };
+  workouts: WorkoutInfo[]; // Array de treinos
   onClose: () => void;
 }
 
 export function WorkoutDayPopup({ 
   day, 
   date, 
-  workoutName, 
-  duration, 
-  improvement,
+  workouts,
   onClose 
 }: WorkoutDayPopupProps) {
-  const getImprovementIcon = () => {
-    if (!improvement || improvement.direction === 'same') {
-      return <Minus className="w-4 h-4" />;
-    }
-    return improvement.direction === 'up' 
-      ? <TrendingUp className="w-4 h-4" />
-      : <TrendingDown className="w-4 h-4" />;
-  };
-
-  const getImprovementColor = () => {
-    if (!improvement || improvement.direction === 'same') return 'text-gray-400';
-    return improvement.direction === 'up' ? 'text-[#6d9f28]' : 'text-[#a91717]';
-  };
+  // Calcular tempo total
+  const totalSeconds = workouts.reduce((sum, workout) => {
+    const [min, sec] = workout.duration.split(':').map(Number);
+    return sum + (min * 60) + sec;
+  }, 0);
+  
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const totalSecs = totalSeconds % 60;
+  const totalDuration = `${totalMinutes}:${totalSecs.toString().padStart(2, '0')}`;
 
   return (
     <div 
@@ -53,39 +47,56 @@ export function WorkoutDayPopup({
         </button>
 
         <div className="flex flex-col gap-4">
+          {/* Header com data e tempo total */}
           <div className="flex items-center gap-3">
-            <div className="bg-[#288b9f] rounded-[15px] w-[50px] h-[50px] flex items-center justify-center">
+            <div className="bg-[#288b9f] rounded-[15px] w-[50px] h-[50px] flex items-center justify-center shrink-0">
               <p className="font-['Alexandria:Medium',_sans-serif] text-white text-[18px]">{day}</p>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">{date}</p>
-              <p className="font-['Alexandria:Regular',_sans-serif] text-[#6d9f28] text-[12px]">{duration}</p>
+              <div className="flex items-center gap-1 mt-1">
+                <Clock className="w-3 h-3 text-[#6d9f28]" />
+                <p className="font-['Alexandria:Regular',_sans-serif] text-[#6d9f28] text-[12px]">
+                  {totalDuration} min total
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="h-[1px] bg-[#2c2c2c]" />
 
+          {/* Lista de treinos */}
           <div>
-            <p className="font-['Alexandria:Regular',_sans-serif] text-[#888] text-[12px] mb-1">Treino realizado</p>
-            <p className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">{workoutName}</p>
-          </div>
-
-          {improvement && improvement.direction !== 'same' && (
-            <>
-              <div className="h-[1px] bg-[#2c2c2c]" />
-              <div className="flex items-center gap-2">
-                <div className={`flex items-center gap-1 ${getImprovementColor()}`}>
-                  {getImprovementIcon()}
-                  <p className="font-['Alexandria:Medium',_sans-serif] text-[14px]">
-                    {improvement.type === 'weight' ? 'Peso' : 'Repetições'}
-                  </p>
+            <p className="font-['Alexandria:Regular',_sans-serif] text-[#888] text-[12px] mb-3">
+              {workouts.length === 1 ? 'Treino realizado' : `${workouts.length} treinos realizados`}
+            </p>
+            <div className="flex flex-col gap-3">
+              {workouts.map((workout, index) => (
+                <div 
+                  key={index}
+                  className="bg-[#252525] rounded-[15px] p-3 flex items-center gap-3"
+                >
+                  <div className="w-[36px] h-[36px] rounded-full bg-[#2c2c2c] flex items-center justify-center shrink-0">
+                    <Dumbbell className="w-4 h-4 text-[#288b9f]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px] truncate">
+                      {workout.workoutName}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="font-['Alexandria:Regular',_sans-serif] text-[#888] text-[11px]">
+                        {workout.completedAt}
+                      </p>
+                      <span className="text-[#444]">•</span>
+                      <p className="font-['Alexandria:Regular',_sans-serif] text-[#6d9f28] text-[11px]">
+                        {workout.duration} min
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className={`font-['Alexandria:Regular',_sans-serif] text-[14px] ${getImprovementColor()}`}>
-                  {improvement.direction === 'up' ? '+' : ''}{improvement.value}
-                </p>
-              </div>
-            </>
-          )}
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

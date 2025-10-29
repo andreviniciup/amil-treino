@@ -142,6 +142,26 @@ export const exerciseApi = {
   search: async (query: string): Promise<ExerciseDB[]> => {
     const response = await api.get(`/exercises/search?q=${query}`);
     return response.data.data;
+  },
+
+  // Buscar histórico de um exercício
+  getHistory: async (exerciseId: string): Promise<{
+    lastSets: number[];
+    lastWeight: number;
+    lastReps: number;
+    maxWeight: number;
+    maxReps: number;
+    history: {
+      date: string;
+      weight: number | null;
+      reps: number | null;
+      sets: number | null;
+      rpe: number | null;
+      notes: string | null;
+    }[];
+  }> => {
+    const response = await api.get(`/exercises/${exerciseId}/history`);
+    return response.data.data;
   }
 };
 

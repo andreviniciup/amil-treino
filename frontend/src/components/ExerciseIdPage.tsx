@@ -4,7 +4,8 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
 import { SeriesCard } from "./SeriesCard";
 import { SlideToComplete } from "./SlideToComplete";
-import { workoutApi } from "../services/api";
+import { WeeklyProgressBar } from "./exercise/WeeklyProgressBar";
+import { workoutApi, exerciseApi } from "../services/api";
 import { useWorkoutTimer } from "../contexts/WorkoutTimerContext";
 
 interface SeriesData {
@@ -12,6 +13,8 @@ interface SeriesData {
   weight: string;
   restTime: string;
   status: "active" | "pending" | "completed";
+  actualReps?: number;
+  actualWeight?: number;
 }
 
 export function ExerciseIdPage() {
@@ -67,6 +70,39 @@ export function ExerciseIdPage() {
   
   const [series, setSeries] = useState<SeriesData[]>(initializeSeries());
   const [saving, setSaving] = useState(false);
+  const [exerciseHistory, setExerciseHistory] = useState<number[]>([]);
+  const [lastWeight, setLastWeight] = useState(0);
+  const [lastReps, setLastReps] = useState(0);
+  const [currentWeight, setCurrentWeight] = useState(12);
+  const [currentReps, setCurrentReps] = useState(8);
+  const [expandedSeriesIndex, setExpandedSeriesIndex] = useState<number | null>(null);
+
+  // Carregar histórico do exercício
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        if (currentExercise?.exerciseId) {
+          const history = await exerciseApi.getHistory(currentExercise.exerciseId);
+          setExerciseHistory(history.lastSets);
+          setLastWeight(history.lastWeight);
+          setLastReps(history.lastReps);
+          
+          // Inicializar com valores do histórico
+          if (history.lastWeight > 0) {
+            setCurrentWeight(history.lastWeight);
+          }
+          if (history.lastReps > 0) {
+            setCurrentReps(history.lastReps);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
+        // Não fazer nada se falhar - continua com valores padrão
+      }
+    };
+
+    loadHistory();
+  }, [currentExercise?.exerciseId]);
 
   // Verifica se está retornando da página de descanso
   useEffect(() => {
@@ -94,6 +130,8 @@ export function ExerciseIdPage() {
   const handleCompleteSeries = (index: number) => {
     const newSeries = [...series];
     newSeries[index].status = "completed";
+    newSeries[index].actualWeight = currentWeight;
+    newSeries[index].actualReps = currentReps;
     
     // Verifica se há próxima série
     if (index < series.length - 1) {
@@ -137,20 +175,16 @@ export function ExerciseIdPage() {
         console.log(`Treino finalizado! Tempo total: ${elapsedTime} segundos`);
       }
       
-      // Coletar dados das séries completadas
-      const repsArray = series.map(s => {
-        const reps = s.repetitions.split(' ')[0]; // Pega apenas o primeiro número
-        return parseInt(reps) || 0;
-      });
+      // Coletar dados das séries completadas (usar valores reais)
+      const repsArray = series.map(s => s.actualReps || parseInt(s.repetitions.split(' ')[0]) || 0);
+      const weightsArray = series.map(s => s.actualWeight || parseFloat(s.weight) || 0);
       
-      const weightsArray = series.map(s => parseFloat(s.weight) || 0);
-      
-      // Criar log do treino (simplificado - workoutId seria obtido do contexto/props)
+      // Criar log do treino
       const logData = {
-        workoutId: '1', // Este ID deveria vir do workout atual
-        duration: elapsedTime, // Usa o tempo do cronômetro
+        workoutId: workout?.id || '1',
+        duration: elapsedTime,
         exercises: [{
-          exerciseId: '1', // Este ID deveria vir do exercício atual
+          exerciseId: currentExercise?.exerciseId || '1',
           sets: series.length,
           reps: repsArray,
           weights: weightsArray,
@@ -161,14 +195,26 @@ export function ExerciseIdPage() {
       // Salvar no backend
       await workoutApi.createLog(logData);
       
-      // Navega de volta para a página de treino com informação de que o exercício foi concluído
-      navigate("/treino", { 
-        state: { 
-          exerciseCompleted: true,
-          exerciseName: exerciseName,
-          workoutCompleted: isLastExercise
-        } 
-      });
+      // Se for o último exercício, navegar para a página de conclusão
+      if (isLastExercise) {
+        navigate("/workout-completion", {
+          state: {
+            workoutData: {
+              name: workout?.name || 'Treino',
+              exercises: workout?.workouts?.[0]?.exercises || []
+            },
+            duration: elapsedTime
+          }
+        });
+      } else {
+        // Navega de volta para a página de treino com informação de que o exercício foi concluído
+        navigate("/treino", { 
+          state: { 
+            exerciseCompleted: true,
+            exerciseName: exerciseName
+          } 
+        });
+      }
     } catch (err) {
       console.error('Erro ao salvar progresso:', err);
       // Mesmo com erro, navegar de volta (pode melhorar isso depois)
@@ -207,6 +253,16 @@ export function ExerciseIdPage() {
             {exerciseName}
           </p>
 
+          {/* Gráfico de Progresso Semanal */}
+          {exerciseHistory.length > 0 && (
+            <WeeklyProgressBar
+              history={exerciseHistory}
+              currentSet={currentSeriesIndex + 1}
+              totalSets={series.length}
+              targetReps={currentReps}
+            />
+          )}
+
           {series.map((serie, index) => (
             <SeriesCard
               key={index}
@@ -215,7 +271,10 @@ export function ExerciseIdPage() {
               weight={serie.weight}
               restTime={serie.restTime}
               status={serie.status}
+              isExpanded={expandedSeriesIndex === index}
+              onToggleExpand={() => setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index)}
               onStart={() => handleStartSeries(index)}
+              onComplete={() => handleCompleteSeries(index)}
               onRepetitionsChange={(value) => handleRepetitionsChange(index, value)}
               onWeightChange={(value) => handleWeightChange(index, value)}
               onRestTimeChange={(value) => handleRestTimeChange(index, value)}
