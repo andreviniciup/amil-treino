@@ -82,6 +82,25 @@ export class LogController {
         skip: parseInt(offset as string)
       });
 
+      // Buscar workouts associados
+      const logsWithWorkouts = await Promise.all(
+        logs.map(async (log) => {
+          const workout = await prisma.workout.findUnique({
+            where: { id: log.workoutId },
+            select: {
+              id: true,
+              trainingType: true,
+              dayOfWeek: true
+            }
+          });
+          
+          return {
+            ...log,
+            workout
+          };
+        })
+      );
+
       const total = await prisma.workoutLog.count({
         where: {
           userId: req.user.userId
@@ -90,8 +109,8 @@ export class LogController {
 
       res.json({
         success: true,
-        data: logs,
-        count: logs.length,
+        data: logsWithWorkouts,
+        count: logsWithWorkouts.length,
         total
       });
     } catch (error) {

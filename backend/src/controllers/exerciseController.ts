@@ -150,6 +150,33 @@ export class ExerciseController {
       });
     }
   }
+
+  async getHistory(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).user?.id; // Pega do middleware de autenticação
+
+      if (!userId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized'
+        });
+      }
+
+      const history = await databaseExerciseService.getExerciseHistory(id, userId);
+      
+      res.json({
+        success: true,
+        data: history
+      });
+    } catch (error) {
+      console.error(`Error in getHistory for ${req.params.id}:`, error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch exercise history'
+      });
+    }
+  }
 }
 
 export default new ExerciseController();

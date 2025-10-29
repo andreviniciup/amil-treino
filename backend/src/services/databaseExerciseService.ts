@@ -249,6 +249,55 @@ class DatabaseExerciseService {
   }
 
   /**
+   * Busca histórico de um exercício específico para um usuário
+   */
+  async getExerciseHistory(exerciseId: string, userId: string) {
+    try {
+      console.log(`🔍 Buscando histórico do exercício ${exerciseId} para usuário ${userId}`);
+      
+      // Buscar últimos 12 registros de performance
+      const performanceHistory = await prisma.performanceHistory.findMany({
+        where: {
+          exerciseId,
+          userId
+        },
+        orderBy: {
+          date: 'desc'
+        },
+        take: 12
+      });
+
+      console.log(`✅ ${performanceHistory.length} registros encontrados no histórico`);
+
+      // Calcular estatísticas
+      const lastSets = performanceHistory.map(p => p.reps || 0);
+      const lastWeight = performanceHistory[0]?.weight || 0;
+      const lastReps = performanceHistory[0]?.reps || 0;
+      const maxWeight = Math.max(...performanceHistory.map(p => p.weight || 0), 0);
+      const maxReps = Math.max(...performanceHistory.map(p => p.reps || 0), 0);
+
+      return {
+        lastSets,
+        lastWeight,
+        lastReps,
+        maxWeight,
+        maxReps,
+        history: performanceHistory.map(p => ({
+          date: p.date,
+          weight: p.weight,
+          reps: p.reps,
+          sets: p.sets,
+          rpe: p.rpe,
+          notes: p.notes
+        }))
+      };
+    } catch (error) {
+      console.error('❌ Erro ao buscar histórico do exercício:', error);
+      throw new Error('Falha ao buscar histórico do exercício');
+    }
+  }
+
+  /**
    * Formata exercício para o formato da API
    */
   private formatExercise(exercise: any) {
