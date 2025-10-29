@@ -27,7 +27,6 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://treino-amil.vercel.app',
-  'https://frontend-1g0c968a5-andreviniciups-projects.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean); // Remove undefined values
 
@@ -36,7 +35,10 @@ app.use(cors({
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+    // Allow all .vercel.app domains from andreviniciup
+    if (origin.includes('andreviniciups-projects.vercel.app') || 
+        origin.includes('treino-amil.vercel.app') ||
+        allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.warn(`⚠️ CORS blocked origin: ${origin}`);
@@ -44,8 +46,9 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
   optionsSuccessStatus: 200
 }));
 app.use(express.json());
