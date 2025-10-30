@@ -1,21 +1,17 @@
-import { useState } from 'react';
-import { Minus, Plus, Check } from 'lucide-react';
-import svgPaths from "../imports/svg-t2f7wjh7pn";
-import svgPathsCompleted from "../imports/svg-k8lz78timb";
+import { useState, useEffect } from 'react';
+import { Minus, Plus, Check, Clock, Play } from 'lucide-react';
 
 interface SeriesCardProps {
   seriesNumber: number;
   repetitions: string;
   weight: string;
   restTime?: string;
-  status: "active" | "pending" | "completed";
+  status: "active" | "pending" | "completed" | "in_rest";
   onStart?: () => void;
+  onComplete?: (reps: number, weight: number) => void;
   onRepetitionsChange?: (value: string) => void;
   onWeightChange?: (value: string) => void;
   onRestTimeChange?: (value: string) => void;
-  onComplete?: () => void;
-  isExpanded?: boolean;
-  onToggleExpand?: () => void;
 }
 
 export function SeriesCard({
@@ -25,16 +21,380 @@ export function SeriesCard({
   restTime = "90",
   status,
   onStart,
+  onComplete,
   onRepetitionsChange,
   onWeightChange,
   onRestTimeChange,
-  onComplete,
-  isExpanded = false,
-  onToggleExpand,
 }: SeriesCardProps) {
-  const [localWeight, setLocalWeight] = useState(parseFloat(weight) || 12);
-  const [localReps, setLocalReps] = useState(parseInt(repetitions) || 8);
-  const [showInlineEditor, setShowInlineEditor] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [currentReps, setCurrentReps] = useState(parseInt(repetitions) || 8);
+  const [currentWeight, setCurrentWeight] = useState(parseFloat(weight) || 12);
+  const [currentRestTime, setCurrentRestTime] = useState(parseInt(restTime) || 90);
+  const [timeLeft, setTimeLeft] = useState(parseInt(restTime) || 90);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  // Timer countdown
+  useEffect(() => {
+    if (status === 'in_rest' && isTimerRunning && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            setIsTimerRunning(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [status, isTimerRunning, timeLeft]);
+
+  // Inicia timer quando entra em IN_REST
+  useEffect(() => {
+    if (status === 'in_rest') {
+      setTimeLeft(currentRestTime);
+      setIsTimerRunning(true);
+    }
+  }, [status, currentRestTime]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleRepsIncrease = () => {
+    const newReps = currentReps + 1;
+    setCurrentReps(newReps);
+    onRepetitionsChange?.(newReps.toString());
+  };
+
+  const handleRepsDecrease = () => {
+    if (currentReps > 1) {
+      const newReps = currentReps - 1;
+      setCurrentReps(newReps);
+      onRepetitionsChange?.(newReps.toString());
+    }
+  };
+
+  const handleWeightIncrease = () => {
+    const newWeight = currentWeight + 2.5;
+    setCurrentWeight(newWeight);
+    onWeightChange?.(newWeight.toString());
+  };
+
+  const handleWeightDecrease = () => {
+    if (currentWeight > 0) {
+      const newWeight = Math.max(0, currentWeight - 2.5);
+      setCurrentWeight(newWeight);
+      onWeightChange?.(newWeight.toString());
+    }
+  };
+
+  const handleRestTimeIncrease = () => {
+    const newTime = currentRestTime + 30;
+    setCurrentRestTime(newTime);
+    setTimeLeft(newTime);
+    onRestTimeChange?.(newTime.toString());
+  };
+
+  const handleRestTimeDecrease = () => {
+    if (currentRestTime > 30) {
+      const newTime = currentRestTime - 30;
+      setCurrentRestTime(newTime);
+      setTimeLeft(newTime);
+      onRestTimeChange?.(newTime.toString());
+    }
+  };
+
+  const handleConfirmSeries = () => {
+    onComplete?.(currentReps, currentWeight);
+    setIsTimerRunning(false);
+    setIsExpanded(false);
+  };
+
+  // ESTADO: COMPLETED - Verde, compacto, check
+  if (status === "completed") {
+    return (
+      <div className="bg-[#4f6c25] h-[50px] relative rounded-[20px] shrink-0 w-full px-5 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-6 h-6 rounded-full bg-[#3f5c15] flex items-center justify-center">
+            <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">
+              {seriesNumber}
+            </span>
+          </div>
+          <span className="font-['Alexandria:Regular',_sans-serif] text-white text-[14px]">
+            {currentReps} repetições
+          </span>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-white/70">💪</span>
+            <span className="font-['Alexandria:Regular',_sans-serif] text-white text-[14px]">
+              {currentWeight}kg
+            </span>
+          </div>
+          <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+            <Check className="w-4 h-4 text-[#4f6c25]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ESTADO: IN_REST (EXPANDED) - Ajustando valores durante descanso
+  if (status === "in_rest" && isExpanded) {
+    return (
+      <div className="bg-[#2c2c2c] border-2 border-blue-500 relative rounded-[20px] shrink-0 w-full p-5 animate-in fade-in slide-in-from-top-2 duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#1c1c1c] flex items-center justify-center">
+              <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
+                {seriesNumber}
+              </span>
+            </div>
+            <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
+              Série {seriesNumber}
+            </span>
+          </div>
+          <button
+            onClick={() => setIsExpanded(false)}
+            className="text-white/70 hover:text-white text-[12px] font-['Alexandria:Regular',_sans-serif] transition-colors"
+          >
+            Minimizar
+          </button>
+        </div>
+
+        {/* Labels */}
+        <div className="grid grid-cols-3 gap-3 mb-3">
+          <p className="font-['Alexandria:Regular',_sans-serif] text-[11px] text-white/50 text-center">
+            Descanso (seg)
+          </p>
+          <p className="font-['Alexandria:Regular',_sans-serif] text-[11px] text-white/50 text-center">
+            Peso (kg)
+          </p>
+          <p className="font-['Alexandria:Regular',_sans-serif] text-[11px] text-white/50 text-center">
+            Repetições
+          </p>
+        </div>
+
+        {/* Controles */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {/* Descanso */}
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={handleRestTimeDecrease}
+              className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all"
+            >
+              <Minus className="w-4 h-4 text-black" />
+            </button>
+            <div className="flex-1 bg-[#1c1c1c] rounded-[10px] h-10 flex items-center justify-center">
+              <span className="font-['Alexandria:Bold',_sans-serif] text-white text-[18px]">
+                {currentRestTime}
+              </span>
+            </div>
+            <button
+              onClick={handleRestTimeIncrease}
+              className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all"
+            >
+              <Plus className="w-4 h-4 text-black" />
+            </button>
+          </div>
+
+          {/* Peso */}
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={handleWeightDecrease}
+              className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all"
+            >
+              <Minus className="w-4 h-4 text-black" />
+            </button>
+            <div className="flex-1 bg-[#1c1c1c] rounded-[10px] h-10 flex items-center justify-center">
+              <span className="font-['Alexandria:Bold',_sans-serif] text-white text-[18px]">
+                {currentWeight.toFixed(1)}
+              </span>
+            </div>
+            <button
+              onClick={handleWeightIncrease}
+              className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all"
+            >
+              <Plus className="w-4 h-4 text-black" />
+            </button>
+          </div>
+
+          {/* Repetições */}
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={handleRepsDecrease}
+              className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all"
+            >
+              <Minus className="w-4 h-4 text-black" />
+            </button>
+            <div className="flex-1 bg-[#1c1c1c] rounded-[10px] h-10 flex items-center justify-center">
+              <span className="font-['Alexandria:Bold',_sans-serif] text-white text-[18px]">
+                {currentReps}
+              </span>
+            </div>
+            <button
+              onClick={handleRepsIncrease}
+              className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all"
+            >
+              <Plus className="w-4 h-4 text-black" />
+            </button>
+          </div>
+        </div>
+
+        {/* Timer */}
+        <div className="mb-4 flex items-center justify-center gap-2">
+          <Clock className="w-5 h-5 text-white/70" />
+          <span className={`font-['Alexandria:Bold',_sans-serif] text-[24px] ${timeLeft === 0 ? 'text-green-400' : 'text-white'}`}>
+            {formatTime(timeLeft)}
+          </span>
+        </div>
+
+        {/* Botão Confirmar */}
+        <button
+          onClick={handleConfirmSeries}
+          className="w-full bg-[#4f6c25] hover:bg-[#5f7c35] active:scale-95 h-12 rounded-full flex items-center justify-center gap-2 transition-all"
+        >
+          <Check className="w-5 h-5 text-white" />
+          <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
+            Confirmar Série
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  // ESTADO: IN_REST - Timer rodando, clicável nos valores para expandir
+  if (status === "in_rest") {
+    return (
+      <div className="bg-[#2c2c2c] relative rounded-[20px] shrink-0 w-full px-5 py-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 rounded-full bg-[#1c1c1c] flex items-center justify-center">
+              <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">
+                {seriesNumber}
+              </span>
+            </div>
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="font-['Alexandria:Regular',_sans-serif] text-white/70 hover:text-white text-[14px] transition-colors"
+            >
+              {repetitions} repetições
+            </button>
+          </div>
+          
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <span className="text-white/50">💪</span>
+            <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">
+              {weight}kg
+            </span>
+          </button>
+        </div>
+
+        {/* Timer em destaque */}
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Clock className="w-4 h-4 text-white/70" />
+          <span className={`font-['Alexandria:Bold',_sans-serif] text-[20px] ${timeLeft === 0 ? 'text-green-400' : 'text-white'}`}>
+            {formatTime(timeLeft)}
+          </span>
+        </div>
+
+        {/* Botão Confirmar */}
+        <button
+          onClick={handleConfirmSeries}
+          className="w-full bg-[#4f6c25] hover:bg-[#5f7c35] active:scale-95 h-10 rounded-full flex items-center justify-center gap-2 transition-all"
+        >
+          <Check className="w-4 h-4 text-white" />
+          <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">
+            Confirmar Série
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  // ESTADO: ACTIVE - Primeira série com botão "iniciar"
+  if (status === "active") {
+    return (
+      <div className="bg-[#2c2c2c] relative rounded-[20px] shrink-0 w-full px-5 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="w-8 h-8 rounded-full bg-[#1c1c1c] flex items-center justify-center">
+              <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
+                {seriesNumber}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">
+                {repetitions} repetições
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-white/50">💪</span>
+                <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">
+                  {weight}kg
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onStart}
+              className="bg-white hover:bg-gray-100 active:scale-95 px-6 py-2 rounded-full transition-all flex items-center gap-2"
+            >
+              <Play className="w-4 h-4 text-black fill-black" />
+              <span className="font-['Alexandria:Medium',_sans-serif] text-black text-[14px]">
+                iniciar
+              </span>
+            </button>
+
+            <div className="flex items-center gap-1 text-white/50">
+              <Clock className="w-4 h-4" />
+              <span className="font-['Alexandria:Regular',_sans-serif] text-[12px]">
+                {restTime} segundos
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ESTADO: PENDING - Aguardando, clicável para iniciar direto
+  return (
+    <button
+      onClick={onStart}
+      className="w-full bg-[#2c2c2c] hover:bg-[#3c3c3c] active:scale-[0.98] relative rounded-[20px] shrink-0 px-5 py-3 flex items-center justify-between transition-all"
+    >
+      <div className="flex items-center gap-4">
+        <div className="w-6 h-6 rounded-full bg-[#1c1c1c] flex items-center justify-center">
+          <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">
+            {seriesNumber}
+          </span>
+        </div>
+        <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">
+          {repetitions} repetições
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="text-white/50">💪</span>
+        <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">
+          {weight}kg
+        </span>
+      </div>
+    </button>
+  );
+}
 
   const handleWeightIncrease = () => {
     const newWeight = localWeight + 2.5;
