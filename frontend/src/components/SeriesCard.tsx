@@ -44,8 +44,15 @@ export function SeriesCard({
     if (typeof repsMax === "number") {
       return repsMax;
     }
-    const parsed = parseInt(repetitions, 10);
-    return Number.isFinite(parsed) ? parsed : 8;
+    // Tenta extrair número de strings como "6 a 8" ou "8 repetições" ou apenas "8"
+    const match = repetitions.match(/(\d+)/);
+    if (match) {
+      const parsed = parseInt(match[1], 10);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+    return 8;
   }, [repetitions, repsMax]);
 
   const initialWeight = useMemo(() => {
@@ -77,11 +84,14 @@ export function SeriesCard({
   }[activeField];
 
   useEffect(() => {
-    setCurrentReps(initialReps);
-    if (status !== "completed") {
-      setFinalReps(initialReps);
+    // Só atualiza se não estiver expandido ou se o status mudou
+    if (!isExpanded || status === "pending") {
+      setCurrentReps(initialReps);
+      if (status !== "completed") {
+        setFinalReps(initialReps);
+      }
     }
-  }, [initialReps, status]);
+  }, [initialReps, status, isExpanded]);
 
   useEffect(() => {
     setCurrentWeight(initialWeight);
@@ -97,11 +107,25 @@ export function SeriesCard({
   useEffect(() => {
     if (!isExpanded) {
       setActiveField('reps');
+    } else {
+      // Quando expandir, garante que o valor atual está sincronizado
+      if (activeField === 'reps' && currentReps !== initialReps && status === "active") {
+        // Mantém o valor atual se já foi modificado
+      }
     }
-  }, [isExpanded]);
+  }, [isExpanded, activeField, currentReps, initialReps, status]);
 
   const handleOpenField = (field: 'reps' | 'weight' | 'rest') => {
     setActiveField(field);
+    // Garante que o valor está sincronizado quando abre o campo
+    if (field === 'reps' && currentReps === initialReps) {
+      // Se o valor ainda não foi modificado, usa o valor inicial
+      setCurrentReps(initialReps);
+    } else if (field === 'weight' && currentWeight === initialWeight) {
+      setCurrentWeight(initialWeight);
+    } else if (field === 'rest' && currentRestTime === initialRestTime) {
+      setCurrentRestTime(initialRestTime);
+    }
     onToggleExpand?.();
   };
 
@@ -177,7 +201,9 @@ export function SeriesCard({
           <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{finalReps} repetições</span>
         </div>
         <div className="flex items-center gap-[12px]">
-          <div className="w-[17px] h-[10px] rounded-[2px] border border-[#43690F]" />
+          <svg width="17" height="10" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 6H1.85M4.4 2.66667H2.7C2.47457 2.66667 2.25837 2.75446 2.09896 2.91074C1.93955 3.06702 1.85 3.27899 1.85 3.5V8.5C1.85 8.72101 1.93955 8.93297 2.09896 9.08926C2.25837 9.24554 2.47457 9.33333 2.7 9.33333H4.4M6.95 6H12.05M14.6 2.66667H16.3C16.5254 2.66667 16.7416 2.75446 16.901 2.91074C17.0604 3.06702 17.15 3.27899 17.15 3.5V8.5C17.15 8.72101 17.0604 8.93297 16.901 9.08926C16.7416 9.24554 16.5254 9.33333 16.3 9.33333H14.6M18 6H17.15M4.4 1.83333V10.1667C4.4 10.3877 4.48955 10.5996 4.64896 10.7559C4.80837 10.9122 5.02457 11 5.25 11H6.1C6.32543 11 6.54163 10.9122 6.70104 10.7559C6.86045 10.5996 6.95 10.3877 6.95 10.1667V1.83333C6.95 1.61232 6.86045 1.40036 6.70104 1.24408C6.54163 1.0878 6.32543 1 6.1 1H5.25C5.02457 1 4.80837 1.0878 4.64896 1.24408C4.48955 1.40036 4.4 1.61232 4.4 1.83333ZM12.05 1.83333V10.1667C12.05 10.3877 12.1396 10.5996 12.299 10.7559C12.4584 10.9122 12.6746 11 12.9 11H13.75C13.9754 11 14.1916 10.9122 14.351 10.7559C14.5104 10.5996 14.6 10.3877 14.6 10.1667V1.83333C14.6 1.61232 14.5104 1.40036 14.351 1.24408C14.1916 1.0878 13.9754 1 13.75 1H12.9C12.6746 1 12.4584 1.0878 12.299 1.24408C12.1396 1.40036 12.05 1.61232 12.05 1.83333Z" stroke="#43690F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
           <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{formatWeight(finalWeight)}kg</span>
         </div>
         <div className="w-5 h-5 rounded-full bg-[#43690F] flex items-center justify-center">
@@ -187,46 +213,50 @@ export function SeriesCard({
     );
   }
 
+  const handleConfirm = () => {
+    onToggleExpand?.();
+  };
+
   if (status === "active" && isExpanded) {
-    const decreaseHandler = activeField === 'reps' ? () => updateReps(currentReps - 1) : activeField === 'weight' ? handleWeightDecrease : handleRestTimeDecrease;
-    const increaseHandler = activeField === 'reps' ? () => updateReps(currentReps + 1) : activeField === 'weight' ? handleWeightIncrease : handleRestTimeIncrease;
+    const decreaseHandler = activeField === 'reps' ? handleRepsDecrease : activeField === 'weight' ? handleWeightDecrease : handleRestTimeDecrease;
+    const increaseHandler = activeField === 'reps' ? handleRepsIncrease : activeField === 'weight' ? handleWeightIncrease : handleRestTimeIncrease;
     const expandedValue = activeField === 'reps' ? currentReps.toString() : activeField === 'weight' ? formatWeight(currentWeight) : currentRestTime.toString();
 
     return (
-      <div className="w-full max-w-[350px] rounded-[28px] bg-[#202020] flex flex-col">
-        <div className="flex justify-end px-5 pt-[6px]">
-          <button type="button" onClick={onToggleExpand} className="text-[10px] font-['Alexandria:Regular',_sans-serif] text-[#4C4C4C]">{activeFieldLabel}</button>
-        </div>
-        <div className="flex flex-col items-center gap-[3px] pb-[12px]">
-          <div className="flex items-center gap-[13px]">
+      <div className="w-full max-w-[350px] flex flex-col items-center">
+        <div className="w-full h-[80px] rounded-[28px] bg-[#202020] flex flex-col">
+          <div className="flex justify-end px-5 pt-[6px]">
+            <button type="button" onClick={onToggleExpand} className="text-[10px] font-['Alexandria:Regular',_sans-serif] text-[#4C4C4C]">{activeFieldLabel}</button>
+          </div>
+          <div className="flex items-center justify-center gap-[15px] flex-1">
             <button
               type="button"
               onClick={decreaseHandler}
-              className="w-[30px] h-[30px] rounded-[8px] bg-[#FDCB1A] flex items-center justify-center transition-transform active:scale-95"
+              className="w-[30px] h-[30px] rounded-[8px] bg-[#70C0D1] flex items-center justify-center transition-transform active:scale-95"
             >
-              <Minus className="w-4 h-4 text-black" />
+              <Minus className="w-4 h-4 text-[#202020]" />
             </button>
-            <div className="w-[90px] h-[40px] rounded-[5px] bg-[#262626] flex items-center justify-center">
+            <div className="w-[90px] h-[40px] rounded-[8px] bg-[#262626] flex items-center justify-center">
               <span className="text-white text-[32px] font-['Alexandria:Regular',_sans-serif] leading-none">{expandedValue}</span>
             </div>
             <button
               type="button"
               onClick={increaseHandler}
-              className="w-[30px] h-[30px] rounded-[8px] bg-[#FDCB1A] flex items-center justify-center transition-transform active:scale-95"
+              className="w-[30px] h-[30px] rounded-[8px] bg-[#70C0D1] flex items-center justify-center transition-transform active:scale-95"
             >
-              <Plus className="w-4 h-4 text-black" />
+              <div className="w-[10px] h-[10px] border-2 border-[#202020]" />
             </button>
           </div>
-          {activeField === 'rest' && (
-            <button
-              type="button"
-              onClick={handleStartRestClick}
-              className="mt-3 flex items-center gap-2 rounded-full bg-[#FDCB1A] px-[26px] py-[6px] text-[#262626] text-[12px] font-['Alexandria:Medium',_sans-serif] transition-transform active:scale-95"
-            >
-              <Clock className="w-3.5 h-3.5 text-[#262626]" />
-              iniciar descanso
-            </button>
-          )}
+        </div>
+        <div className="w-[296px] h-[24px] px-[10px] py-[3px] bg-[#484848] rounded-b-[14px] flex items-center justify-between">
+          <span className="text-white text-[10px] font-['Alexandria:Regular',_sans-serif]">What is Lorem Ipsum?</span>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            className="px-[10px] py-[2px] bg-[#70C0D1] rounded-[10px] text-[#202020] text-[10px] font-['Alexandria:Regular',_sans-serif] transition-transform active:scale-95"
+          >
+            confirmar
+          </button>
         </div>
       </div>
     );
@@ -248,7 +278,9 @@ export function SeriesCard({
             onClick={() => handleOpenField('weight')}
             className="flex items-center gap-[12px] text-white/70 bg-transparent"
           >
-            <div className="w-[17px] h-[10px] rounded-[2px] border border-[#484848]" />
+            <svg width="17" height="10" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 6H1.85M4.4 2.66667H2.7C2.47457 2.66667 2.25837 2.75446 2.09896 2.91074C1.93955 3.06702 1.85 3.27899 1.85 3.5V8.5C1.85 8.72101 1.93955 8.93297 2.09896 9.08926C2.25837 9.24554 2.47457 9.33333 2.7 9.33333H4.4M6.95 6H12.05M14.6 2.66667H16.3C16.5254 2.66667 16.7416 2.75446 16.901 2.91074C17.0604 3.06702 17.15 3.27899 17.15 3.5V8.5C17.15 8.72101 17.0604 8.93297 16.901 9.08926C16.7416 9.24554 16.5254 9.33333 16.3 9.33333H14.6M18 6H17.15M4.4 1.83333V10.1667C4.4 10.3877 4.48955 10.5996 4.64896 10.7559C4.80837 10.9122 5.02457 11 5.25 11H6.1C6.32543 11 6.54163 10.9122 6.70104 10.7559C6.86045 10.5996 6.95 10.3877 6.95 10.1667V1.83333C6.95 1.61232 6.86045 1.40036 6.70104 1.24408C6.54163 1.0878 6.32543 1 6.1 1H5.25C5.02457 1 4.80837 1.0878 4.64896 1.24408C4.48955 1.40036 4.4 1.61232 4.4 1.83333ZM12.05 1.83333V10.1667C12.05 10.3877 12.1396 10.5996 12.299 10.7559C12.4584 10.9122 12.6746 11 12.9 11H13.75C13.9754 11 14.1916 10.9122 14.351 10.7559C14.5104 10.5996 14.6 10.3877 14.6 10.1667V1.83333C14.6 1.61232 14.5104 1.40036 14.351 1.24408C14.1916 1.0878 13.9754 1 13.75 1H12.9C12.6746 1 12.4584 1.0878 12.299 1.24408C12.1396 1.40036 12.05 1.61232 12.05 1.83333Z" stroke="#484848" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
             <span className="text-[12px] font-['Alexandria:Regular',_sans-serif]">{formatWeight(currentWeight)}kg</span>
           </button>
         </div>
@@ -284,7 +316,9 @@ export function SeriesCard({
         <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{currentRepetitionsLabel}</span>
       </div>
       <div className="flex items-center gap-[12px]">
-        <div className="w-[17px] h-[10px] rounded-[2px] border border-[#484848]" />
+        <svg width="17" height="10" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 6H1.85M4.4 2.66667H2.7C2.47457 2.66667 2.25837 2.75446 2.09896 2.91074C1.93955 3.06702 1.85 3.27899 1.85 3.5V8.5C1.85 8.72101 1.93955 8.93297 2.09896 9.08926C2.25837 9.24554 2.47457 9.33333 2.7 9.33333H4.4M6.95 6H12.05M14.6 2.66667H16.3C16.5254 2.66667 16.7416 2.75446 16.901 2.91074C17.0604 3.06702 17.15 3.27899 17.15 3.5V8.5C17.15 8.72101 17.0604 8.93297 16.901 9.08926C16.7416 9.24554 16.5254 9.33333 16.3 9.33333H14.6M18 6H17.15M4.4 1.83333V10.1667C4.4 10.3877 4.48955 10.5996 4.64896 10.7559C4.80837 10.9122 5.02457 11 5.25 11H6.1C6.32543 11 6.54163 10.9122 6.70104 10.7559C6.86045 10.5996 6.95 10.3877 6.95 10.1667V1.83333C6.95 1.61232 6.86045 1.40036 6.70104 1.24408C6.54163 1.0878 6.32543 1 6.1 1H5.25C5.02457 1 4.80837 1.0878 4.64896 1.24408C4.48955 1.40036 4.4 1.61232 4.4 1.83333ZM12.05 1.83333V10.1667C12.05 10.3877 12.1396 10.5996 12.299 10.7559C12.4584 10.9122 12.6746 11 12.9 11H13.75C13.9754 11 14.1916 10.9122 14.351 10.7559C14.5104 10.5996 14.6 10.3877 14.6 10.1667V1.83333C14.6 1.61232 14.5104 1.40036 14.351 1.24408C14.1916 1.0878 13.9754 1 13.75 1H12.9C12.6746 1 12.4584 1.0878 12.299 1.24408C12.1396 1.40036 12.05 1.61232 12.05 1.83333Z" stroke="#484848" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
         <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{formatWeight(currentWeight)}kg</span>
       </div>
     </div>

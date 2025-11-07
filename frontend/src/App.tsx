@@ -176,7 +176,7 @@ function AppContent() {
           <Route path="/pagina/treino-id" element={<Navigate to="/treino-id" replace />} />
           <Route path="/exercise-id" element={<ExerciseIdPage />} />
           <Route path="/pagina/exercise-id" element={<Navigate to="/exercise-id" replace />} />
-          <Route path="/treino-tempo-descanso" element={<TreinoTempoDescansoPage onFinish={() => navigate('/treino-id', { state: { fromRest: true } })} />} />
+              <Route path="/treino-tempo-descanso" element={<TreinoTempoDescansoPage />} />
           <Route path="/pagina/treino-tempo-descanso" element={<Navigate to="/treino-tempo-descanso" replace />} />
           <Route path="/workout-completion" element={<WorkoutCompletionPage />} />
           <Route path="/my-workouts" element={<MyWorkoutsPage />} />
