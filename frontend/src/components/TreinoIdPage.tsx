@@ -182,7 +182,7 @@ export function TreinoIdPage() {
     };
 
     loadWorkout();
-  }, [location.state]);
+  }, [location.state, workoutPlanIdFromUrl]);
 
   // Verifica se um exercício foi concluído
   useEffect(() => {
