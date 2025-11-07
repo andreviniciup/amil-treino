@@ -258,6 +258,7 @@ export function SeriesCard({
   }, [status, hasEmittedCompletion, finalReps, finalWeight, onComplete]);
 
   if (status === "completed") {
+    console.log(`🟢 SeriesCard ${seriesNumber} renderizando como COMPLETED (verde) - finalReps: ${finalReps}, finalWeight: ${finalWeight}`);
     return (
       <div className="w-full max-w-[350px] rounded-[28px] bg-[#6D9F28] px-[13px] py-[5px] flex items-center justify-between gap-[20px]">
         <div className="flex items-center gap-[10px]">

@@ -388,14 +388,21 @@ export function ExerciseIdPage() {
           )}
 
           {series.map((serie, index) => {
-            // Log para debug
+            // Log detalhado para debug
+            console.log(`📋 Renderizando Série ${index + 1}:`, {
+              status: serie.status,
+              reps: serie.actualReps || serie.repetitions,
+              weight: serie.actualWeight || serie.weight,
+              restTime: serie.actualRestTime || serie.restTime
+            });
+            
             if (serie.status === "completed") {
               console.log(`✅ Série ${index + 1} está COMPLETED - deve aparecer verde`);
             }
             
             return (
               <SeriesCard
-                key={index}
+                key={`series-${index}-${serie.status}`}
                 seriesNumber={index + 1}
                 repetitions={serie.repetitions}
                 weight={serie.weight}
