@@ -278,6 +278,14 @@ export function ExerciseIdPage() {
         workout?.workouts?.[0]?.exercises && 
         currentExerciseIndex === workout.workouts[0].exercises.length - 1;
       
+      console.log('🔍 Verificando se é último exercício:', {
+        fromWorkout,
+        hasWorkout: !!workout,
+        exercisesCount: workout?.workouts?.[0]?.exercises?.length,
+        currentIndex: currentExerciseIndex,
+        isLastExercise
+      });
+      
       // Se for o último exercício, parar o timer
       if (isLastExercise) {
         stopTimer();
