@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface TreinoTempoDescansoPageProps {
-  onFinish: () => void;
+  onFinish?: () => void;
 }
 
 function Frame498({ seconds }: { seconds: number }) {
@@ -91,14 +92,32 @@ function Frame499({ seconds, elapsedSeconds, onStop }: { seconds: number; elapse
 }
 
 export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPageProps) {
-  const TOTAL_TIME = 90; // 90 segundos
-  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Receber valores ajustados do state
+  const seriesIndex = location.state?.seriesIndex || 0;
+  const reps = location.state?.reps || 8;
+  const weight = location.state?.weight || 12;
+  const restTime = location.state?.restTime || 90;
+  
+  const [timeLeft, setTimeLeft] = useState(restTime);
   const [isRunning, setIsRunning] = useState(true);
 
   useEffect(() => {
     if (!isRunning || timeLeft <= 0) {
       if (timeLeft <= 0) {
-        onFinish();
+        // Timer completado - retornar com valores ajustados
+        navigate('/exercise-id', {
+          state: {
+            fromRest: true,
+            seriesIndex,
+            reps,
+            weight,
+            restTime
+          }
+        });
+        onFinish?.();
       }
       return;
     }
@@ -114,14 +133,24 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isRunning, timeLeft, onFinish]);
+  }, [isRunning, timeLeft, navigate, seriesIndex, reps, weight, restTime, onFinish]);
 
   const handleStop = () => {
     setIsRunning(false);
-    onFinish();
+    // Retornar com valores ajustados mesmo parando antes
+    navigate('/exercise-id', {
+      state: {
+        fromRest: true,
+        seriesIndex,
+        reps,
+        weight,
+        restTime
+      }
+    });
+    onFinish?.();
   };
 
-  const elapsedSeconds = TOTAL_TIME - timeLeft;
+  const elapsedSeconds = restTime - timeLeft;
 
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-tempo-descanso">
