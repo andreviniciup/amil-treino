@@ -171,7 +171,7 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isRunning, timeLeft, navigate, seriesIndex, reps, weight, restTime, onFinish, workout, exercise, currentExerciseIndex, fromWorkout]);
+  }, [isRunning, timeLeft, navigate, seriesIndex, reps, weight, restTime, onFinish, workout, exercise, currentExerciseIndex, fromWorkout, workoutPlanId, workoutId, exerciseId]);
 
   const handleStop = () => {
     setIsRunning(false);
