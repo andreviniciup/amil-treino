@@ -70,6 +70,7 @@ export function SeriesCard({
   const [currentRestTime, setCurrentRestTime] = useState(initialRestTime);
   const [finalReps, setFinalReps] = useState(initialReps);
   const [finalWeight, setFinalWeight] = useState(initialWeight);
+  const [finalRestTime, setFinalRestTime] = useState(initialRestTime);
   const [hasEmittedCompletion, setHasEmittedCompletion] = useState(false);
   const [activeField, setActiveField] = useState<'reps' | 'weight' | 'rest'>('reps');
 
@@ -102,7 +103,10 @@ export function SeriesCard({
 
   useEffect(() => {
     setCurrentRestTime(initialRestTime);
-  }, [initialRestTime]);
+    if (status !== "completed") {
+      setFinalRestTime(initialRestTime);
+    }
+  }, [initialRestTime, status]);
 
   useEffect(() => {
     if (!isExpanded) {
