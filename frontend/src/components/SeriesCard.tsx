@@ -171,6 +171,11 @@ export function SeriesCard({
   }, [isExpanded, activeField, currentReps, initialReps, status]);
 
   const handleOpenField = (field: 'reps' | 'weight' | 'rest') => {
+    // Não permitir abrir campos de séries completadas
+    if (status === "completed") {
+      return;
+    }
+    
     setActiveField(field);
     // Garante que o valor está sincronizado quando abre o campo
     if (field === 'reps' && currentReps === initialReps) {
@@ -231,6 +236,11 @@ export function SeriesCard({
   };
 
   const handleStartRestClick = () => {
+    // Não permitir iniciar timer para séries completadas
+    if (status === "completed") {
+      return;
+    }
+    
     setFinalReps(currentReps);
     setFinalWeight(currentWeight);
     onStartRest?.(currentReps, currentWeight, currentRestTime);

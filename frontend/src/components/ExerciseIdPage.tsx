@@ -372,26 +372,60 @@ export function ExerciseIdPage() {
               weight={serie.weight}
               restTime={serie.restTime}
               status={serie.status}
-              isExpanded={expandedSeriesIndex === index}
-              onToggleExpand={() => setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index)}
-              onStartRest={(reps, weight, restTime) => handleStartRest(index, reps, weight, restTime)}
-              onRepetitionsChange={(value) => handleRepetitionsChange(index, value)}
-              onWeightChange={(value) => handleWeightChange(index, value)}
-              onRestTimeChange={(value) => handleRestTimeChange(index, value)}
+              isExpanded={expandedSeriesIndex === index && serie.status !== "completed"}
+              onToggleExpand={() => {
+                // Não permitir expandir séries completadas
+                if (serie.status !== "completed") {
+                  setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index);
+                }
+              }}
+              onStartRest={(reps, weight, restTime) => {
+                // Não permitir iniciar timer para séries completadas
+                if (serie.status !== "completed") {
+                  handleStartRest(index, reps, weight, restTime);
+                }
+              }}
+              onRepetitionsChange={(value) => {
+                // Não permitir alterar valores de séries completadas
+                if (serie.status !== "completed") {
+                  handleRepetitionsChange(index, value);
+                }
+              }}
+              onWeightChange={(value) => {
+                // Não permitir alterar valores de séries completadas
+                if (serie.status !== "completed") {
+                  handleWeightChange(index, value);
+                }
+              }}
+              onRestTimeChange={(value) => {
+                // Não permitir alterar valores de séries completadas
+                if (serie.status !== "completed") {
+                  handleRestTimeChange(index, value);
+                }
+              }}
               onWeightChangeNumber={(value) => {
-                const newSeries = [...series];
-                newSeries[index].actualWeight = value;
-                setSeries(newSeries);
+                // Não permitir alterar valores de séries completadas
+                if (serie.status !== "completed") {
+                  const newSeries = [...series];
+                  newSeries[index].actualWeight = value;
+                  setSeries(newSeries);
+                }
               }}
               onRestTimeChangeNumber={(value) => {
-                const newSeries = [...series];
-                newSeries[index].actualRestTime = value;
-                setSeries(newSeries);
+                // Não permitir alterar valores de séries completadas
+                if (serie.status !== "completed") {
+                  const newSeries = [...series];
+                  newSeries[index].actualRestTime = value;
+                  setSeries(newSeries);
+                }
               }}
               onRepsChange={(min, max) => {
-                const newSeries = [...series];
-                newSeries[index].actualReps = max;
-                setSeries(newSeries);
+                // Não permitir alterar valores de séries completadas
+                if (serie.status !== "completed") {
+                  const newSeries = [...series];
+                  newSeries[index].actualReps = max;
+                  setSeries(newSeries);
+                }
               }}
             />
           ))}
