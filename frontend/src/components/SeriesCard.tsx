@@ -192,7 +192,7 @@ export function SeriesCard({
             <div className="flex items-center gap-4">
               <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">{repetitions} repetições</span>
               <div className="flex items-center gap-2">
-                <span className="text-white/50">��</span>
+                <span className="text-white/50">💪</span>
                 <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">{weight}kg</span>
               </div>
             </div>
