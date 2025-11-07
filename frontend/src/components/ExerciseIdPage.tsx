@@ -146,19 +146,34 @@ export function ExerciseIdPage() {
 
   const handleRepetitionsChange = (index: number, value: string) => {
     const newSeries = [...series];
+    const repsNum = parseInt(value, 10);
     newSeries[index].repetitions = value;
+    // Salvar também o valor numérico para uso no backend
+    if (!isNaN(repsNum)) {
+      newSeries[index].actualReps = repsNum;
+    }
     setSeries(newSeries);
   };
 
   const handleWeightChange = (index: number, value: string) => {
     const newSeries = [...series];
+    const weightNum = parseFloat(value);
     newSeries[index].weight = value;
+    // Salvar também o valor numérico para uso no backend
+    if (!isNaN(weightNum)) {
+      newSeries[index].actualWeight = weightNum;
+    }
     setSeries(newSeries);
   };
 
   const handleRestTimeChange = (index: number, value: string) => {
     const newSeries = [...series];
+    const restTimeNum = parseInt(value, 10);
     newSeries[index].restTime = value;
+    // Salvar também o valor numérico para uso no backend
+    if (!isNaN(restTimeNum)) {
+      newSeries[index].actualRestTime = restTimeNum;
+    }
     setSeries(newSeries);
   };
 
@@ -178,8 +193,47 @@ export function ExerciseIdPage() {
       }
       
       // Coletar dados das séries completadas (usar valores reais)
-      const repsArray = series.map(s => s.actualReps || parseInt(s.repetitions.split(' ')[0]) || 0);
-      const weightsArray = series.map(s => s.actualWeight || parseFloat(s.weight) || 0);
+      const repsArray = series.map((s, idx) => {
+        // Priorizar actualReps, depois tentar extrair do string
+        if (s.actualReps !== undefined) {
+          console.log(`Série ${idx + 1} - Reps (actualReps):`, s.actualReps);
+          return s.actualReps;
+        }
+        const match = s.repetitions.match(/(\d+)/);
+        if (match) {
+          const parsed = parseInt(match[1], 10);
+          console.log(`Série ${idx + 1} - Reps (parsed):`, parsed);
+          return parsed;
+        }
+        console.warn(`Série ${idx + 1} - Reps não encontrado, usando 0`);
+        return 0;
+      });
+      const weightsArray = series.map((s, idx) => {
+        // Priorizar actualWeight, depois parseFloat do string
+        if (s.actualWeight !== undefined) {
+          console.log(`Série ${idx + 1} - Weight (actualWeight):`, s.actualWeight);
+          return s.actualWeight;
+        }
+        const parsed = parseFloat(s.weight);
+        if (!isNaN(parsed)) {
+          console.log(`Série ${idx + 1} - Weight (parsed):`, parsed);
+          return parsed;
+        }
+        console.warn(`Série ${idx + 1} - Weight não encontrado, usando 0`);
+        return 0;
+      });
+      
+      console.log('📊 Dados coletados para envio:', {
+        repsArray,
+        weightsArray,
+        series: series.map(s => ({
+          repetitions: s.repetitions,
+          weight: s.weight,
+          actualReps: s.actualReps,
+          actualWeight: s.actualWeight,
+          status: s.status
+        }))
+      });
       
       // Criar log do treino
       const logData = {
@@ -193,6 +247,8 @@ export function ExerciseIdPage() {
           completed: true
         }]
       };
+      
+      console.log('📤 Enviando para backend:', logData);
       
       // Salvar no backend
       await workoutApi.createLog(logData);
@@ -279,6 +335,21 @@ export function ExerciseIdPage() {
               onRepetitionsChange={(value) => handleRepetitionsChange(index, value)}
               onWeightChange={(value) => handleWeightChange(index, value)}
               onRestTimeChange={(value) => handleRestTimeChange(index, value)}
+              onWeightChangeNumber={(value) => {
+                const newSeries = [...series];
+                newSeries[index].actualWeight = value;
+                setSeries(newSeries);
+              }}
+              onRestTimeChangeNumber={(value) => {
+                const newSeries = [...series];
+                newSeries[index].actualRestTime = value;
+                setSeries(newSeries);
+              }}
+              onRepsChange={(min, max) => {
+                const newSeries = [...series];
+                newSeries[index].actualReps = max;
+                setSeries(newSeries);
+              }}
             />
           ))}
         </div>

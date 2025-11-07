@@ -214,6 +214,19 @@ export function SeriesCard({
   }
 
   const handleConfirm = () => {
+    // Garantir que os valores finais estão salvos antes de fechar
+    setFinalReps(currentReps);
+    setFinalWeight(currentWeight);
+    setFinalRestTime(currentRestTime);
+    
+    // Notificar mudanças finais
+    onRepetitionsChange?.(currentReps.toString());
+    onWeightChange?.(currentWeight.toString());
+    onRestTimeChange?.(currentRestTime.toString());
+    onRepsChange?.(repsMin, currentReps);
+    onWeightChangeNumber?.(currentWeight);
+    onRestTimeChangeNumber?.(currentRestTime);
+    
     onToggleExpand?.();
   };
 
