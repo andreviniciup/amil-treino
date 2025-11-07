@@ -70,7 +70,15 @@ export function ExerciseIdPage() {
     }
   };
   
-  const [series, setSeries] = useState<SeriesData[]>(initializeSeries());
+  // Inicializar séries - verificar se há séries preservadas no location.state
+  const [series, setSeries] = useState<SeriesData[]>(() => {
+    // Se há séries preservadas no state, usar elas
+    if (location.state?.preservedSeries) {
+      console.log('📦 Restaurando séries preservadas:', location.state.preservedSeries);
+      return location.state.preservedSeries;
+    }
+    return initializeSeries();
+  });
   const [saving, setSaving] = useState(false);
   const [exerciseHistory, setExerciseHistory] = useState<number[]>([]);
   const [lastWeight, setLastWeight] = useState(0);
@@ -115,8 +123,11 @@ export function ExerciseIdPage() {
       const restTime = location.state.restTime;
 
       setSeries(prevSeries => {
-        const newSeries = [...prevSeries];
-        // Atualizar status e valores numéricos
+        // Se há séries preservadas, usar elas como base (para manter séries já completadas)
+        const baseSeries = location.state?.preservedSeries || prevSeries;
+        const newSeries = [...baseSeries];
+        
+        // Atualizar status e valores numéricos da série atual
         newSeries[seriesIndex].status = "completed";
         newSeries[seriesIndex].actualReps = reps;
         newSeries[seriesIndex].actualWeight = weight;
@@ -127,14 +138,25 @@ export function ExerciseIdPage() {
         newSeries[seriesIndex].restTime = restTime.toString();
         
         // Garantir que séries anteriores completadas permaneçam completadas
+        // (isso já deve estar preservado nas preservedSeries, mas garantimos)
         for (let i = 0; i < seriesIndex; i++) {
-          if (prevSeries[i].status === "completed") {
+          if (baseSeries[i]?.status === "completed") {
             newSeries[i].status = "completed";
+            // Preservar valores também
+            if (baseSeries[i].actualReps !== undefined) {
+              newSeries[i].actualReps = baseSeries[i].actualReps;
+            }
+            if (baseSeries[i].actualWeight !== undefined) {
+              newSeries[i].actualWeight = baseSeries[i].actualWeight;
+            }
+            if (baseSeries[i].actualRestTime !== undefined) {
+              newSeries[i].actualRestTime = baseSeries[i].actualRestTime;
+            }
           }
         }
         
         // Verifica se há próxima série
-        if (seriesIndex < prevSeries.length - 1) {
+        if (seriesIndex < newSeries.length - 1) {
           // Só mudar para active se não estiver completed
           if (newSeries[seriesIndex + 1].status !== "completed") {
             newSeries[seriesIndex + 1].status = "active";
@@ -158,7 +180,7 @@ export function ExerciseIdPage() {
 
   const handleStartRest = (index: number, reps: number, weight: number, restTime: number) => {
     // Navega para a página de tempo de descanso com os valores ajustados
-    // Preservar dados do workout/exercise para não perder ao voltar
+    // Preservar dados do workout/exercise E as séries completadas
     setCurrentSeriesIndex(index);
     navigate("/treino-tempo-descanso", { 
       state: { 
@@ -170,7 +192,9 @@ export function ExerciseIdPage() {
         workout,
         exercise,
         currentExerciseIndex,
-        fromWorkout
+        fromWorkout,
+        // Preservar estado das séries para não perder séries completadas
+        preservedSeries: series
       } 
     });
   };

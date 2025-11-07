@@ -114,6 +114,7 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
     if (!isRunning || timeLeft <= 0) {
       if (timeLeft <= 0) {
         // Timer completado - retornar com valores ajustados e dados preservados
+        const preservedSeries = location.state?.preservedSeries;
         navigate('/exercise-id', {
           state: {
             fromRest: true,
@@ -125,7 +126,9 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
             workout,
             exercise,
             currentExerciseIndex,
-            fromWorkout
+            fromWorkout,
+            // Preservar estado das séries
+            preservedSeries
           }
         });
         onFinish?.();
@@ -149,6 +152,7 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
   const handleStop = () => {
     setIsRunning(false);
     // Retornar com valores ajustados mesmo parando antes e dados preservados
+    const preservedSeries = location.state?.preservedSeries;
     navigate('/exercise-id', {
       state: {
         fromRest: true,
@@ -160,7 +164,9 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
         workout,
         exercise,
         currentExerciseIndex,
-        fromWorkout
+        fromWorkout,
+        // Preservar estado das séries
+        preservedSeries
       }
     });
     onFinish?.();
