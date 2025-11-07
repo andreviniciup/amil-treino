@@ -33,15 +33,21 @@ const allowedOrigins = [
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      console.log('✅ CORS: Allowing request with no origin');
+      return callback(null, true);
+    }
     
-    // Allow all .vercel.app domains from andreviniciup
-    if (origin.includes('andreviniciups-projects.vercel.app') || 
-        origin.includes('treino-amil.vercel.app') ||
-        allowedOrigins.indexOf(origin) !== -1) {
+    // Allow all .vercel.app domains
+    const isVercelDomain = origin.includes('.vercel.app');
+    const isAllowedOrigin = allowedOrigins.indexOf(origin) !== -1;
+    
+    if (isVercelDomain || isAllowedOrigin) {
+      console.log(`✅ CORS: Allowing origin ${origin}`);
       callback(null, true);
     } else {
       console.warn(`⚠️ CORS blocked origin: ${origin}`);
+      console.warn(`   Allowed origins: ${allowedOrigins.join(', ')}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
