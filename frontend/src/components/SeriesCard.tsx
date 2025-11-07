@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Minus, Plus, Check, Clock, Play } from 'lucide-react';
 
 interface SeriesCardProps {
@@ -13,6 +13,12 @@ interface SeriesCardProps {
   onRepetitionsChange?: (value: string) => void;
   onWeightChange?: (value: string) => void;
   onRestTimeChange?: (value: string) => void;
+  repsMin?: number;
+  repsMax?: number;
+  onRepsChange?: (min: number, max: number) => void;
+  onWeightChangeNumber?: (value: number) => void;
+  onRestTimeChangeNumber?: (value: number) => void;
+  onComplete?: (reps: number, weight: number) => void;
 }
 
 export function SeriesCard({
@@ -27,202 +33,259 @@ export function SeriesCard({
   onRepetitionsChange,
   onWeightChange,
   onRestTimeChange,
+  repsMin = 1,
+  repsMax,
+  onRepsChange,
+  onWeightChangeNumber,
+  onRestTimeChangeNumber,
+  onComplete,
 }: SeriesCardProps) {
-  const [currentReps, setCurrentReps] = useState(parseInt(repetitions) || 8);
-  const [currentWeight, setCurrentWeight] = useState(parseFloat(weight) || 12);
-  const [currentRestTime, setCurrentRestTime] = useState(parseInt(restTime) || 90);
+  const initialReps = useMemo(() => {
+    if (typeof repsMax === "number") {
+      return repsMax;
+    }
+    const parsed = parseInt(repetitions, 10);
+    return Number.isFinite(parsed) ? parsed : 8;
+  }, [repetitions, repsMax]);
+
+  const initialWeight = useMemo(() => {
+    const parsed = parseFloat(weight);
+    return Number.isFinite(parsed) ? parsed : 12;
+  }, [weight]);
+
+  const initialRestTime = useMemo(() => {
+    const parsed = parseInt(restTime, 10);
+    return Number.isFinite(parsed) ? parsed : 90;
+  }, [restTime]);
+
+  const [currentReps, setCurrentReps] = useState(initialReps);
+  const [currentWeight, setCurrentWeight] = useState(initialWeight);
+  const [currentRestTime, setCurrentRestTime] = useState(initialRestTime);
+  const [finalReps, setFinalReps] = useState(initialReps);
+  const [finalWeight, setFinalWeight] = useState(initialWeight);
+  const [hasEmittedCompletion, setHasEmittedCompletion] = useState(false);
+  const [activeField, setActiveField] = useState<'reps' | 'weight' | 'rest'>('reps');
+
+  const formatWeight = (value: number) => (Number.isInteger(value) ? value.toString() : value.toFixed(1));
+  const repetitionsRangeLabel = typeof repsMax === "number" ? `${repsMin} a ${repsMax} repetições` : repetitions.includes("repet") ? repetitions : `${repetitions} repetições`;
+  const currentRepetitionsLabel = `${currentReps} repetições`;
+  const restTimeLabel = `${currentRestTime} segundos`;
+  const activeFieldLabel = {
+    reps: "repetições",
+    weight: "peso (kg)",
+    rest: "descanso (seg)",
+  }[activeField];
+
+  useEffect(() => {
+    setCurrentReps(initialReps);
+    if (status !== "completed") {
+      setFinalReps(initialReps);
+    }
+  }, [initialReps, status]);
+
+  useEffect(() => {
+    setCurrentWeight(initialWeight);
+    if (status !== "completed") {
+      setFinalWeight(initialWeight);
+    }
+  }, [initialWeight, status]);
+
+  useEffect(() => {
+    setCurrentRestTime(initialRestTime);
+  }, [initialRestTime]);
+
+  useEffect(() => {
+    if (!isExpanded) {
+      setActiveField('reps');
+    }
+  }, [isExpanded]);
+
+  const handleOpenField = (field: 'reps' | 'weight' | 'rest') => {
+    setActiveField(field);
+    onToggleExpand?.();
+  };
+
+  const updateReps = (newMax: number) => {
+    const clamped = Math.max(repsMin, newMax);
+    setCurrentReps(clamped);
+    setFinalReps(clamped);
+    onRepetitionsChange?.(clamped.toString());
+    onRepsChange?.(repsMin, clamped);
+  };
 
   const handleRepsIncrease = () => {
-    const newReps = currentReps + 1;
-    setCurrentReps(newReps);
-    onRepetitionsChange?.(newReps.toString());
+    updateReps(currentReps + 1);
   };
 
   const handleRepsDecrease = () => {
-    if (currentReps > 1) {
-      const newReps = currentReps - 1;
-      setCurrentReps(newReps);
-      onRepetitionsChange?.(newReps.toString());
-    }
+    updateReps(currentReps - 1);
   };
 
   const handleWeightIncrease = () => {
-    const newWeight = currentWeight + 2.5;
+    const newWeight = currentWeight + 1;
     setCurrentWeight(newWeight);
+    setFinalWeight(newWeight);
     onWeightChange?.(newWeight.toString());
+    onWeightChangeNumber?.(newWeight);
   };
 
   const handleWeightDecrease = () => {
-    if (currentWeight > 0) {
-      const newWeight = Math.max(0, currentWeight - 2.5);
-      setCurrentWeight(newWeight);
-      onWeightChange?.(newWeight.toString());
-    }
+    const newWeight = Math.max(0, currentWeight - 1);
+    setCurrentWeight(newWeight);
+    setFinalWeight(newWeight);
+    onWeightChange?.(newWeight.toString());
+    onWeightChangeNumber?.(newWeight);
   };
 
   const handleRestTimeIncrease = () => {
-    const newTime = currentRestTime + 30;
+    const newTime = currentRestTime + 5;
     setCurrentRestTime(newTime);
     onRestTimeChange?.(newTime.toString());
+    onRestTimeChangeNumber?.(newTime);
   };
 
   const handleRestTimeDecrease = () => {
-    if (currentRestTime > 30) {
-      const newTime = currentRestTime - 30;
-      setCurrentRestTime(newTime);
-      onRestTimeChange?.(newTime.toString());
-    }
+    const newTime = Math.max(0, currentRestTime - 5);
+    setCurrentRestTime(newTime);
+    onRestTimeChange?.(newTime.toString());
+    onRestTimeChangeNumber?.(newTime);
   };
 
   const handleStartRestClick = () => {
+    setFinalReps(currentReps);
+    setFinalWeight(currentWeight);
     onStartRest?.(currentReps, currentWeight, currentRestTime);
   };
 
+  useEffect(() => {
+    if (status === "completed") {
+      if (!hasEmittedCompletion) {
+        setHasEmittedCompletion(true);
+        onComplete?.(finalReps, finalWeight);
+      }
+    } else {
+      setHasEmittedCompletion(false);
+    }
+  }, [status, hasEmittedCompletion, finalReps, finalWeight, onComplete]);
+
   if (status === "completed") {
     return (
-      <div className="bg-[#4f6c25] h-[50px] relative rounded-[20px] shrink-0 w-full px-5 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-6 h-6 rounded-full bg-[#3f5c15] flex items-center justify-center">
-            <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">
-              {seriesNumber}
-            </span>
-          </div>
-          <span className="font-['Alexandria:Regular',_sans-serif] text-white text-[14px]">
-            {currentReps} repetições
-          </span>
+      <div className="w-full max-w-[350px] rounded-[28px] bg-[#6D9F28] px-[13px] py-[5px] flex items-center justify-between gap-[20px]">
+        <div className="flex items-center gap-[10px]">
+          <span className="text-[14px] font-['Alexandria:Regular',_sans-serif] text-[#345408]">{seriesNumber}</span>
+          <div className="w-px h-6 bg-[#43690F]" />
+          <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{finalReps} repetições</span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-white/70">💪</span>
-            <span className="font-['Alexandria:Regular',_sans-serif] text-white text-[14px]">
-              {currentWeight}kg
-            </span>
-          </div>
-          <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-            <Check className="w-4 h-4 text-[#4f6c25]" />
-          </div>
+        <div className="flex items-center gap-[12px]">
+          <div className="w-[17px] h-[10px] rounded-[2px] border border-[#43690F]" />
+          <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{formatWeight(finalWeight)}kg</span>
+        </div>
+        <div className="w-5 h-5 rounded-full bg-[#43690F] flex items-center justify-center">
+          <Check className="w-3.5 h-3.5 text-white" />
         </div>
       </div>
     );
   }
 
   if (status === "active" && isExpanded) {
+    const decreaseHandler = activeField === 'reps' ? () => updateReps(currentReps - 1) : activeField === 'weight' ? handleWeightDecrease : handleRestTimeDecrease;
+    const increaseHandler = activeField === 'reps' ? () => updateReps(currentReps + 1) : activeField === 'weight' ? handleWeightIncrease : handleRestTimeIncrease;
+    const expandedValue = activeField === 'reps' ? currentReps.toString() : activeField === 'weight' ? formatWeight(currentWeight) : currentRestTime.toString();
+
     return (
-      <div className="bg-[#2c2c2c] border-2 border-[#FFC700] relative rounded-[20px] shrink-0 w-full p-5 animate-in fade-in slide-in-from-top-2 duration-200">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#1c1c1c] flex items-center justify-center">
-              <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
-                {seriesNumber}
-              </span>
-            </div>
-            <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">
-              Série {seriesNumber}
-            </span>
-          </div>
-          <button
-            onClick={onToggleExpand}
-            className="text-white/70 hover:text-white text-[12px] font-['Alexandria:Regular',_sans-serif] transition-colors"
-          >
-            Minimizar
-          </button>
+      <div className="w-full max-w-[350px] rounded-[28px] bg-[#202020] flex flex-col">
+        <div className="flex justify-end px-5 pt-[6px]">
+          <button type="button" onClick={onToggleExpand} className="text-[10px] font-['Alexandria:Regular',_sans-serif] text-[#4C4C4C]">{activeFieldLabel}</button>
         </div>
-        <div className="grid grid-cols-3 gap-3 mb-3">
-          <p className="font-['Alexandria:Regular',_sans-serif] text-[11px] text-white/50 text-center">
-            Repetições
-          </p>
-          <p className="font-['Alexandria:Regular',_sans-serif] text-[11px] text-white/50 text-center">
-            Peso (kg)
-          </p>
-          <p className="font-['Alexandria:Regular',_sans-serif] text-[11px] text-white/50 text-center">
-            Descanso (seg)
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          <div className="flex items-center justify-center gap-2">
-            <button onClick={handleRepsDecrease} className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all">
+        <div className="flex flex-col items-center gap-[3px] pb-[12px]">
+          <div className="flex items-center gap-[13px]">
+            <button
+              type="button"
+              onClick={decreaseHandler}
+              className="w-[30px] h-[30px] rounded-[8px] bg-[#FDCB1A] flex items-center justify-center transition-transform active:scale-95"
+            >
               <Minus className="w-4 h-4 text-black" />
             </button>
-            <div className="flex-1 bg-[#1c1c1c] rounded-[10px] h-10 flex items-center justify-center">
-              <span className="font-['Alexandria:Bold',_sans-serif] text-white text-[18px]">{currentReps}</span>
+            <div className="w-[90px] h-[40px] rounded-[5px] bg-[#262626] flex items-center justify-center">
+              <span className="text-white text-[32px] font-['Alexandria:Regular',_sans-serif] leading-none">{expandedValue}</span>
             </div>
-            <button onClick={handleRepsIncrease} className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all">
+            <button
+              type="button"
+              onClick={increaseHandler}
+              className="w-[30px] h-[30px] rounded-[8px] bg-[#FDCB1A] flex items-center justify-center transition-transform active:scale-95"
+            >
               <Plus className="w-4 h-4 text-black" />
             </button>
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <button onClick={handleWeightDecrease} className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all">
-              <Minus className="w-4 h-4 text-black" />
+          {activeField === 'rest' && (
+            <button
+              type="button"
+              onClick={handleStartRestClick}
+              className="mt-3 flex items-center gap-2 rounded-full bg-[#FDCB1A] px-[26px] py-[6px] text-[#262626] text-[12px] font-['Alexandria:Medium',_sans-serif] transition-transform active:scale-95"
+            >
+              <Clock className="w-3.5 h-3.5 text-[#262626]" />
+              iniciar descanso
             </button>
-            <div className="flex-1 bg-[#1c1c1c] rounded-[10px] h-10 flex items-center justify-center">
-              <span className="font-['Alexandria:Bold',_sans-serif] text-white text-[18px]">{currentWeight.toFixed(1)}</span>
-            </div>
-            <button onClick={handleWeightIncrease} className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all">
-              <Plus className="w-4 h-4 text-black" />
-            </button>
-          </div>
-          <div className="flex items-center justify-center gap-2">
-            <button onClick={handleRestTimeDecrease} className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all">
-              <Minus className="w-4 h-4 text-black" />
-            </button>
-            <div className="flex-1 bg-[#1c1c1c] rounded-[10px] h-10 flex items-center justify-center">
-              <span className="font-['Alexandria:Bold',_sans-serif] text-white text-[18px]">{currentRestTime}</span>
-            </div>
-            <button onClick={handleRestTimeIncrease} className="w-9 h-9 rounded-[10px] bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 flex items-center justify-center transition-all">
-              <Plus className="w-4 h-4 text-black" />
-            </button>
-          </div>
+          )}
         </div>
-        <button onClick={handleStartRestClick} className="w-full bg-[#FFC700] hover:bg-[#FFD700] active:scale-95 h-12 rounded-full flex items-center justify-center gap-2 transition-all">
-          <Clock className="w-5 h-5 text-black" />
-          <span className="font-['Alexandria:Medium',_sans-serif] text-black text-[16px]">Iniciar Descanso</span>
-        </button>
       </div>
     );
   }
 
   if (status === "active") {
     return (
-      <div className="bg-[#2c2c2c] relative rounded-[20px] shrink-0 w-full px-5 py-4">
+      <div className="w-full max-w-[350px] rounded-[28px] bg-[#202020] px-[18px] py-[9px] flex flex-col gap-[13px]">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="w-8 h-8 rounded-full bg-[#1c1c1c] flex items-center justify-center">
-              <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[16px]">{seriesNumber}</span>
+          <div className="flex items-center gap-[23px]">
+            <div className="flex items-center gap-[6px]">
+              <span className="text-[14px] font-['Alexandria:Regular',_sans-serif] text-white">{seriesNumber}</span>
+              <div className="w-px h-6 bg-[#484848]" />
             </div>
-            <div className="flex items-center gap-4">
-              <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">{repetitions} repetições</span>
-              <div className="flex items-center gap-2">
-                <span className="text-white/50">💪</span>
-                <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">{weight}kg</span>
-              </div>
-            </div>
+            <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{repetitionsRangeLabel}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={onToggleExpand} className="bg-white hover:bg-gray-100 active:scale-95 px-6 py-2 rounded-full transition-all flex items-center gap-2">
-              <Play className="w-4 h-4 text-black fill-black" />
-              <span className="font-['Alexandria:Medium',_sans-serif] text-black text-[14px]">iniciar</span>
-            </button>
-            <div className="flex items-center gap-1 text-white/50">
-              <Clock className="w-4 h-4" />
-              <span className="font-['Alexandria:Regular',_sans-serif] text-[12px]">{restTime} segundos</span>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => handleOpenField('weight')}
+            className="flex items-center gap-[12px] text-white/70 bg-transparent"
+          >
+            <div className="w-[17px] h-[10px] rounded-[2px] border border-[#484848]" />
+            <span className="text-[12px] font-['Alexandria:Regular',_sans-serif]">{formatWeight(currentWeight)}kg</span>
+          </button>
+        </div>
+        <div className="flex items-center justify-between gap-[20px]">
+          <button
+            type="button"
+            onClick={() => handleOpenField('reps')}
+            className="flex items-center gap-2 rounded-full bg-[#D9D9D9] px-[30px] py-[6px] text-black transition-transform active:scale-95"
+          >
+            <Play className="w-3.5 h-3.5 text-black fill-black" />
+            <span className="text-[12px] font-['Alexandria:Medium',_sans-serif]">iniciar</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleOpenField('rest')}
+            className="flex items-center gap-2 rounded-full bg-[#252525] px-[20px] py-[6px] text-[#484848] text-[10px] font-['Alexandria:Regular',_sans-serif] transition-transform active:scale-95"
+          >
+            <Clock className="w-3.5 h-3.5 text-[#484848]" />
+            {restTimeLabel}
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#2c2c2c] relative rounded-[20px] shrink-0 w-full px-5 py-3 flex items-center justify-between opacity-60">
-      <div className="flex items-center gap-4">
-        <div className="w-6 h-6 rounded-full bg-[#1c1c1c] flex items-center justify-center">
-          <span className="font-['Alexandria:Medium',_sans-serif] text-white text-[14px]">{seriesNumber}</span>
+    <div className="w-full max-w-[350px] rounded-[28px] bg-[#202020] px-[18px] py-[12px] flex items-center justify-between opacity-60">
+      <div className="flex items-center gap-[23px]">
+        <div className="flex items-center gap-[6px]">
+          <span className="text-[14px] font-['Alexandria:Regular',_sans-serif] text-white">{seriesNumber}</span>
+          <div className="w-px h-6 bg-[#484848]" />
         </div>
-        <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">{repetitions} repetições</span>
+        <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{currentRepetitionsLabel}</span>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="text-white/50">💪</span>
-        <span className="font-['Alexandria:Regular',_sans-serif] text-white/70 text-[14px]">{weight}kg</span>
+      <div className="flex items-center gap-[12px]">
+        <div className="w-[17px] h-[10px] rounded-[2px] border border-[#484848]" />
+        <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{formatWeight(currentWeight)}kg</span>
       </div>
     </div>
   );

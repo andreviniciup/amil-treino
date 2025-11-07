@@ -2,6 +2,7 @@
 node_modules/
 */node_modules/
 **/node_modules/
+componentes/
 
 # Python
 __pycache__/
@@ -334,3 +335,4 @@ temp/
 *.njsproj
 *.sln
 *.sw?
+.vercel
