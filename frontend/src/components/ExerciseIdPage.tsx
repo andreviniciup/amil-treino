@@ -266,12 +266,16 @@ export function ExerciseIdPage() {
         }))
       });
       
-      // Criar log do treino
+      // Obter o ID do Workout (treino do dia), não do WorkoutPlan
+      // workout?.workouts?.[0]?.id é o ID do Workout específico do dia
+      const workoutDayId = workout?.workouts?.[0]?.id || workout?.id || '1';
+      
+      // Criar log do exercício (será agrupado no treino completo depois)
       const logData = {
-        workoutId: workout?.id || '1',
+        workoutId: workoutDayId, // ID do Workout (treino do dia), não do WorkoutPlan
         duration: elapsedTime,
         exercises: [{
-          exerciseId: currentExercise?.exerciseId || '1',
+          exerciseId: currentExercise?.exerciseId || currentExercise?.id || '1',
           sets: series.length,
           reps: repsArray,
           weights: weightsArray,
@@ -280,6 +284,9 @@ export function ExerciseIdPage() {
       };
       
       console.log('📤 Enviando para backend:', logData);
+      console.log('📅 Workout ID (treino do dia):', workoutDayId);
+      console.log('📅 Workout Plan ID:', workout?.id);
+      console.log('📅 Workout Day:', workout?.workouts?.[0]?.dayOfWeek);
       
       // Salvar no backend
       await workoutApi.createLog(logData);
