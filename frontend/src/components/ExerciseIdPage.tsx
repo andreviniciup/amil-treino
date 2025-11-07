@@ -7,6 +7,7 @@ import { SlideToComplete } from "./SlideToComplete";
 import { WeeklyProgressBar } from "./exercise/WeeklyProgressBar";
 import { workoutApi, exerciseApi } from "../services/api";
 import { useWorkoutTimer } from "../contexts/WorkoutTimerContext";
+import { BackButton } from "./BackButton";
 
 interface SeriesData {
   repetitions: string;
@@ -360,6 +361,7 @@ export function ExerciseIdPage() {
 
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-id">
+      <BackButton onClick={() => navigate("/treino")} />
       <div className={`absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] ${topPosition} w-[350px]`}>
         {/* Imagem do Exercício */}
         <div className="bg-[#202020] h-[350px] relative rounded-[30px] shrink-0 w-full overflow-hidden">

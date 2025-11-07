@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BackButton } from './BackButton';
 
 interface TreinoTempoDescansoPageProps {
   onFinish?: () => void;
@@ -169,6 +170,19 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
 
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-tempo-descanso">
+      <BackButton onClick={() => navigate('/exercise-id', {
+        state: {
+          fromRest: true,
+          seriesIndex,
+          reps,
+          weight,
+          restTime,
+          workout,
+          exercise,
+          currentExerciseIndex,
+          fromWorkout
+        }
+      })} />
       <Frame499 seconds={timeLeft} elapsedSeconds={elapsedSeconds} onStop={handleStop} />
       <p className="absolute font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] left-[calc(60%+36px)] text-[10px] text-nowrap text-white top-[44px] whitespace-pre">tempo de descanso</p>
     </div>

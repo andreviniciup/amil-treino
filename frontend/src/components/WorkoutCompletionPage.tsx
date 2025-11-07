@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Trophy, Flame, Clock, TrendingUp } from 'lucide-react';
 import { workoutApi } from '../services/api';
+import { BackButton } from './BackButton';
 
 interface WorkoutStats {
   workoutName: string;
@@ -102,6 +103,7 @@ export function WorkoutCompletionPage() {
 
   return (
     <div className="bg-gradient-to-b from-[#4f6c25] via-[#3d5620] to-[#2a3d15] min-h-screen relative overflow-hidden">
+      <BackButton onClick={() => navigate("/home")} />
       {/* Background decorativo */}
       <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-[rgba(255,255,255,0.05)] to-transparent" />
       
