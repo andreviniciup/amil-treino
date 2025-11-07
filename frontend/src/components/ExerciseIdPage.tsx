@@ -77,7 +77,10 @@ export function ExerciseIdPage() {
       console.log('📦 Restaurando séries preservadas:', location.state.preservedSeries);
       return location.state.preservedSeries;
     }
-    return initializeSeries();
+    const initialSeries = initializeSeries();
+    console.log('🆕 Inicializando novas séries:', initialSeries);
+    console.log('📋 Contexto:', { fromWorkout, workout: workout?.id, exercise: exercise?.id });
+    return initialSeries;
   });
   const [saving, setSaving] = useState(false);
   const [exerciseHistory, setExerciseHistory] = useState<number[]>([]);
@@ -177,6 +180,16 @@ export function ExerciseIdPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.fromRest]);
+
+  // Preservar séries quando o componente é remontado (se workout/fromWorkout estão undefined mas há séries preservadas)
+  useEffect(() => {
+    // Se workout e fromWorkout estão undefined mas há séries preservadas no state, restaurar
+    if (!workout && !fromWorkout && location.state?.preservedSeries) {
+      console.log('🔄 Componente remontado - restaurando séries preservadas do state');
+      setSeries(location.state.preservedSeries);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workout, fromWorkout]);
 
   const handleStartRest = (index: number, reps: number, weight: number, restTime: number) => {
     // Navega para a página de tempo de descanso com os valores ajustados
@@ -341,6 +354,7 @@ export function ExerciseIdPage() {
       
       // Se for o último exercício, navegar para a página de conclusão
       if (isLastExercise) {
+        console.log('🏁 Último exercício completado - navegando para conclusão');
         navigate("/workout-completion", {
           state: {
             workoutData: {
@@ -351,6 +365,7 @@ export function ExerciseIdPage() {
           }
         });
       } else {
+        console.log('📋 Exercício completado (não é o último) - navegando para /treino-id');
         // Navega de volta para a página de treino com informação de que o exercício foi concluído
         // Só marca como concluído se todas as séries foram completadas
         const allSeriesCompleted = series.every((s) => s.status === "completed");
