@@ -125,11 +125,28 @@ export function ExerciseIdPage() {
         newSeries[seriesIndex].weight = weight.toString();
         newSeries[seriesIndex].restTime = restTime.toString();
         
+        // Garantir que séries anteriores completadas permaneçam completadas
+        for (let i = 0; i < seriesIndex; i++) {
+          if (prevSeries[i].status === "completed") {
+            newSeries[i].status = "completed";
+          }
+        }
+        
         // Verifica se há próxima série
         if (seriesIndex < prevSeries.length - 1) {
-          newSeries[seriesIndex + 1].status = "active";
+          // Só mudar para active se não estiver completed
+          if (newSeries[seriesIndex + 1].status !== "completed") {
+            newSeries[seriesIndex + 1].status = "active";
+          }
           setCurrentSeriesIndex(seriesIndex + 1);
         }
+        
+        console.log('✅ Séries atualizadas após timer:', newSeries.map((s, idx) => ({
+          index: idx,
+          status: s.status,
+          reps: s.actualReps,
+          weight: s.actualWeight
+        })));
         
         return newSeries;
       });
@@ -159,6 +176,12 @@ export function ExerciseIdPage() {
 
   const handleRepetitionsChange = (index: number, value: string) => {
     setSeries(prevSeries => {
+      // Não permitir alterar séries completadas
+      if (prevSeries[index].status === "completed") {
+        console.warn('⚠️ Tentativa de alterar série completada:', index);
+        return prevSeries;
+      }
+      
       const newSeries = [...prevSeries];
       const repsNum = parseInt(value, 10);
       newSeries[index].repetitions = value;
@@ -166,16 +189,18 @@ export function ExerciseIdPage() {
       if (!isNaN(repsNum)) {
         newSeries[index].actualReps = repsNum;
       }
-      // Preservar o status se já estiver "completed"
-      if (newSeries[index].status === "completed") {
-        // Manter o status como completed
-      }
       return newSeries;
     });
   };
 
   const handleWeightChange = (index: number, value: string) => {
     setSeries(prevSeries => {
+      // Não permitir alterar séries completadas
+      if (prevSeries[index].status === "completed") {
+        console.warn('⚠️ Tentativa de alterar série completada:', index);
+        return prevSeries;
+      }
+      
       const newSeries = [...prevSeries];
       const weightNum = parseFloat(value);
       newSeries[index].weight = value;
@@ -183,26 +208,24 @@ export function ExerciseIdPage() {
       if (!isNaN(weightNum)) {
         newSeries[index].actualWeight = weightNum;
       }
-      // Preservar o status se já estiver "completed"
-      if (newSeries[index].status === "completed") {
-        // Manter o status como completed
-      }
       return newSeries;
     });
   };
 
   const handleRestTimeChange = (index: number, value: string) => {
     setSeries(prevSeries => {
+      // Não permitir alterar séries completadas
+      if (prevSeries[index].status === "completed") {
+        console.warn('⚠️ Tentativa de alterar série completada:', index);
+        return prevSeries;
+      }
+      
       const newSeries = [...prevSeries];
       const restTimeNum = parseInt(value, 10);
       newSeries[index].restTime = value;
       // Salvar também o valor numérico para uso no backend
       if (!isNaN(restTimeNum)) {
         newSeries[index].actualRestTime = restTimeNum;
-      }
-      // Preservar o status se já estiver "completed"
-      if (newSeries[index].status === "completed") {
-        // Manter o status como completed
       }
       return newSeries;
     });
@@ -364,14 +387,20 @@ export function ExerciseIdPage() {
             />
           )}
 
-          {series.map((serie, index) => (
-            <SeriesCard
-              key={index}
-              seriesNumber={index + 1}
-              repetitions={serie.repetitions}
-              weight={serie.weight}
-              restTime={serie.restTime}
-              status={serie.status}
+          {series.map((serie, index) => {
+            // Log para debug
+            if (serie.status === "completed") {
+              console.log(`✅ Série ${index + 1} está COMPLETED - deve aparecer verde`);
+            }
+            
+            return (
+              <SeriesCard
+                key={index}
+                seriesNumber={index + 1}
+                repetitions={serie.repetitions}
+                weight={serie.weight}
+                restTime={serie.restTime}
+                status={serie.status}
               isExpanded={expandedSeriesIndex === index && serie.status !== "completed"}
               onToggleExpand={() => {
                 // Não permitir expandir séries completadas
@@ -427,8 +456,9 @@ export function ExerciseIdPage() {
                   setSeries(newSeries);
                 }
               }}
-            />
-          ))}
+              />
+            );
+          })}
         </div>
 
         {/* Slide to Complete - Só aparece quando todas as séries estiverem completas */}
