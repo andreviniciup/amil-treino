@@ -5,7 +5,7 @@ import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
 import { SeriesCard } from "./SeriesCard";
 import { SlideToComplete } from "./SlideToComplete";
 import { WeeklyProgressBar } from "./exercise/WeeklyProgressBar";
-import { workoutApi, exerciseApi } from "../services/api";
+import { workoutApi, exerciseApi, WorkoutPlan } from "../services/api";
 import { useWorkoutTimer } from "../contexts/WorkoutTimerContext";
 import { BackButton } from "./BackButton";
 
@@ -26,9 +26,14 @@ export function ExerciseIdPage() {
   const { stopTimer, elapsedTime, isRunning } = useWorkoutTimer();
   
   // Obter dados do exercício ou treino do estado OU dos parâmetros da URL
-  const exercise = location.state?.exercise;
-  const workout = location.state?.workout;
-  const currentExerciseIndex = location.state?.currentExerciseIndex || 0;
+  const [workoutData, setWorkoutData] = useState<WorkoutPlan | null>(location.state?.workout || null);
+  const [exerciseData, setExerciseData] = useState(location.state?.exercise || null);
+  const [exerciseIndex, setExerciseIndex] = useState(location.state?.currentExerciseIndex || 0);
+  const [loadingWorkout, setLoadingWorkout] = useState(false);
+  
+  const exercise = exerciseData;
+  const workout = workoutData;
+  const currentExerciseIndex = exerciseIndex;
   const fromWorkout = location.state?.fromWorkout || !!params.workoutPlanId;
   
   // Se temos parâmetros da URL, significa que veio de uma rota semântica
@@ -40,6 +45,43 @@ export function ExerciseIdPage() {
   console.log('Current exercise index:', currentExerciseIndex);
   console.log('From workout:', fromWorkout);
   console.log('Has URL params:', hasUrlParams);
+  
+  // Carregar dados do workout do backend se temos parâmetros da URL mas não temos dados no state
+  useEffect(() => {
+    const loadWorkoutFromUrl = async () => {
+      // Só carregar se temos parâmetros da URL mas não temos dados no state
+      if (hasUrlParams && !workout && params.workoutPlanId) {
+        try {
+          setLoadingWorkout(true);
+          console.log('📥 Carregando workout do backend com ID:', params.workoutPlanId);
+          const loadedWorkout = await workoutApi.getPlanById(params.workoutPlanId);
+          console.log('✅ Workout carregado:', loadedWorkout);
+          setWorkoutData(loadedWorkout);
+          
+          // Encontrar o exercício correto usando o exerciseId da URL
+          if (params.exerciseId && loadedWorkout.workouts?.[0]?.exercises) {
+            const foundIndex = loadedWorkout.workouts[0].exercises.findIndex(
+              (ex: any) => ex.id === params.exerciseId || ex.exerciseId === params.exerciseId
+            );
+            if (foundIndex !== -1) {
+              console.log('✅ Exercício encontrado no índice:', foundIndex);
+              setExerciseIndex(foundIndex);
+              setExerciseData(loadedWorkout.workouts[0].exercises[foundIndex]);
+            } else {
+              console.warn('⚠️ Exercício não encontrado com ID:', params.exerciseId);
+            }
+          }
+        } catch (err) {
+          console.error('❌ Erro ao carregar workout:', err);
+        } finally {
+          setLoadingWorkout(false);
+        }
+      }
+    };
+    
+    loadWorkoutFromUrl();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.workoutPlanId, params.exerciseId, hasUrlParams]);
   
   // Se veio do treino, usar dados do treino
   const currentExercise = fromWorkout && workout?.workouts?.[0]?.exercises?.[currentExerciseIndex] 
@@ -192,6 +234,11 @@ export function ExerciseIdPage() {
     // Se workout e fromWorkout estão undefined mas há séries preservadas no state, restaurar
     if (!workout && !fromWorkout && location.state?.preservedSeries) {
       console.log('🔄 Componente remontado - restaurando séries preservadas do state');
+      setSeries(location.state.preservedSeries);
+    }
+    // Quando o workout é carregado do backend, preservar séries se já existirem
+    if (workout && location.state?.preservedSeries) {
+      console.log('🔄 Workout carregado do backend - mantendo séries preservadas');
       setSeries(location.state.preservedSeries);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -456,6 +503,17 @@ export function ExerciseIdPage() {
   
   // Ajustar top baseado se o treino está ativo
   const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
+
+  // Se está carregando o workout do backend, mostrar loading
+  if (loadingWorkout) {
+    return (
+      <div className="bg-[#181818] relative size-full flex items-center justify-center">
+        <div className="text-white text-[18px] font-['Alexandria:Regular',_sans-serif]">
+          Carregando exercício...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-id">
