@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from './BackButton';
 
 interface TreinoTempoDescansoPageProps {
@@ -95,6 +95,7 @@ function Frame499({ seconds, elapsedSeconds, onStop }: { seconds: number; elapse
 export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPageProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const params = useParams<{ workoutPlanId?: string; workoutId?: string; exerciseId?: string }>();
   
   // Receber valores ajustados do state
   const seriesIndex = location.state?.seriesIndex || 0;
@@ -107,6 +108,11 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
   const currentExerciseIndex = location.state?.currentExerciseIndex;
   const fromWorkout = location.state?.fromWorkout;
   
+  // Obter IDs da URL ou do state
+  const workoutPlanId = workout?.id || params.workoutPlanId;
+  const workoutId = workout?.workouts?.[0]?.id || params.workoutId;
+  const exerciseId = exercise?.id || exercise?.exerciseId || params.exerciseId;
+  
   const [timeLeft, setTimeLeft] = useState(restTime);
   const [isRunning, setIsRunning] = useState(true);
 
@@ -115,22 +121,40 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
       if (timeLeft <= 0) {
         // Timer completado - retornar com valores ajustados e dados preservados
         const preservedSeries = location.state?.preservedSeries;
-        navigate('/exercise-id', {
-          state: {
-            fromRest: true,
-            seriesIndex,
-            reps,
-            weight,
-            restTime,
-            // Preservar dados do contexto
-            workout,
-            exercise,
-            currentExerciseIndex,
-            fromWorkout,
-            // Preservar estado das séries
-            preservedSeries
-          }
-        });
+        
+        // Usar rota semântica se temos os IDs necessários
+        if (workoutPlanId && workoutId && exerciseId) {
+          navigate(`/treino/${workoutPlanId}/${workoutId}/${exerciseId}`, {
+            state: {
+              fromRest: true,
+              seriesIndex,
+              reps,
+              weight,
+              restTime,
+              workout,
+              exercise,
+              currentExerciseIndex,
+              fromWorkout,
+              preservedSeries
+            }
+          });
+        } else {
+          // Fallback para rota legada
+          navigate('/exercise-id', {
+            state: {
+              fromRest: true,
+              seriesIndex,
+              reps,
+              weight,
+              restTime,
+              workout,
+              exercise,
+              currentExerciseIndex,
+              fromWorkout,
+              preservedSeries
+            }
+          });
+        }
         onFinish?.();
       }
       return;
@@ -153,22 +177,40 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
     setIsRunning(false);
     // Retornar com valores ajustados mesmo parando antes e dados preservados
     const preservedSeries = location.state?.preservedSeries;
-    navigate('/exercise-id', {
-      state: {
-        fromRest: true,
-        seriesIndex,
-        reps,
-        weight,
-        restTime,
-        // Preservar dados do contexto
-        workout,
-        exercise,
-        currentExerciseIndex,
-        fromWorkout,
-        // Preservar estado das séries
-        preservedSeries
-      }
-    });
+    
+    // Usar rota semântica se temos os IDs necessários
+    if (workoutPlanId && workoutId && exerciseId) {
+      navigate(`/treino/${workoutPlanId}/${workoutId}/${exerciseId}`, {
+        state: {
+          fromRest: true,
+          seriesIndex,
+          reps,
+          weight,
+          restTime,
+          workout,
+          exercise,
+          currentExerciseIndex,
+          fromWorkout,
+          preservedSeries
+        }
+      });
+    } else {
+      // Fallback para rota legada
+      navigate('/exercise-id', {
+        state: {
+          fromRest: true,
+          seriesIndex,
+          reps,
+          weight,
+          restTime,
+          workout,
+          exercise,
+          currentExerciseIndex,
+          fromWorkout,
+          preservedSeries
+        }
+      });
+    }
     onFinish?.();
   };
 

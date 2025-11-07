@@ -172,11 +172,17 @@ function AppContent() {
           <Route path="/pagina/treino" element={<Navigate to="/treino" replace />} />
           <Route path="/treino-iniciado" element={<div onClick={() => navigate('/exercise-id')}><TreinoIniciado /></div>} />
           <Route path="/pagina/treino-iniciado" element={<Navigate to="/treino-iniciado" replace />} />
+          {/* Rotas com IDs semânticos */}
+          <Route path="/treino/:workoutPlanId" element={<TreinoIdPage />} />
+          <Route path="/treino/:workoutPlanId/:workoutId/:exerciseId" element={<ExerciseIdPage />} />
+          <Route path="/treino/:workoutPlanId/:workoutId/:exerciseId/descanso" element={<TreinoTempoDescansoPage />} />
+          
+          {/* Rotas legadas para compatibilidade */}
           <Route path="/treino-id" element={<TreinoIdPage />} />
           <Route path="/pagina/treino-id" element={<Navigate to="/treino-id" replace />} />
           <Route path="/exercise-id" element={<ExerciseIdPage />} />
           <Route path="/pagina/exercise-id" element={<Navigate to="/exercise-id" replace />} />
-              <Route path="/treino-tempo-descanso" element={<TreinoTempoDescansoPage />} />
+          <Route path="/treino-tempo-descanso" element={<TreinoTempoDescansoPage />} />
           <Route path="/pagina/treino-tempo-descanso" element={<Navigate to="/treino-tempo-descanso" replace />} />
           <Route path="/workout-completion" element={<WorkoutCompletionPage />} />
           <Route path="/my-workouts" element={<MyWorkoutsPage />} />

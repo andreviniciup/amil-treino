@@ -45,7 +45,11 @@ export function TreinoIdPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const params = useParams<{ workoutPlanId?: string }>();
   const { startTimer, stopTimer, resetTimer, isRunning, elapsedTime, formatTime } = useWorkoutTimer();
+  
+  // Se temos workoutPlanId na URL, usar ele para carregar o treino
+  const workoutPlanIdFromUrl = params.workoutPlanId;
   
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
@@ -196,26 +200,58 @@ export function TreinoIdPage() {
       resetTimer();
       startTimer();
       
-      navigate('/exercise-id', {
-        state: {
-          workout: currentPlan,
-          currentExerciseIndex: 0,
-          fromWorkout: true
-        }
-      });
+      const workoutPlanId = currentPlan?.id || workoutPlanIdFromUrl;
+      const workoutId = currentPlan?.workouts?.[0]?.id;
+      const firstExercise = exercises[0];
+      
+      // Usar rota semântica se temos os IDs necessários
+      if (workoutPlanId && workoutId && firstExercise?.id) {
+        navigate(`/treino/${workoutPlanId}/${workoutId}/${firstExercise.id}`, {
+          state: {
+            workout: currentPlan,
+            currentExerciseIndex: 0,
+            fromWorkout: true
+          }
+        });
+      } else {
+        // Fallback para rota legada
+        navigate('/exercise-id', {
+          state: {
+            workout: currentPlan,
+            currentExerciseIndex: 0,
+            fromWorkout: true
+          }
+        });
+      }
     }
   };
 
   const handleExerciseClick = (exercise: Exercise) => {
     const exerciseIndex = exercises.findIndex(ex => ex.id === exercise.id);
-    navigate('/exercise-id', {
-      state: {
-        exercise: exercise, // Adicionar o exercício no state
-        workout: currentPlan,
-        currentExerciseIndex: exerciseIndex,
-        fromWorkout: true
-      }
-    });
+    const workoutPlanId = currentPlan?.id || workoutPlanIdFromUrl;
+    const workoutId = currentPlan?.workouts?.[0]?.id;
+    
+    // Usar rota semântica se temos os IDs necessários
+    if (workoutPlanId && workoutId && exercise.id) {
+      navigate(`/treino/${workoutPlanId}/${workoutId}/${exercise.id}`, {
+        state: {
+          exercise: exercise,
+          workout: currentPlan,
+          currentExerciseIndex: exerciseIndex,
+          fromWorkout: true
+        }
+      });
+    } else {
+      // Fallback para rota legada
+      navigate('/exercise-id', {
+        state: {
+          exercise: exercise,
+          workout: currentPlan,
+          currentExerciseIndex: exerciseIndex,
+          fromWorkout: true
+        }
+      });
+    }
   };
 
   if (loading) {

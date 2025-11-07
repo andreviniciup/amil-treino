@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
 import { SeriesCard } from "./SeriesCard";
@@ -22,18 +22,24 @@ interface SeriesData {
 export function ExerciseIdPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams<{ workoutPlanId?: string; workoutId?: string; exerciseId?: string }>();
   const { stopTimer, elapsedTime, isRunning } = useWorkoutTimer();
   
-  // Obter dados do exercício ou treino do estado
+  // Obter dados do exercício ou treino do estado OU dos parâmetros da URL
   const exercise = location.state?.exercise;
   const workout = location.state?.workout;
   const currentExerciseIndex = location.state?.currentExerciseIndex || 0;
-  const fromWorkout = location.state?.fromWorkout;
+  const fromWorkout = location.state?.fromWorkout || !!params.workoutPlanId;
   
+  // Se temos parâmetros da URL, significa que veio de uma rota semântica
+  const hasUrlParams = !!(params.workoutPlanId && params.workoutId && params.exerciseId);
+  
+  console.log('🔗 URL Params:', params);
   console.log('Exercise data:', exercise);
   console.log('Workout data:', workout);
   console.log('Current exercise index:', currentExerciseIndex);
   console.log('From workout:', fromWorkout);
+  console.log('Has URL params:', hasUrlParams);
   
   // Se veio do treino, usar dados do treino
   const currentExercise = fromWorkout && workout?.workouts?.[0]?.exercises?.[currentExerciseIndex] 
@@ -195,21 +201,42 @@ export function ExerciseIdPage() {
     // Navega para a página de tempo de descanso com os valores ajustados
     // Preservar dados do workout/exercise E as séries completadas
     setCurrentSeriesIndex(index);
-    navigate("/treino-tempo-descanso", { 
-      state: { 
-        seriesIndex: index,
-        reps,
-        weight,
-        restTime,
-        // Preservar dados do contexto
-        workout,
-        exercise,
-        currentExerciseIndex,
-        fromWorkout,
-        // Preservar estado das séries para não perder séries completadas
-        preservedSeries: series
-      } 
-    });
+    
+    // Usar rota semântica se temos os IDs necessários
+    const workoutPlanId = workout?.id || params.workoutPlanId;
+    const workoutId = workout?.workouts?.[0]?.id || params.workoutId;
+    const exerciseId = currentExercise?.id || currentExercise?.exerciseId || params.exerciseId;
+    
+    if (workoutPlanId && workoutId && exerciseId) {
+      navigate(`/treino/${workoutPlanId}/${workoutId}/${exerciseId}/descanso`, { 
+        state: { 
+          seriesIndex: index,
+          reps,
+          weight,
+          restTime,
+          workout,
+          exercise,
+          currentExerciseIndex,
+          fromWorkout,
+          preservedSeries: series
+        } 
+      });
+    } else {
+      // Fallback para rota legada
+      navigate("/treino-tempo-descanso", { 
+        state: { 
+          seriesIndex: index,
+          reps,
+          weight,
+          restTime,
+          workout,
+          exercise,
+          currentExerciseIndex,
+          fromWorkout,
+          preservedSeries: series
+        } 
+      });
+    }
   };
 
   const handleRepetitionsChange = (index: number, value: string) => {
@@ -377,19 +404,35 @@ export function ExerciseIdPage() {
         // Navega de volta para a página de treino com informação de que o exercício foi concluído
         // Só marca como concluído se todas as séries foram completadas
         const allSeriesCompleted = series.every((s) => s.status === "completed");
-        // Se veio de um workout, voltar para /treino-id, senão para /treino
-        const targetRoute = fromWorkout ? "/treino-id" : "/treino";
-        navigate(targetRoute, { 
-          state: { 
-            exerciseCompleted: allSeriesCompleted,
-            exerciseName: exerciseName,
-            exerciseId: currentExercise?.id || currentExercise?.exerciseId,
-            allSeriesCompleted: allSeriesCompleted,
-            // Preservar dados do workout se existirem
-            workout: workout,
-            fromWorkout: fromWorkout
-          } 
-        });
+        
+        // Usar rota semântica se temos os IDs necessários
+        const workoutPlanId = workout?.id || params.workoutPlanId;
+        
+        if (fromWorkout && workoutPlanId) {
+          navigate(`/treino/${workoutPlanId}`, { 
+            state: { 
+              exerciseCompleted: allSeriesCompleted,
+              exerciseName: exerciseName,
+              exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+              allSeriesCompleted: allSeriesCompleted,
+              workout: workout,
+              fromWorkout: fromWorkout
+            } 
+          });
+        } else {
+          // Fallback para rota legada
+          const targetRoute = fromWorkout ? "/treino-id" : "/treino";
+          navigate(targetRoute, { 
+            state: { 
+              exerciseCompleted: allSeriesCompleted,
+              exerciseName: exerciseName,
+              exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+              allSeriesCompleted: allSeriesCompleted,
+              workout: workout,
+              fromWorkout: fromWorkout
+            } 
+          });
+        }
       }
     } catch (err) {
       console.error('Erro ao salvar progresso:', err);

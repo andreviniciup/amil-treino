@@ -55,11 +55,21 @@ export function WorkoutList() {
   }, []);
 
   const handleStartWorkout = (workout: WorkoutPlan) => {
-    navigate('/treino-id', { 
-      state: { 
-        workout
-      } 
-    });
+    // Usar rota semântica com ID do workout plan
+    if (workout?.id) {
+      navigate(`/treino/${workout.id}`, { 
+        state: { 
+          workout 
+        } 
+      });
+    } else {
+      // Fallback para rota legada
+      navigate('/treino-id', { 
+        state: { 
+          workout 
+        } 
+      });
+    }
   };
 
   const handleCreateWorkout = () => {
