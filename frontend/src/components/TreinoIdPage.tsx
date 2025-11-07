@@ -175,11 +175,14 @@ export function TreinoIdPage() {
 
   // Verifica se um exercício foi concluído
   useEffect(() => {
-    if (location.state?.exerciseCompleted) {
+    if (location.state?.exerciseCompleted && location.state?.allSeriesCompleted) {
       const exerciseName = location.state.exerciseName;
+      const exerciseId = location.state.exerciseId;
+      
+      // Só marca como concluído se todas as séries foram completadas
       setExercises(prevExercises => 
         prevExercises.map(exercise => 
-          exercise.name === exerciseName 
+          (exercise.name === exerciseName || exercise.id === exerciseId)
             ? { ...exercise, completed: true, improvement: { type: 'weight', value: '5kg' } }
             : exercise
         )

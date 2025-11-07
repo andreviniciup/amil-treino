@@ -304,20 +304,25 @@ export function ExerciseIdPage() {
         });
       } else {
         // Navega de volta para a página de treino com informação de que o exercício foi concluído
+        // Só marca como concluído se todas as séries foram completadas
+        const allSeriesCompleted = series.every((s) => s.status === "completed");
         navigate("/treino", { 
           state: { 
-            exerciseCompleted: true,
-            exerciseName: exerciseName
+            exerciseCompleted: allSeriesCompleted,
+            exerciseName: exerciseName,
+            exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+            allSeriesCompleted: allSeriesCompleted
           } 
         });
       }
     } catch (err) {
       console.error('Erro ao salvar progresso:', err);
-      // Mesmo com erro, navegar de volta (pode melhorar isso depois)
+      // Não marcar como concluído em caso de erro
       navigate("/treino", { 
         state: { 
-          exerciseCompleted: true,
-          exerciseName: exerciseName 
+          exerciseCompleted: false,
+          exerciseName: exerciseName,
+          exerciseId: currentExercise?.id || currentExercise?.exerciseId
         } 
       });
     } finally {
