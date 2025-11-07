@@ -113,33 +113,41 @@ export function ExerciseIdPage() {
       const weight = location.state.weight;
       const restTime = location.state.restTime;
 
-      const newSeries = [...series];
-      newSeries[seriesIndex].status = "completed";
-      newSeries[seriesIndex].actualReps = reps;
-      newSeries[seriesIndex].actualWeight = weight;
-      newSeries[seriesIndex].actualRestTime = restTime;
-      
-      // Verifica se há próxima série
-      if (seriesIndex < series.length - 1) {
-        newSeries[seriesIndex + 1].status = "active";
-        setCurrentSeriesIndex(seriesIndex + 1);
-      }
-      
-      setSeries(newSeries);
+      setSeries(prevSeries => {
+        const newSeries = [...prevSeries];
+        newSeries[seriesIndex].status = "completed";
+        newSeries[seriesIndex].actualReps = reps;
+        newSeries[seriesIndex].actualWeight = weight;
+        newSeries[seriesIndex].actualRestTime = restTime;
+        
+        // Verifica se há próxima série
+        if (seriesIndex < prevSeries.length - 1) {
+          newSeries[seriesIndex + 1].status = "active";
+          setCurrentSeriesIndex(seriesIndex + 1);
+        }
+        
+        return newSeries;
+      });
       setExpandedSeriesIndex(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state]);
+  }, [location.state?.fromRest]);
 
   const handleStartRest = (index: number, reps: number, weight: number, restTime: number) => {
     // Navega para a página de tempo de descanso com os valores ajustados
+    // Preservar dados do workout/exercise para não perder ao voltar
     setCurrentSeriesIndex(index);
     navigate("/treino-tempo-descanso", { 
       state: { 
         seriesIndex: index,
         reps,
         weight,
-        restTime
+        restTime,
+        // Preservar dados do contexto
+        workout,
+        exercise,
+        currentExerciseIndex,
+        fromWorkout
       } 
     });
   };

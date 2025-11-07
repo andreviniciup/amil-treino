@@ -100,6 +100,11 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
   const reps = location.state?.reps || 8;
   const weight = location.state?.weight || 12;
   const restTime = location.state?.restTime || 90;
+  // Preservar dados do contexto
+  const workout = location.state?.workout;
+  const exercise = location.state?.exercise;
+  const currentExerciseIndex = location.state?.currentExerciseIndex;
+  const fromWorkout = location.state?.fromWorkout;
   
   const [timeLeft, setTimeLeft] = useState(restTime);
   const [isRunning, setIsRunning] = useState(true);
@@ -107,14 +112,19 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
   useEffect(() => {
     if (!isRunning || timeLeft <= 0) {
       if (timeLeft <= 0) {
-        // Timer completado - retornar com valores ajustados
+        // Timer completado - retornar com valores ajustados e dados preservados
         navigate('/exercise-id', {
           state: {
             fromRest: true,
             seriesIndex,
             reps,
             weight,
-            restTime
+            restTime,
+            // Preservar dados do contexto
+            workout,
+            exercise,
+            currentExerciseIndex,
+            fromWorkout
           }
         });
         onFinish?.();
@@ -133,18 +143,23 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isRunning, timeLeft, navigate, seriesIndex, reps, weight, restTime, onFinish]);
+  }, [isRunning, timeLeft, navigate, seriesIndex, reps, weight, restTime, onFinish, workout, exercise, currentExerciseIndex, fromWorkout]);
 
   const handleStop = () => {
     setIsRunning(false);
-    // Retornar com valores ajustados mesmo parando antes
+    // Retornar com valores ajustados mesmo parando antes e dados preservados
     navigate('/exercise-id', {
       state: {
         fromRest: true,
         seriesIndex,
         reps,
         weight,
-        restTime
+        restTime,
+        // Preservar dados do contexto
+        workout,
+        exercise,
+        currentExerciseIndex,
+        fromWorkout
       }
     });
     onFinish?.();
