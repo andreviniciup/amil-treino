@@ -15,6 +15,7 @@ interface SeriesData {
   status: "active" | "pending" | "completed";
   actualReps?: number;
   actualWeight?: number;
+  actualRestTime?: number;
 }
 
 export function ExerciseIdPage() {
@@ -72,10 +73,10 @@ export function ExerciseIdPage() {
   const [saving, setSaving] = useState(false);
   const [exerciseHistory, setExerciseHistory] = useState<number[]>([]);
   const [lastWeight, setLastWeight] = useState(0);
+  const [expandedSeriesIndex, setExpandedSeriesIndex] = useState<number | null>(null);
   const [lastReps, setLastReps] = useState(0);
   const [currentWeight, setCurrentWeight] = useState(12);
   const [currentReps, setCurrentReps] = useState(8);
-  const [expandedSeriesIndex, setExpandedSeriesIndex] = useState<number | null>(null);
 
   // Carregar histórico do exercício
   useEffect(() => {
@@ -107,39 +108,40 @@ export function ExerciseIdPage() {
   // Verifica se está retornando da página de descanso
   useEffect(() => {
     if (location.state?.fromRest) {
+      const seriesIndex = location.state.seriesIndex;
+      const reps = location.state.reps;
+      const weight = location.state.weight;
+      const restTime = location.state.restTime;
+
       const newSeries = [...series];
-      newSeries[currentSeriesIndex].status = "completed";
+      newSeries[seriesIndex].status = "completed";
+      newSeries[seriesIndex].actualReps = reps;
+      newSeries[seriesIndex].actualWeight = weight;
+      newSeries[seriesIndex].actualRestTime = restTime;
       
       // Verifica se há próxima série
-      if (currentSeriesIndex < series.length - 1) {
-        newSeries[currentSeriesIndex + 1].status = "active";
-        setCurrentSeriesIndex(currentSeriesIndex + 1);
+      if (seriesIndex < series.length - 1) {
+        newSeries[seriesIndex + 1].status = "active";
+        setCurrentSeriesIndex(seriesIndex + 1);
       }
       
       setSeries(newSeries);
+      setExpandedSeriesIndex(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
-  const handleStartSeries = (index: number) => {
-    // Navega para a página de tempo de descanso
+  const handleStartRest = (index: number, reps: number, weight: number, restTime: number) => {
+    // Navega para a página de tempo de descanso com os valores ajustados
     setCurrentSeriesIndex(index);
-    navigate("/treino-tempo-descanso", { state: { fromSeries: index } });
-  };
-
-  const handleCompleteSeries = (index: number) => {
-    const newSeries = [...series];
-    newSeries[index].status = "completed";
-    newSeries[index].actualWeight = currentWeight;
-    newSeries[index].actualReps = currentReps;
-    
-    // Verifica se há próxima série
-    if (index < series.length - 1) {
-      newSeries[index + 1].status = "active";
-      setCurrentSeriesIndex(index + 1);
-    }
-    
-    setSeries(newSeries);
+    navigate("/treino-tempo-descanso", { 
+      state: { 
+        seriesIndex: index,
+        reps,
+        weight,
+        restTime
+      } 
+    });
   };
 
   const handleRepetitionsChange = (index: number, value: string) => {
@@ -273,8 +275,7 @@ export function ExerciseIdPage() {
               status={serie.status}
               isExpanded={expandedSeriesIndex === index}
               onToggleExpand={() => setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index)}
-              onStart={() => handleStartSeries(index)}
-              onComplete={() => handleCompleteSeries(index)}
+              onStartRest={(reps, weight, restTime) => handleStartRest(index, reps, weight, restTime)}
               onRepetitionsChange={(value) => handleRepetitionsChange(index, value)}
               onWeightChange={(value) => handleWeightChange(index, value)}
               onRestTimeChange={(value) => handleRestTimeChange(index, value)}
