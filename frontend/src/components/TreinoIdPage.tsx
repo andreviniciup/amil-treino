@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ExerciseCard } from './ExerciseCard';
 import svgPaths from "../imports/svg-c71qf4vhvy";
 import { workoutApi, WorkoutPlan } from '../services/api';
