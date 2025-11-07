@@ -354,23 +354,31 @@ export function ExerciseIdPage() {
         // Navega de volta para a página de treino com informação de que o exercício foi concluído
         // Só marca como concluído se todas as séries foram completadas
         const allSeriesCompleted = series.every((s) => s.status === "completed");
-        navigate("/treino", { 
+        // Se veio de um workout, voltar para /treino-id, senão para /treino
+        const targetRoute = fromWorkout ? "/treino-id" : "/treino";
+        navigate(targetRoute, { 
           state: { 
             exerciseCompleted: allSeriesCompleted,
             exerciseName: exerciseName,
             exerciseId: currentExercise?.id || currentExercise?.exerciseId,
-            allSeriesCompleted: allSeriesCompleted
+            allSeriesCompleted: allSeriesCompleted,
+            // Preservar dados do workout se existirem
+            workout: workout,
+            fromWorkout: fromWorkout
           } 
         });
       }
     } catch (err) {
       console.error('Erro ao salvar progresso:', err);
       // Não marcar como concluído em caso de erro
-      navigate("/treino", { 
+      const targetRoute = fromWorkout ? "/treino-id" : "/treino";
+      navigate(targetRoute, { 
         state: { 
           exerciseCompleted: false,
           exerciseName: exerciseName,
-          exerciseId: currentExercise?.id || currentExercise?.exerciseId
+          exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+          workout: workout,
+          fromWorkout: fromWorkout
         } 
       });
     } finally {

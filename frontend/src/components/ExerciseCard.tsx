@@ -39,6 +39,32 @@ export function ExerciseCard({
     setIsExpanded(!isExpanded);
   };
 
+  // Se está concluído, renderizar visual simplificado (não expansível)
+  if (completed) {
+    return (
+      <div className="bg-[#202020] border border-[#252525] relative rounded-[35px] w-full overflow-hidden">
+        <div className="h-[50px] relative rounded-[35px] w-full px-[13px] py-[15px] flex items-center justify-between gap-[104px]">
+          <div className="flex items-center gap-[20px]">
+            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[14px] text-white">{name}</p>
+            {improvement && (
+              <div className="flex items-center gap-[5px]">
+                <div className="relative shrink-0 size-[20px]" data-name="Subtract">
+                  <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
+                    <path d={svgPaths.p13286100} fill="var(--fill-0, #6D9F28)" id="Subtract" />
+                  </svg>
+                </div>
+                <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[14px] text-[#6D9F28]">{improvement.value}</p>
+              </div>
+            )}
+          </div>
+          <div className="w-5 h-5 bg-[#6D9F28] rounded-full flex items-center justify-center">
+            <Check className="w-3 h-3 text-white" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#202020] border border-[#252525] relative rounded-[35px] w-full overflow-hidden">
       {/* Header clickable */}
@@ -50,20 +76,9 @@ export function ExerciseCard({
           <div className="flex items-center justify-between w-full">
             <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
               <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[14px] text-nowrap text-white whitespace-pre">{name}</p>
-              {completed && improvement && (
-                <div className="content-stretch flex gap-[5px] items-center relative shrink-0">
-                  <div className="relative shrink-0 size-[20px]" data-name="Subtract">
-                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 20">
-                      <path d={svgPaths.p13286100} fill="var(--fill-0, #6D9F28)" id="Subtract" />
-                    </svg>
-                  </div>
-                  <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[#6d9f28] text-[14px] text-nowrap whitespace-pre">{improvement.value}</p>
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-[10px]">
               <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[#484848] text-[14px] text-nowrap whitespace-pre">{sets} series</p>
-              {completed && <Check className="w-3 h-3 text-[#6D9F28]" />}
             </div>
           </div>
         </div>
