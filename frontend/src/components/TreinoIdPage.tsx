@@ -69,8 +69,15 @@ export function TreinoIdPage() {
         setError(null);
 
         // Se veio da lista de treinos, usar dados do estado
-        const workoutData = location.state?.workout;
+        let workoutData = location.state?.workout;
         console.log('Workout data from state:', workoutData);
+        
+        // Se não temos dados no state mas temos workoutPlanId na URL, carregar do backend
+        if (!workoutData && workoutPlanIdFromUrl) {
+          console.log('📥 Carregando workout do backend com ID:', workoutPlanIdFromUrl);
+          workoutData = await workoutApi.getPlanById(workoutPlanIdFromUrl);
+          console.log('✅ Workout carregado do backend:', workoutData);
+        }
         
         if (workoutData) {
           setCurrentPlan(workoutData);
