@@ -65,12 +65,30 @@ export function SeriesCard({
     return Number.isFinite(parsed) ? parsed : 90;
   }, [restTime]);
 
+  // Inicializar valores baseados nas props, mas preservar valores finais se já existirem
   const [currentReps, setCurrentReps] = useState(initialReps);
   const [currentWeight, setCurrentWeight] = useState(initialWeight);
   const [currentRestTime, setCurrentRestTime] = useState(initialRestTime);
-  const [finalReps, setFinalReps] = useState(initialReps);
-  const [finalWeight, setFinalWeight] = useState(initialWeight);
-  const [finalRestTime, setFinalRestTime] = useState(initialRestTime);
+  // Inicializar valores finais - se o status é "completed", usar valores das props (que já foram atualizados)
+  const [finalReps, setFinalReps] = useState(() => {
+    // Se está completed, usar o valor das props (que já foi atualizado)
+    if (status === "completed") {
+      return initialReps;
+    }
+    return initialReps;
+  });
+  const [finalWeight, setFinalWeight] = useState(() => {
+    if (status === "completed") {
+      return initialWeight;
+    }
+    return initialWeight;
+  });
+  const [finalRestTime, setFinalRestTime] = useState(() => {
+    if (status === "completed") {
+      return initialRestTime;
+    }
+    return initialRestTime;
+  });
   const [hasEmittedCompletion, setHasEmittedCompletion] = useState(false);
   const [activeField, setActiveField] = useState<'reps' | 'weight' | 'rest'>('reps');
 
@@ -84,29 +102,62 @@ export function SeriesCard({
     rest: "descanso (seg)",
   }[activeField];
 
+  // Sincronizar valores finais quando as props mudam (especialmente quando status muda para "completed")
   useEffect(() => {
-    // Só atualiza se não estiver expandido ou se o status mudou
-    if (!isExpanded || status === "pending") {
+    if (status === "completed") {
+      // Quando está completed, sincronizar valores finais com as props (que já foram atualizadas)
+      setFinalReps(initialReps);
       setCurrentReps(initialReps);
-      if (status !== "completed") {
-        setFinalReps(initialReps);
-      }
     }
-  }, [initialReps, status, isExpanded]);
+  }, [status, initialReps]);
 
   useEffect(() => {
-    setCurrentWeight(initialWeight);
-    if (status !== "completed") {
+    if (status === "completed") {
       setFinalWeight(initialWeight);
+      setCurrentWeight(initialWeight);
     }
-  }, [initialWeight, status]);
+  }, [status, initialWeight]);
 
   useEffect(() => {
-    setCurrentRestTime(initialRestTime);
-    if (status !== "completed") {
+    if (status === "completed") {
       setFinalRestTime(initialRestTime);
+      setCurrentRestTime(initialRestTime);
     }
-  }, [initialRestTime, status]);
+  }, [status, initialRestTime]);
+
+  // Sincronizar valores iniciais apenas quando necessário, preservando valores confirmados
+  useEffect(() => {
+    // Se o status é "completed", não resetar valores - mantém os valores finais
+    if (status === "completed") {
+      return;
+    }
+    
+    // Só atualiza se os valores finais ainda não foram modificados
+    // Isso evita resetar valores que já foram confirmados pelo usuário
+    if (finalReps === initialReps && (!isExpanded || status === "pending")) {
+      setCurrentReps(initialReps);
+    }
+  }, [initialReps, status, isExpanded, finalReps]);
+
+  useEffect(() => {
+    if (status === "completed") {
+      return;
+    }
+    
+    if (finalWeight === initialWeight) {
+      setCurrentWeight(initialWeight);
+    }
+  }, [initialWeight, status, finalWeight]);
+
+  useEffect(() => {
+    if (status === "completed") {
+      return;
+    }
+    
+    if (finalRestTime === initialRestTime) {
+      setCurrentRestTime(initialRestTime);
+    }
+  }, [initialRestTime, status, finalRestTime]);
 
   useEffect(() => {
     if (!isExpanded) {
@@ -280,6 +331,11 @@ export function SeriesCard({
   }
 
   if (status === "active") {
+    // Usar valores finais se disponíveis, senão usar valores atuais
+    const displayReps = finalReps !== initialReps ? `${finalReps} repetições` : repetitionsRangeLabel;
+    const displayWeight = finalWeight !== initialWeight ? formatWeight(finalWeight) : formatWeight(currentWeight);
+    const displayRestTime = finalRestTime !== initialRestTime ? finalRestTime : currentRestTime;
+    
     return (
       <div className="w-full max-w-[350px] rounded-[28px] bg-[#202020] px-[18px] py-[9px] flex flex-col gap-[13px]">
         <div className="flex items-center justify-between">
@@ -293,7 +349,7 @@ export function SeriesCard({
               onClick={() => handleOpenField('reps')}
               className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70 bg-transparent hover:text-white transition-colors"
             >
-              {repetitionsRangeLabel}
+              {displayReps}
             </button>
           </div>
           <button
@@ -304,7 +360,7 @@ export function SeriesCard({
             <svg width="17" height="10" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M1 6H1.85M4.4 2.66667H2.7C2.47457 2.66667 2.25837 2.75446 2.09896 2.91074C1.93955 3.06702 1.85 3.27899 1.85 3.5V8.5C1.85 8.72101 1.93955 8.93297 2.09896 9.08926C2.25837 9.24554 2.47457 9.33333 2.7 9.33333H4.4M6.95 6H12.05M14.6 2.66667H16.3C16.5254 2.66667 16.7416 2.75446 16.901 2.91074C17.0604 3.06702 17.15 3.27899 17.15 3.5V8.5C17.15 8.72101 17.0604 8.93297 16.901 9.08926C16.7416 9.24554 16.5254 9.33333 16.3 9.33333H14.6M18 6H17.15M4.4 1.83333V10.1667C4.4 10.3877 4.48955 10.5996 4.64896 10.7559C4.80837 10.9122 5.02457 11 5.25 11H6.1C6.32543 11 6.54163 10.9122 6.70104 10.7559C6.86045 10.5996 6.95 10.3877 6.95 10.1667V1.83333C6.95 1.61232 6.86045 1.40036 6.70104 1.24408C6.54163 1.0878 6.32543 1 6.1 1H5.25C5.02457 1 4.80837 1.0878 4.64896 1.24408C4.48955 1.40036 4.4 1.61232 4.4 1.83333ZM12.05 1.83333V10.1667C12.05 10.3877 12.1396 10.5996 12.299 10.7559C12.4584 10.9122 12.6746 11 12.9 11H13.75C13.9754 11 14.1916 10.9122 14.351 10.7559C14.5104 10.5996 14.6 10.3877 14.6 10.1667V1.83333C14.6 1.61232 14.5104 1.40036 14.351 1.24408C14.1916 1.0878 13.9754 1 13.75 1H12.9C12.6746 1 12.4584 1.0878 12.299 1.24408C12.1396 1.40036 12.05 1.61232 12.05 1.83333Z" stroke="#484848" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="text-[12px] font-['Alexandria:Regular',_sans-serif]">{formatWeight(currentWeight)}kg</span>
+            <span className="text-[12px] font-['Alexandria:Regular',_sans-serif]">{displayWeight}kg</span>
           </button>
         </div>
         <div className="flex items-center justify-between gap-[20px]">
@@ -322,13 +378,17 @@ export function SeriesCard({
             className="flex items-center gap-2 rounded-full bg-[#252525] px-[20px] py-[6px] text-[#484848] text-[10px] font-['Alexandria:Regular',_sans-serif] transition-transform active:scale-95"
           >
             <Clock className="w-3.5 h-3.5 text-[#484848]" />
-            {restTimeLabel}
+            {displayRestTime} segundos
           </button>
         </div>
       </div>
     );
   }
 
+  // Estado pending - usar valores finais se disponíveis
+  const displayRepsPending = finalReps !== initialReps ? `${finalReps} repetições` : currentRepetitionsLabel;
+  const displayWeightPending = finalWeight !== initialWeight ? formatWeight(finalWeight) : formatWeight(currentWeight);
+  
   return (
     <div className="w-full max-w-[350px] rounded-[28px] bg-[#202020] px-[18px] py-[12px] flex items-center justify-between opacity-60">
       <div className="flex items-center gap-[23px]">
@@ -336,13 +396,13 @@ export function SeriesCard({
           <span className="text-[14px] font-['Alexandria:Regular',_sans-serif] text-white">{seriesNumber}</span>
           <div className="w-px h-6 bg-[#484848]" />
         </div>
-        <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{currentRepetitionsLabel}</span>
+        <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{displayRepsPending}</span>
       </div>
       <div className="flex items-center gap-[12px]">
         <svg width="17" height="10" viewBox="0 0 19 12" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M1 6H1.85M4.4 2.66667H2.7C2.47457 2.66667 2.25837 2.75446 2.09896 2.91074C1.93955 3.06702 1.85 3.27899 1.85 3.5V8.5C1.85 8.72101 1.93955 8.93297 2.09896 9.08926C2.25837 9.24554 2.47457 9.33333 2.7 9.33333H4.4M6.95 6H12.05M14.6 2.66667H16.3C16.5254 2.66667 16.7416 2.75446 16.901 2.91074C17.0604 3.06702 17.15 3.27899 17.15 3.5V8.5C17.15 8.72101 17.0604 8.93297 16.901 9.08926C16.7416 9.24554 16.5254 9.33333 16.3 9.33333H14.6M18 6H17.15M4.4 1.83333V10.1667C4.4 10.3877 4.48955 10.5996 4.64896 10.7559C4.80837 10.9122 5.02457 11 5.25 11H6.1C6.32543 11 6.54163 10.9122 6.70104 10.7559C6.86045 10.5996 6.95 10.3877 6.95 10.1667V1.83333C6.95 1.61232 6.86045 1.40036 6.70104 1.24408C6.54163 1.0878 6.32543 1 6.1 1H5.25C5.02457 1 4.80837 1.0878 4.64896 1.24408C4.48955 1.40036 4.4 1.61232 4.4 1.83333ZM12.05 1.83333V10.1667C12.05 10.3877 12.1396 10.5996 12.299 10.7559C12.4584 10.9122 12.6746 11 12.9 11H13.75C13.9754 11 14.1916 10.9122 14.351 10.7559C14.5104 10.5996 14.6 10.3877 14.6 10.1667V1.83333C14.6 1.61232 14.5104 1.40036 14.351 1.24408C14.1916 1.0878 13.9754 1 13.75 1H12.9C12.6746 1 12.4584 1.0878 12.299 1.24408C12.1396 1.40036 12.05 1.61232 12.05 1.83333Z" stroke="#484848" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{formatWeight(currentWeight)}kg</span>
+        <span className="text-[12px] font-['Alexandria:Regular',_sans-serif] text-white/70">{displayWeightPending}kg</span>
       </div>
     </div>
   );

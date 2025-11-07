@@ -115,10 +115,15 @@ export function ExerciseIdPage() {
 
       setSeries(prevSeries => {
         const newSeries = [...prevSeries];
+        // Atualizar status e valores numéricos
         newSeries[seriesIndex].status = "completed";
         newSeries[seriesIndex].actualReps = reps;
         newSeries[seriesIndex].actualWeight = weight;
         newSeries[seriesIndex].actualRestTime = restTime;
+        // Atualizar também as props string para manter sincronização
+        newSeries[seriesIndex].repetitions = reps.toString();
+        newSeries[seriesIndex].weight = weight.toString();
+        newSeries[seriesIndex].restTime = restTime.toString();
         
         // Verifica se há próxima série
         if (seriesIndex < prevSeries.length - 1) {
@@ -153,36 +158,54 @@ export function ExerciseIdPage() {
   };
 
   const handleRepetitionsChange = (index: number, value: string) => {
-    const newSeries = [...series];
-    const repsNum = parseInt(value, 10);
-    newSeries[index].repetitions = value;
-    // Salvar também o valor numérico para uso no backend
-    if (!isNaN(repsNum)) {
-      newSeries[index].actualReps = repsNum;
-    }
-    setSeries(newSeries);
+    setSeries(prevSeries => {
+      const newSeries = [...prevSeries];
+      const repsNum = parseInt(value, 10);
+      newSeries[index].repetitions = value;
+      // Salvar também o valor numérico para uso no backend
+      if (!isNaN(repsNum)) {
+        newSeries[index].actualReps = repsNum;
+      }
+      // Preservar o status se já estiver "completed"
+      if (newSeries[index].status === "completed") {
+        // Manter o status como completed
+      }
+      return newSeries;
+    });
   };
 
   const handleWeightChange = (index: number, value: string) => {
-    const newSeries = [...series];
-    const weightNum = parseFloat(value);
-    newSeries[index].weight = value;
-    // Salvar também o valor numérico para uso no backend
-    if (!isNaN(weightNum)) {
-      newSeries[index].actualWeight = weightNum;
-    }
-    setSeries(newSeries);
+    setSeries(prevSeries => {
+      const newSeries = [...prevSeries];
+      const weightNum = parseFloat(value);
+      newSeries[index].weight = value;
+      // Salvar também o valor numérico para uso no backend
+      if (!isNaN(weightNum)) {
+        newSeries[index].actualWeight = weightNum;
+      }
+      // Preservar o status se já estiver "completed"
+      if (newSeries[index].status === "completed") {
+        // Manter o status como completed
+      }
+      return newSeries;
+    });
   };
 
   const handleRestTimeChange = (index: number, value: string) => {
-    const newSeries = [...series];
-    const restTimeNum = parseInt(value, 10);
-    newSeries[index].restTime = value;
-    // Salvar também o valor numérico para uso no backend
-    if (!isNaN(restTimeNum)) {
-      newSeries[index].actualRestTime = restTimeNum;
-    }
-    setSeries(newSeries);
+    setSeries(prevSeries => {
+      const newSeries = [...prevSeries];
+      const restTimeNum = parseInt(value, 10);
+      newSeries[index].restTime = value;
+      // Salvar também o valor numérico para uso no backend
+      if (!isNaN(restTimeNum)) {
+        newSeries[index].actualRestTime = restTimeNum;
+      }
+      // Preservar o status se já estiver "completed"
+      if (newSeries[index].status === "completed") {
+        // Manter o status como completed
+      }
+      return newSeries;
+    });
   };
 
   const handleCompleteExercise = async () => {
