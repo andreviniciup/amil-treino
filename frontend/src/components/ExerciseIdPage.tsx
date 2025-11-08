@@ -814,7 +814,6 @@ export function ExerciseIdPage() {
         <ExerciseHeader
           exerciseName={exerciseName}
           gifUrl={exerciseGifUrl || ""}
-          topPosition={topPosition}
         />
 
         <ExerciseSeriesList

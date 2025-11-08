@@ -4,13 +4,11 @@ import { AnimatedExerciseImage } from '../AnimatedExerciseImage';
 interface ExerciseHeaderProps {
   exerciseName: string;
   gifUrl: string;
-  topPosition: string;
 }
 
 export const ExerciseHeader = memo(function ExerciseHeader({
   exerciseName,
-  gifUrl,
-  topPosition
+  gifUrl
 }: ExerciseHeaderProps) {
   return (
     <>
