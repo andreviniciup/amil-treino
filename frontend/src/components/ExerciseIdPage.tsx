@@ -542,6 +542,12 @@ export function ExerciseIdPage() {
       return;
     }
     
+    // Bloquear se não temos dados do workout ou exercício (componente ainda carregando)
+    if (!workout || !currentExercise) {
+      console.log('⚠️ Workout ou exercício não disponível ainda, pulando...');
+      return;
+    }
+    
     try {
       completingExerciseRef.current = true;
       setSaving(true);
