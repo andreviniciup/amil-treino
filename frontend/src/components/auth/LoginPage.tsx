@@ -66,14 +66,23 @@ export function LoginPage() {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    if (email && senha) {
-      try {
-        setError('');
-        await login(email, senha);
-        navigate('/home');
-      } catch (error: any) {
-        setError(error.response?.data?.error || 'Erro ao fazer login');
-      }
+    console.log('🔵 handleSubmit chamado', { email, senha: senha ? '***' : 'vazio' });
+    
+    if (!email || !senha) {
+      console.warn('⚠️ Email ou senha vazios');
+      setError('Por favor, preencha todos os campos');
+      return;
+    }
+    
+    try {
+      console.log('🔄 Iniciando login...');
+      setError('');
+      await login(email, senha);
+      console.log('✅ Login bem-sucedido, navegando para /home');
+      navigate('/home');
+    } catch (error: any) {
+      console.error('❌ Erro no login:', error);
+      setError(error.response?.data?.error || 'Erro ao fazer login');
     }
   };
 
@@ -127,7 +136,12 @@ export function LoginPage() {
         
         {/* Botão */}
         <button 
-          onClick={handleSubmit}
+          type="button"
+          onClick={(e) => {
+            console.log('🖱️ Botão clicado', { email, hasSenha: !!senha });
+            e.preventDefault();
+            handleSubmit();
+          }}
           className="bg-[#1c1c1c] hover:bg-[#2c2c2c] active:scale-95 flex items-center justify-center h-[50px] sm:h-[56px] rounded-[999px] w-full cursor-pointer transition-all mt-10"
         >
           <p className="font-alexandria font-medium text-[20px] text-white">entrar</p>

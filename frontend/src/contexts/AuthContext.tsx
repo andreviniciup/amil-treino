@@ -35,11 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
+    console.log('🔐 AuthContext.login chamado', { email, hasPassword: !!password });
     try {
+      console.log('📡 Chamando authApi.login...');
       const { user: loggedUser } = await authApi.login(email, password);
+      console.log('✅ authApi.login bem-sucedido', { user: loggedUser });
       setUser(loggedUser);
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('❌ Erro no login (AuthContext):', error);
       throw error;
     }
   };

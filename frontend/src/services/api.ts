@@ -215,10 +215,22 @@ export const authApi = {
 
   // Login
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
-    const response = await api.post('/users/login', { email, password });
-    const { token, user } = response.data.data;
-    safeSetLocalStorage('auth_token', token);
-    return { user, token };
+    console.log('🌐 authApi.login - fazendo requisição para /users/login', { email, hasPassword: !!password });
+    try {
+      const response = await api.post('/users/login', { email, password });
+      console.log('✅ Resposta do servidor recebida', { status: response.status, hasData: !!response.data });
+      const { token, user } = response.data.data;
+      safeSetLocalStorage('auth_token', token);
+      console.log('💾 Token salvo no localStorage');
+      return { user, token };
+    } catch (error: any) {
+      console.error('❌ Erro na requisição de login:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw error;
+    }
   },
 
   // Obter perfil do usuário autenticado
