@@ -362,6 +362,14 @@ export function TreinoIdPage() {
           <MuscleGroupCarousel muscles={musclesWorked} />
 
           <ExercisesList exercises={exercises} onExerciseClick={handleExerciseClick} />
+          
+          {workoutCompleted && (
+            <div className="bg-[#6D9F28] box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto">
+              <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-white text-[16px] text-nowrap whitespace-pre">
+                Treino Concluído Hoje
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
