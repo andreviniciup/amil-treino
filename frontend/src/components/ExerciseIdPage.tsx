@@ -3,10 +3,10 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
 import { SeriesCard } from "./SeriesCard";
-import { SlideToComplete } from "./SlideToComplete";
 import { WeeklyProgressBar } from "./exercise/WeeklyProgressBar";
 import { workoutApi, exerciseApi, WorkoutPlan } from "../services/api";
 import { useWorkoutTimer } from "../contexts/WorkoutTimerContext";
+import { useExercise } from "../contexts/ExerciseContext";
 import { BackButton } from "./BackButton";
 
 interface SeriesData {
@@ -137,7 +137,12 @@ export function ExerciseIdPage() {
   const [lastReps, setLastReps] = useState(0);
   const [currentWeight, setCurrentWeight] = useState(12);
   const [currentReps, setCurrentReps] = useState(8);
-  const [exerciseCompleted, setExerciseCompleted] = useState(false);
+  const { 
+    exerciseCompleted, 
+    setExerciseCompleted, 
+    setAllSeriesCompleted, 
+    setOnCompleteExercise 
+  } = useExercise();
 
   // Verificar se o exercício já foi concluído hoje
   useEffect(() => {
@@ -561,6 +566,18 @@ export function ExerciseIdPage() {
 
   const allSeriesCompleted = series.every((s) => s.status === "completed");
   
+  // Atualizar contexto quando o estado muda
+  useEffect(() => {
+    setAllSeriesCompleted(allSeriesCompleted);
+  }, [allSeriesCompleted, setAllSeriesCompleted]);
+  
+  // Registrar callback de conclusão
+  useEffect(() => {
+    const callback = () => handleCompleteExercise();
+    setOnCompleteExercise(callback);
+    return () => setOnCompleteExercise(null);
+  }, [setOnCompleteExercise, handleCompleteExercise]);
+  
   // Ajustar top baseado se o treino está ativo
   const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
 
@@ -694,19 +711,6 @@ export function ExerciseIdPage() {
           })}
         </div>
 
-        {/* Slide to Complete - Só aparece quando todas as séries estiverem completas e o exercício não foi concluído */}
-        {allSeriesCompleted && !exerciseCompleted && (
-          <div className="w-full mt-[15px]">
-            {saving ? (
-              <div className="w-full bg-[#202020] rounded-full p-4 flex items-center justify-center">
-                <p className="text-white font-['Alexandria:Medium',_sans-serif]">Salvando...</p>
-              </div>
-            ) : (
-              <SlideToComplete onComplete={handleCompleteExercise} />
-            )}
-          </div>
-        )}
-        
         {/* Mensagem se o exercício já foi concluído */}
         {exerciseCompleted && (
           <div className="w-full mt-[15px] bg-[#6D9F28] rounded-full p-4 flex items-center justify-center">

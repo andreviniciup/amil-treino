@@ -9,7 +9,9 @@ import { TreinoIdPage } from './components/TreinoIdPage';
 import { ExerciseIdPage } from './components/ExerciseIdPage';
 import { TreinoTempoDescansoPage } from './components/TreinoTempoDescansoPage';
 import { WorkoutCompletionPage } from './components/WorkoutCompletionPage';
-import { MenuBar } from './components/MenuBar';
+import { ContextualMenuBar } from './components/ContextualMenuBar/ContextualMenuBar';
+import { ExerciseProvider, useExercise } from './contexts/ExerciseContext';
+import { WorkoutProvider, useWorkout } from './contexts/WorkoutContext';
 import { LoginPage } from './components/auth/LoginPage';
 import { RegisterPage } from './components/auth/RegisterPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -38,14 +40,15 @@ import { WorkoutList } from './components/WorkoutList';
 
 type Page = 'home' | 'streak' | 'treino' | 'treino-iniciado' | 'treino-id' | 'exercise-id' | 'treino-tempo-descanso' | 'my-workouts' | 'workout-list';
 
-function AppContent() {
+function AppContentInner() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, loading } = useAuth();
   const { isRunning, elapsedTime, formatTime, stopTimer, resetTimer } = useWorkoutTimer();
+  const { allSeriesCompleted, exerciseCompleted, onCompleteExercise } = useExercise();
+  const { workoutName, onStartWorkout } = useWorkout();
   const [currentPage, setCurrentPage] = useState('home' as Page);
   const [showSplash, setShowSplash] = useState(true);
-  const [workoutName, setWorkoutName] = useState('Treino');
 
   // Splash screen timer
   useEffect(() => {
@@ -193,18 +196,27 @@ function AppContent() {
         </Routes>
       </AnimatePresence>
 
-      {/* Não mostra a MenuBar nas páginas especiais */}
-      {!isOnboarding && !isAuth && !isLanding && !isSplash && !isWorkoutCreator && (
-        <MenuBar 
-          currentPage={currentPage} 
-          onNavigate={handleMenuNavigate}
-          isWorkoutActive={isRunning}
-          workoutTime={formatTime(elapsedTime)}
-          workoutName={workoutName}
-          onStopWorkout={handleStopWorkout}
-        />
-      )}
+      {/* ContextualMenuBar - substitui a MenuBar antiga */}
+      <ContextualMenuBar
+        currentPage={currentPage}
+        onNavigate={handleMenuNavigate}
+        workoutName={workoutName}
+        onStartWorkout={onStartWorkout || undefined}
+        allSeriesCompleted={allSeriesCompleted}
+        exerciseCompleted={exerciseCompleted}
+        onCompleteExercise={onCompleteExercise || undefined}
+      />
     </div>
+  );
+}
+
+function AppContent() {
+  return (
+    <ExerciseProvider>
+      <WorkoutProvider>
+        <AppContentInner />
+      </WorkoutProvider>
+    </ExerciseProvider>
   );
 }
 

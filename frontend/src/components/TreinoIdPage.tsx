@@ -5,6 +5,7 @@ import svgPaths from "../imports/svg-c71qf4vhvy";
 import { workoutApi, WorkoutPlan } from '../services/api';
 import { getMuscleImage, getUniqueMuscles } from '../utils/muscleMapping';
 import { useWorkoutTimer } from '../contexts/WorkoutTimerContext';
+import { useWorkout } from '../contexts/WorkoutContext';
 
 interface Exercise {
   id: string;
@@ -55,7 +56,7 @@ export function TreinoIdPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPlan, setCurrentPlan] = useState<WorkoutPlan | null>(null);
-  const [workoutName, setWorkoutName] = useState<string>('Treino');
+  const { workoutName, setWorkoutName, setOnStartWorkout } = useWorkout();
   const [musclesWorked, setMusclesWorked] = useState<Array<{ name: string; imageUrl: string }>>([]);
   const [workoutCompleted, setWorkoutCompleted] = useState(false);
   
@@ -93,7 +94,8 @@ export function TreinoIdPage() {
             console.log('Workout structure:', JSON.stringify(workout, null, 2));
             
             if (workout && workout.exercises && workout.exercises.length > 0) {
-              setWorkoutName(workout.trainingType);
+              const name = workout.trainingType || workoutName;
+              setWorkoutName(name);
               
               // Mapear exercícios do workout
               const mappedExercises: Exercise[] = workout.exercises.map(ex => ({
@@ -290,6 +292,12 @@ export function TreinoIdPage() {
       }
     }
   };
+  
+  // Registrar callback e nome do workout no contexto
+  useEffect(() => {
+    setOnStartWorkout(() => handleStartWorkout);
+    return () => setOnStartWorkout(null);
+  }, [setOnStartWorkout, exercises.length, workoutCompleted, currentPlan, workoutPlanIdFromUrl]);
 
   const handleExerciseClick = (exercise: Exercise) => {
     const exerciseIndex = exercises.findIndex(ex => ex.id === exercise.id);
