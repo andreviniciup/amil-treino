@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
@@ -37,7 +37,7 @@ export function ExerciseIdPage() {
   const fromWorkout = location.state?.fromWorkout || !!params.workoutPlanId;
   
   // Se temos parâmetros da URL, significa que veio de uma rota semântica
-  const hasUrlParams = !!(params.workoutPlanId && params.workoutId && params.exerciseId);
+  const hasUrlParams = useMemo(() => !!(params.workoutPlanId && params.workoutId && params.exerciseId), [params.workoutPlanId, params.workoutId, params.exerciseId]);
   
   console.log('🔗 URL Params:', params);
   console.log('Exercise data:', exercise);
@@ -48,13 +48,14 @@ export function ExerciseIdPage() {
   
   // Flag para evitar múltiplas chamadas simultâneas
   const loadingWorkoutRef = useRef(false);
+  const workoutLoadedRef = useRef(false);
   
   // Carregar dados do workout do backend se temos parâmetros da URL mas não temos dados no state
   useEffect(() => {
     const loadWorkoutFromUrl = async () => {
-      // Evitar múltiplas chamadas simultâneas
-      if (loadingWorkoutRef.current) {
-        console.log('⏭️ Carregamento de workout já em andamento, pulando...');
+      // Evitar múltiplas chamadas simultâneas ou se já foi carregado
+      if (loadingWorkoutRef.current || workoutLoadedRef.current) {
+        console.log('⏭️ Carregamento de workout já em andamento ou já carregado, pulando...');
         return;
       }
       
@@ -71,6 +72,7 @@ export function ExerciseIdPage() {
           const loadedWorkout = await workoutApi.getPlanById(params.workoutPlanId);
           console.log('✅ Workout carregado:', loadedWorkout);
           setWorkoutData(loadedWorkout);
+          workoutLoadedRef.current = true;
           
           // Encontrar o exercício correto usando o exerciseId da URL
           if (params.exerciseId && loadedWorkout.workouts?.[0]?.exercises) {
