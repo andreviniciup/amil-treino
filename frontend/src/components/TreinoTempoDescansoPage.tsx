@@ -219,6 +219,9 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-tempo-descanso">
       <BackButton onClick={() => {
+        // Preservar séries ao voltar
+        const preservedSeries = location.state?.preservedSeries;
+        
         // Usar rota semântica se temos os IDs necessários
         if (workoutPlanId && workoutId && exerciseId) {
           navigate(`/treino/${workoutPlanId}/${workoutId}/${exerciseId}`, {
@@ -231,7 +234,8 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
               workout,
               exercise,
               currentExerciseIndex,
-              fromWorkout
+              fromWorkout,
+              preservedSeries
             }
           });
         } else {
@@ -246,7 +250,8 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
               workout,
               exercise,
               currentExerciseIndex,
-              fromWorkout
+              fromWorkout,
+              preservedSeries
             }
           });
         }

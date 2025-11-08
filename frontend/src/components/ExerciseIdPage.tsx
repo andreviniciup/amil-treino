@@ -49,8 +49,12 @@ export function ExerciseIdPage() {
   // Carregar dados do workout do backend se temos parâmetros da URL mas não temos dados no state
   useEffect(() => {
     const loadWorkoutFromUrl = async () => {
-      // Só carregar se temos parâmetros da URL mas não temos dados no state
-      if (hasUrlParams && !workout && params.workoutPlanId) {
+      // Carregar se temos parâmetros da URL mas não temos dados no state
+      // OU se temos preservedSeries mas não temos workout (componente remontado)
+      const shouldLoad = (hasUrlParams && !workout && params.workoutPlanId) ||
+        (location.state?.preservedSeries && !workout && params.workoutPlanId);
+      
+      if (shouldLoad) {
         try {
           setLoadingWorkout(true);
           console.log('📥 Carregando workout do backend com ID:', params.workoutPlanId);
@@ -81,7 +85,7 @@ export function ExerciseIdPage() {
     
     loadWorkoutFromUrl();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.workoutPlanId, params.exerciseId, hasUrlParams]);
+  }, [params.workoutPlanId, params.exerciseId, hasUrlParams, workout]);
   
   // Se veio do treino, usar dados do treino
   const currentExercise = fromWorkout && workout?.workouts?.[0]?.exercises?.[currentExerciseIndex] 
@@ -122,8 +126,19 @@ export function ExerciseIdPage() {
   const [series, setSeries] = useState<SeriesData[]>(() => {
     // Se há séries preservadas no state, usar elas
     if (location.state?.preservedSeries) {
-      console.log('📦 Restaurando séries preservadas:', location.state.preservedSeries);
-      return location.state.preservedSeries;
+      const preserved = location.state.preservedSeries;
+      const completedCount = preserved.filter((s: SeriesData) => s.status === "completed").length;
+      console.log('📦 Restaurando séries preservadas na inicialização:', {
+        total: preserved.length,
+        completed: completedCount,
+        series: preserved.map((s: SeriesData, idx: number) => ({
+          index: idx + 1,
+          status: s.status,
+          reps: s.actualReps || s.repetitions,
+          weight: s.actualWeight || s.weight
+        }))
+      });
+      return preserved;
     }
     const initialSeries = initializeSeries();
     console.log('🆕 Inicializando novas séries:', initialSeries);
@@ -147,6 +162,12 @@ export function ExerciseIdPage() {
   // Verificar se o exercício já foi concluído hoje
   useEffect(() => {
     const checkExerciseCompletion = async () => {
+      // Não verificar se há séries preservadas no state (significa que estamos em uma sessão ativa)
+      if (location.state?.preservedSeries) {
+        console.log('⏭️ Pulando verificação de conclusão - há séries preservadas (sessão ativa)');
+        return;
+      }
+      
       if (!workout || !currentExercise) return;
       
       try {
@@ -170,7 +191,7 @@ export function ExerciseIdPage() {
               const repsArray = JSON.parse(exerciseLog.reps || '[]');
               const weightsArray = JSON.parse(exerciseLog.weights || '[]');
               
-              // Atualizar séries com dados do log
+              // Atualizar séries com dados do log (só se não houver séries preservadas)
               setSeries(prevSeries => {
                 return prevSeries.map((serie, index) => {
                   if (index < repsArray.length && index < weightsArray.length) {
@@ -195,7 +216,7 @@ export function ExerciseIdPage() {
     };
     
     checkExerciseCompletion();
-  }, [workout, currentExercise]);
+  }, [workout, currentExercise, location.state?.preservedSeries]);
 
   // Carregar histórico do exercício
   useEffect(() => {
@@ -288,20 +309,55 @@ export function ExerciseIdPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.fromRest]);
 
-  // Preservar séries quando o componente é remontado (se workout/fromWorkout estão undefined mas há séries preservadas)
+  // Preservar séries quando o componente é remontado ou quando o workout é carregado
   useEffect(() => {
-    // Se workout e fromWorkout estão undefined mas há séries preservadas no state, restaurar
-    if (!workout && !fromWorkout && location.state?.preservedSeries) {
-      console.log('🔄 Componente remontado - restaurando séries preservadas do state');
-      setSeries(location.state.preservedSeries);
-    }
-    // Quando o workout é carregado do backend, preservar séries se já existirem
-    if (workout && location.state?.preservedSeries) {
-      console.log('🔄 Workout carregado do backend - mantendo séries preservadas');
-      setSeries(location.state.preservedSeries);
+    // Se há séries preservadas no state, sempre restaurar (mesmo que workout seja carregado depois)
+    if (location.state?.preservedSeries) {
+      const preserved = location.state.preservedSeries;
+      const preservedCompleted = preserved.filter((s: SeriesData) => s.status === "completed").length;
+      
+      console.log('🔄 Verificando séries preservadas:', {
+        hasWorkout: !!workout,
+        fromWorkout,
+        preservedSeriesCount: preserved.length,
+        completedCount: preservedCompleted,
+        preservedSeries: preserved.map((s: SeriesData, idx: number) => ({
+          index: idx + 1,
+          status: s.status,
+          reps: s.actualReps || s.repetitions,
+          weight: s.actualWeight || s.weight
+        }))
+      });
+      
+      // Verificar se as séries preservadas são diferentes das atuais antes de atualizar
+      setSeries(prevSeries => {
+        const currentCompleted = prevSeries.filter(s => s.status === "completed").length;
+        const seriesEqual = JSON.stringify(preserved) === JSON.stringify(prevSeries);
+        
+        console.log('🔍 Comparando séries:', {
+          preservedCompleted,
+          currentCompleted,
+          seriesEqual,
+          prevSeries: prevSeries.map((s, idx) => ({
+            index: idx + 1,
+            status: s.status,
+            reps: s.actualReps || s.repetitions,
+            weight: s.actualWeight || s.weight
+          }))
+        });
+        
+        // Se as séries preservadas têm mais séries completadas OU são diferentes, usar elas
+        if (preservedCompleted > currentCompleted || !seriesEqual) {
+          console.log('✅ Atualizando séries com dados preservados');
+          return preserved;
+        }
+        
+        console.log('⏭️ Mantendo séries atuais (já estão atualizadas)');
+        return prevSeries;
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workout, fromWorkout]);
+  }, [workout, location.state?.preservedSeries]);
 
   const handleStartRest = (index: number, reps: number, weight: number, restTime: number) => {
     // Navega para a página de tempo de descanso com os valores ajustados
