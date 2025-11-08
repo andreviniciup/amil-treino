@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
 
 interface ExerciseContextType {
   allSeriesCompleted: boolean;
@@ -14,17 +14,30 @@ const ExerciseContext = createContext<ExerciseContextType | undefined>(undefined
 export function ExerciseProvider({ children }: { children: ReactNode }) {
   const [allSeriesCompleted, setAllSeriesCompleted] = useState(false);
   const [exerciseCompleted, setExerciseCompleted] = useState(false);
-  const [onCompleteExercise, setOnCompleteExercise] = useState<(() => void) | null>(null);
+  const [onCompleteExercise, setOnCompleteExerciseState] = useState<(() => void) | null>(null);
+
+  // Memoizar setters com useCallback para evitar recriações
+  const handleSetAllSeriesCompleted = useCallback((value: boolean) => {
+    setAllSeriesCompleted(value);
+  }, []);
+
+  const handleSetExerciseCompleted = useCallback((value: boolean) => {
+    setExerciseCompleted(value);
+  }, []);
+
+  const handleSetOnCompleteExercise = useCallback((callback: (() => void) | null) => {
+    setOnCompleteExerciseState(callback);
+  }, []);
 
   // Memoizar o valor do contexto para evitar recriações desnecessárias
   const contextValue = useMemo(() => ({
     allSeriesCompleted,
     exerciseCompleted,
-    setAllSeriesCompleted,
-    setExerciseCompleted,
+    setAllSeriesCompleted: handleSetAllSeriesCompleted,
+    setExerciseCompleted: handleSetExerciseCompleted,
     onCompleteExercise,
-    setOnCompleteExercise,
-  }), [allSeriesCompleted, exerciseCompleted, onCompleteExercise]);
+    setOnCompleteExercise: handleSetOnCompleteExercise,
+  }), [allSeriesCompleted, exerciseCompleted, onCompleteExercise, handleSetAllSeriesCompleted, handleSetExerciseCompleted, handleSetOnCompleteExercise]);
 
   return (
     <ExerciseContext.Provider value={contextValue}>

@@ -180,6 +180,20 @@ export function ExerciseIdPage() {
   const checkingCompletionRef = useRef(false);
   const loadingHistoryRef = useRef(false);
   const completingExerciseRef = useRef(false);
+  const callbackRegisteredRef = useRef(false);
+  
+  // Refs para estabilizar dependências do useEffect que registra callback
+  const workoutIdRef = useRef<string | undefined>(undefined);
+  const exerciseIdRef = useRef<string | undefined>(undefined);
+  
+  // Atualizar refs quando workout ou exercise mudam
+  useEffect(() => {
+    workoutIdRef.current = workout?.id;
+  }, [workout?.id]);
+  
+  useEffect(() => {
+    exerciseIdRef.current = currentExercise?.id || currentExercise?.exerciseId;
+  }, [currentExercise?.id, currentExercise?.exerciseId]);
 
   // Verificar se o exercício já foi concluído hoje
   useEffect(() => {
@@ -531,6 +545,28 @@ export function ExerciseIdPage() {
   useEffect(() => {
     seriesRef.current = series;
   }, [series]);
+  
+  // Refs para estabilizar outras dependências do handleCompleteExercise
+  const fromWorkoutRef = useRef(fromWorkout);
+  const exerciseNameRef = useRef(exerciseName);
+  const paramsRef = useRef(params);
+  const currentExerciseIndexRef = useRef(currentExerciseIndex);
+  
+  useEffect(() => {
+    fromWorkoutRef.current = fromWorkout;
+  }, [fromWorkout]);
+  
+  useEffect(() => {
+    exerciseNameRef.current = exerciseName;
+  }, [exerciseName]);
+  
+  useEffect(() => {
+    paramsRef.current = params;
+  }, [params]);
+  
+  useEffect(() => {
+    currentExerciseIndexRef.current = currentExerciseIndex;
+  }, [currentExerciseIndex]);
 
   const handleCompleteExercise = useCallback(async () => {
     // Bloquear se o exercício já foi concluído hoje
@@ -539,7 +575,7 @@ export function ExerciseIdPage() {
       return;
     }
     
-    // Evitar múltiplas chamadas simultâneas
+    // Evitar múltiplas chamadas simultâneas - VERIFICAÇÃO CRÍTICA
     if (completingExerciseRef.current) {
       console.log('⏭️ Conclusão de exercício já em andamento, pulando...');
       return;
@@ -551,6 +587,14 @@ export function ExerciseIdPage() {
       return;
     }
     
+    // Verificar se os IDs ainda são os mesmos (evitar execução após navegação)
+    const currentWorkoutId = workoutIdRef.current;
+    const currentExerciseId = exerciseIdRef.current;
+    if (workout?.id !== currentWorkoutId || (currentExercise?.id !== currentExerciseId && currentExercise?.exerciseId !== currentExerciseId)) {
+      console.log('⚠️ IDs mudaram durante a execução, cancelando...');
+      return;
+    }
+    
     try {
       completingExerciseRef.current = true;
       setSaving(true);
@@ -559,10 +603,10 @@ export function ExerciseIdPage() {
       const currentElapsedTime = elapsedTimeRef.current;
       const currentSeries = seriesRef.current;
       
-      // Verificar se é o último exercício do treino
-      const isLastExercise = fromWorkout && 
+      // Verificar se é o último exercício do treino (usar refs)
+      const isLastExercise = fromWorkoutRef.current && 
         workout?.workouts?.[0]?.exercises && 
-        currentExerciseIndex === workout.workouts[0].exercises.length - 1;
+        currentExerciseIndexRef.current === workout.workouts[0].exercises.length - 1;
       
       console.log('🔍 Verificando se é último exercício:', {
         fromWorkout,
@@ -664,31 +708,33 @@ export function ExerciseIdPage() {
         // Só marca como concluído se todas as séries foram completadas
         const allSeriesCompleted = currentSeries.every((s) => s.status === "completed");
         
-        // Usar rota semântica se temos os IDs necessários
-        const workoutPlanId = workout?.id || params.workoutPlanId;
+        // Usar rota semântica se temos os IDs necessários (usar refs)
+        const workoutPlanId = workout?.id || paramsRef.current.workoutPlanId;
+        const currentFromWorkout = fromWorkoutRef.current;
+        const currentExerciseName = exerciseNameRef.current;
         
-        if (fromWorkout && workoutPlanId) {
+        if (currentFromWorkout && workoutPlanId) {
           navigate(`/treino/${workoutPlanId}`, { 
             state: { 
               exerciseCompleted: allSeriesCompleted,
-              exerciseName: exerciseName,
+              exerciseName: currentExerciseName,
               exerciseId: currentExercise?.id || currentExercise?.exerciseId,
               allSeriesCompleted: allSeriesCompleted,
               workout: workout,
-              fromWorkout: fromWorkout
+              fromWorkout: currentFromWorkout
             } 
           });
         } else {
           // Fallback para rota legada
-          const targetRoute = fromWorkout ? "/treino-id" : "/treino";
+          const targetRoute = currentFromWorkout ? "/treino-id" : "/treino";
           navigate(targetRoute, { 
             state: { 
               exerciseCompleted: allSeriesCompleted,
-              exerciseName: exerciseName,
+              exerciseName: currentExerciseName,
               exerciseId: currentExercise?.id || currentExercise?.exerciseId,
               allSeriesCompleted: allSeriesCompleted,
               workout: workout,
-              fromWorkout: fromWorkout
+              fromWorkout: currentFromWorkout
             } 
           });
         }
@@ -703,28 +749,30 @@ export function ExerciseIdPage() {
       }
       
       // Não marcar como concluído em caso de erro crítico
-      // Mas ainda permitir navegação para não bloquear o usuário
-      const targetRoute = fromWorkout ? "/treino-id" : "/treino";
-      const workoutPlanId = workout?.id || params.workoutPlanId;
+      // Mas ainda permitir navegação para não bloquear o usuário (usar refs)
+      const currentFromWorkout = fromWorkoutRef.current;
+      const currentExerciseName = exerciseNameRef.current;
+      const targetRoute = currentFromWorkout ? "/treino-id" : "/treino";
+      const workoutPlanId = workout?.id || paramsRef.current.workoutPlanId;
       
-      if (fromWorkout && workoutPlanId) {
+      if (currentFromWorkout && workoutPlanId) {
         navigate(`/treino/${workoutPlanId}`, { 
           state: { 
             exerciseCompleted: false,
-            exerciseName: exerciseName,
+            exerciseName: currentExerciseName,
             exerciseId: currentExercise?.id || currentExercise?.exerciseId,
             workout: workout,
-            fromWorkout: fromWorkout
+            fromWorkout: currentFromWorkout
           } 
         });
       } else {
         navigate(targetRoute, { 
           state: { 
             exerciseCompleted: false,
-            exerciseName: exerciseName,
+            exerciseName: currentExerciseName,
             exerciseId: currentExercise?.id || currentExercise?.exerciseId,
             workout: workout,
-            fromWorkout: fromWorkout
+            fromWorkout: currentFromWorkout
           } 
         });
       }
@@ -732,7 +780,7 @@ export function ExerciseIdPage() {
       completingExerciseRef.current = false;
       setSaving(false);
     }
-  }, [exerciseCompleted, fromWorkout, workout?.id, workout?.workouts?.[0]?.id, currentExerciseIndex, navigate, params.workoutPlanId, exerciseName, currentExercise?.id, currentExercise?.exerciseId, stopTimer]);
+  }, [exerciseCompleted, workout, currentExercise, navigate, stopTimer]);
 
   // Memoizar allSeriesCompleted para evitar recálculos desnecessários
   const allSeriesCompleted = useMemo(() => {
@@ -751,25 +799,47 @@ export function ExerciseIdPage() {
   }, [handleCompleteExercise]);
   
   // Só registrar callback se temos dados do workout e exercício
+  // Usar refs para estabilizar dependências e evitar re-registros desnecessários
   useEffect(() => {
+    const currentWorkoutId = workoutIdRef.current;
+    const currentExerciseId = exerciseIdRef.current;
+    
     // Não registrar callback se não temos dados necessários
-    if (!workout || !currentExercise) {
+    if (!workout || !currentExercise || !currentWorkoutId || !currentExerciseId) {
       console.log('⏭️ Não registrando callback - workout ou exercício não disponível');
-      setOnCompleteExercise(null);
+      if (callbackRegisteredRef.current) {
+        setOnCompleteExercise(null);
+        callbackRegisteredRef.current = false;
+      }
+      return;
+    }
+
+    // Evitar re-registrar se já está registrado com os mesmos IDs
+    if (callbackRegisteredRef.current) {
+      console.log('⏭️ Callback já registrado, pulando re-registro');
       return;
     }
 
     const callback = () => {
       console.log('🔔 Callback onCompleteExercise chamado!');
-      handleCompleteExerciseRef.current();
+      // Verificar se ainda estamos no mesmo exercício antes de executar
+      if (workoutIdRef.current === currentWorkoutId && exerciseIdRef.current === currentExerciseId) {
+        handleCompleteExerciseRef.current();
+      } else {
+        console.log('⚠️ Callback ignorado - workout ou exercício mudou');
+      }
     };
-    console.log('📝 Registrando callback onCompleteExercise');
+    
+    console.log('📝 Registrando callback onCompleteExercise', { currentWorkoutId, currentExerciseId });
     setOnCompleteExercise(callback);
+    callbackRegisteredRef.current = true;
+    
     return () => {
       console.log('🧹 Limpando callback onCompleteExercise');
       setOnCompleteExercise(null);
+      callbackRegisteredRef.current = false;
     };
-  }, [setOnCompleteExercise, workout?.id, currentExercise?.id]);
+  }, [setOnCompleteExercise, workout, currentExercise]);
   
   // Ajustar top baseado se o treino está ativo
   const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
