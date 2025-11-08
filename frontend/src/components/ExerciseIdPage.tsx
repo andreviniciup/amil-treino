@@ -186,14 +186,18 @@ export function ExerciseIdPage() {
   const workoutIdRef = useRef<string | undefined>(undefined);
   const exerciseIdRef = useRef<string | undefined>(undefined);
   
-  // Atualizar refs quando workout ou exercise mudam
+  // Memoizar IDs para usar como dependências estáveis
+  const workoutId = useMemo(() => workout?.id, [workout?.id]);
+  const exerciseId = useMemo(() => currentExercise?.id || currentExercise?.exerciseId, [currentExercise?.id, currentExercise?.exerciseId]);
+  
+  // Atualizar refs quando IDs mudam
   useEffect(() => {
-    workoutIdRef.current = workout?.id;
-  }, [workout?.id]);
+    workoutIdRef.current = workoutId;
+  }, [workoutId]);
   
   useEffect(() => {
-    exerciseIdRef.current = currentExercise?.id || currentExercise?.exerciseId;
-  }, [currentExercise?.id, currentExercise?.exerciseId]);
+    exerciseIdRef.current = exerciseId;
+  }, [exerciseId]);
 
   // Verificar se o exercício já foi concluído hoje
   useEffect(() => {
@@ -551,6 +555,8 @@ export function ExerciseIdPage() {
   const exerciseNameRef = useRef(exerciseName);
   const paramsRef = useRef(params);
   const currentExerciseIndexRef = useRef(currentExerciseIndex);
+  const workoutRef = useRef(workout);
+  const currentExerciseRef = useRef(currentExercise);
   
   useEffect(() => {
     fromWorkoutRef.current = fromWorkout;
@@ -567,6 +573,14 @@ export function ExerciseIdPage() {
   useEffect(() => {
     currentExerciseIndexRef.current = currentExerciseIndex;
   }, [currentExerciseIndex]);
+  
+  useEffect(() => {
+    workoutRef.current = workout;
+  }, [workout]);
+  
+  useEffect(() => {
+    currentExerciseRef.current = currentExercise;
+  }, [currentExercise]);
 
   const handleCompleteExercise = useCallback(async () => {
     // Bloquear se o exercício já foi concluído hoje
@@ -581,8 +595,12 @@ export function ExerciseIdPage() {
       return;
     }
     
+    // Usar refs para obter valores atuais sem adicionar como dependências
+    const currentWorkout = workoutRef.current;
+    const currentExerciseValue = currentExerciseRef.current;
+    
     // Bloquear se não temos dados do workout ou exercício (componente ainda carregando)
-    if (!workout || !currentExercise) {
+    if (!currentWorkout || !currentExerciseValue) {
       console.log('⚠️ Workout ou exercício não disponível ainda, pulando...');
       return;
     }
@@ -590,7 +608,7 @@ export function ExerciseIdPage() {
     // Verificar se os IDs ainda são os mesmos (evitar execução após navegação)
     const currentWorkoutId = workoutIdRef.current;
     const currentExerciseId = exerciseIdRef.current;
-    if (workout?.id !== currentWorkoutId || (currentExercise?.id !== currentExerciseId && currentExercise?.exerciseId !== currentExerciseId)) {
+    if (currentWorkout?.id !== currentWorkoutId || (currentExerciseValue?.id !== currentExerciseId && currentExerciseValue?.exerciseId !== currentExerciseId)) {
       console.log('⚠️ IDs mudaram durante a execução, cancelando...');
       return;
     }
@@ -605,14 +623,14 @@ export function ExerciseIdPage() {
       
       // Verificar se é o último exercício do treino (usar refs)
       const isLastExercise = fromWorkoutRef.current && 
-        workout?.workouts?.[0]?.exercises && 
-        currentExerciseIndexRef.current === workout.workouts[0].exercises.length - 1;
+        currentWorkout?.workouts?.[0]?.exercises && 
+        currentExerciseIndexRef.current === currentWorkout.workouts[0].exercises.length - 1;
       
       console.log('🔍 Verificando se é último exercício:', {
-        fromWorkout,
-        hasWorkout: !!workout,
-        exercisesCount: workout?.workouts?.[0]?.exercises?.length,
-        currentIndex: currentExerciseIndex,
+        fromWorkout: fromWorkoutRef.current,
+        hasWorkout: !!currentWorkout,
+        exercisesCount: currentWorkout?.workouts?.[0]?.exercises?.length,
+        currentIndex: currentExerciseIndexRef.current,
         isLastExercise
       });
       
@@ -666,15 +684,15 @@ export function ExerciseIdPage() {
       });
       
       // Obter o ID do Workout (treino do dia), não do WorkoutPlan
-      // workout?.workouts?.[0]?.id é o ID do Workout específico do dia
-      const workoutDayId = workout?.workouts?.[0]?.id || workout?.id || '1';
+      // currentWorkout?.workouts?.[0]?.id é o ID do Workout específico do dia
+      const workoutDayId = currentWorkout?.workouts?.[0]?.id || currentWorkout?.id || '1';
       
       // Criar log do exercício (será agrupado no treino completo depois)
       const logData = {
         workoutId: workoutDayId, // ID do Workout (treino do dia), não do WorkoutPlan
         duration: currentElapsedTime,
         exercises: [{
-          exerciseId: currentExercise?.exerciseId || currentExercise?.id || '1',
+          exerciseId: currentExerciseValue?.exerciseId || currentExerciseValue?.id || '1',
           sets: currentSeries.length,
           reps: repsArray,
           weights: weightsArray,
@@ -684,8 +702,8 @@ export function ExerciseIdPage() {
       
       console.log('📤 Enviando para backend:', logData);
       console.log('📅 Workout ID (treino do dia):', workoutDayId);
-      console.log('📅 Workout Plan ID:', workout?.id);
-      console.log('📅 Workout Day:', workout?.workouts?.[0]?.dayOfWeek);
+      console.log('📅 Workout Plan ID:', currentWorkout?.id);
+      console.log('📅 Workout Day:', currentWorkout?.workouts?.[0]?.dayOfWeek);
       
       // Salvar no backend
       await workoutApi.createLog(logData);
@@ -696,8 +714,8 @@ export function ExerciseIdPage() {
         navigate("/workout-completion", {
           state: {
             workoutData: {
-              name: workout?.name || 'Treino',
-              exercises: workout?.workouts?.[0]?.exercises || []
+              name: currentWorkout?.name || 'Treino',
+              exercises: currentWorkout?.workouts?.[0]?.exercises || []
             },
             duration: currentElapsedTime
           }
@@ -709,7 +727,7 @@ export function ExerciseIdPage() {
         const allSeriesCompleted = currentSeries.every((s) => s.status === "completed");
         
         // Usar rota semântica se temos os IDs necessários (usar refs)
-        const workoutPlanId = workout?.id || paramsRef.current.workoutPlanId;
+        const workoutPlanId = currentWorkout?.id || paramsRef.current.workoutPlanId;
         const currentFromWorkout = fromWorkoutRef.current;
         const currentExerciseName = exerciseNameRef.current;
         
@@ -718,9 +736,9 @@ export function ExerciseIdPage() {
             state: { 
               exerciseCompleted: allSeriesCompleted,
               exerciseName: currentExerciseName,
-              exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+              exerciseId: currentExerciseValue?.id || currentExerciseValue?.exerciseId,
               allSeriesCompleted: allSeriesCompleted,
-              workout: workout,
+              workout: currentWorkout,
               fromWorkout: currentFromWorkout
             } 
           });
@@ -731,9 +749,9 @@ export function ExerciseIdPage() {
             state: { 
               exerciseCompleted: allSeriesCompleted,
               exerciseName: currentExerciseName,
-              exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+              exerciseId: currentExerciseValue?.id || currentExerciseValue?.exerciseId,
               allSeriesCompleted: allSeriesCompleted,
-              workout: workout,
+              workout: currentWorkout,
               fromWorkout: currentFromWorkout
             } 
           });
@@ -753,15 +771,15 @@ export function ExerciseIdPage() {
       const currentFromWorkout = fromWorkoutRef.current;
       const currentExerciseName = exerciseNameRef.current;
       const targetRoute = currentFromWorkout ? "/treino-id" : "/treino";
-      const workoutPlanId = workout?.id || paramsRef.current.workoutPlanId;
+      const workoutPlanId = currentWorkout?.id || paramsRef.current.workoutPlanId;
       
       if (currentFromWorkout && workoutPlanId) {
         navigate(`/treino/${workoutPlanId}`, { 
           state: { 
             exerciseCompleted: false,
             exerciseName: currentExerciseName,
-            exerciseId: currentExercise?.id || currentExercise?.exerciseId,
-            workout: workout,
+            exerciseId: currentExerciseValue?.id || currentExerciseValue?.exerciseId,
+            workout: currentWorkout,
             fromWorkout: currentFromWorkout
           } 
         });
@@ -770,8 +788,8 @@ export function ExerciseIdPage() {
           state: { 
             exerciseCompleted: false,
             exerciseName: currentExerciseName,
-            exerciseId: currentExercise?.id || currentExercise?.exerciseId,
-            workout: workout,
+            exerciseId: currentExerciseValue?.id || currentExerciseValue?.exerciseId,
+            workout: currentWorkout,
             fromWorkout: currentFromWorkout
           } 
         });
@@ -780,7 +798,7 @@ export function ExerciseIdPage() {
       completingExerciseRef.current = false;
       setSaving(false);
     }
-  }, [exerciseCompleted, workout, currentExercise, navigate, stopTimer]);
+  }, [exerciseCompleted, navigate, stopTimer]);
 
   // Memoizar allSeriesCompleted para evitar recálculos desnecessários
   const allSeriesCompleted = useMemo(() => {
@@ -799,14 +817,11 @@ export function ExerciseIdPage() {
   }, [handleCompleteExercise]);
   
   // Só registrar callback se temos dados do workout e exercício
-  // Usar refs para estabilizar dependências e evitar re-registros desnecessários
+  // Usar apenas IDs memoizados como dependências para evitar re-registros desnecessários
   useEffect(() => {
-    const currentWorkoutId = workoutIdRef.current;
-    const currentExerciseId = exerciseIdRef.current;
-    
-    // Não registrar callback se não temos dados necessários
-    if (!workout || !currentExercise || !currentWorkoutId || !currentExerciseId) {
-      console.log('⏭️ Não registrando callback - workout ou exercício não disponível');
+    // Não registrar callback se não temos IDs necessários
+    if (!workoutId || !exerciseId) {
+      console.log('⏭️ Não registrando callback - IDs não disponíveis', { workoutId, exerciseId });
       if (callbackRegisteredRef.current) {
         setOnCompleteExercise(null);
         callbackRegisteredRef.current = false;
@@ -814,32 +829,57 @@ export function ExerciseIdPage() {
       return;
     }
 
-    // Evitar re-registrar se já está registrado com os mesmos IDs
-    if (callbackRegisteredRef.current) {
-      console.log('⏭️ Callback já registrado, pulando re-registro');
+    // Verificar se workout e exercise ainda estão disponíveis (sem adicionar como dependência)
+    if (!workout || !currentExercise) {
+      console.log('⏭️ Não registrando callback - workout ou exercício não disponível ainda', { workoutId, exerciseId });
       return;
     }
 
+    // Evitar re-registrar se já está registrado com os mesmos IDs
+    if (callbackRegisteredRef.current && workoutIdRef.current === workoutId && exerciseIdRef.current === exerciseId) {
+      console.log('⏭️ Callback já registrado com os mesmos IDs, pulando re-registro', { workoutId, exerciseId });
+      return;
+    }
+
+    // Limpar callback anterior se os IDs mudaram
+    if (callbackRegisteredRef.current && (workoutIdRef.current !== workoutId || exerciseIdRef.current !== exerciseId)) {
+      console.log('🔄 IDs mudaram, limpando callback anterior', { 
+        oldWorkoutId: workoutIdRef.current, 
+        newWorkoutId: workoutId,
+        oldExerciseId: exerciseIdRef.current,
+        newExerciseId: exerciseId
+      });
+      setOnCompleteExercise(null);
+      callbackRegisteredRef.current = false;
+    }
+
     const callback = () => {
-      console.log('🔔 Callback onCompleteExercise chamado!');
+      console.log('🔔 Callback onCompleteExercise chamado!', { workoutId, exerciseId });
       // Verificar se ainda estamos no mesmo exercício antes de executar
-      if (workoutIdRef.current === currentWorkoutId && exerciseIdRef.current === currentExerciseId) {
+      if (workoutIdRef.current === workoutId && exerciseIdRef.current === exerciseId) {
         handleCompleteExerciseRef.current();
       } else {
-        console.log('⚠️ Callback ignorado - workout ou exercício mudou');
+        console.log('⚠️ Callback ignorado - workout ou exercício mudou', {
+          currentWorkoutId: workoutIdRef.current,
+          expectedWorkoutId: workoutId,
+          currentExerciseId: exerciseIdRef.current,
+          expectedExerciseId: exerciseId
+        });
       }
     };
     
-    console.log('📝 Registrando callback onCompleteExercise', { currentWorkoutId, currentExerciseId });
+    console.log('📝 Registrando callback onCompleteExercise', { workoutId, exerciseId });
     setOnCompleteExercise(callback);
     callbackRegisteredRef.current = true;
+    workoutIdRef.current = workoutId;
+    exerciseIdRef.current = exerciseId;
     
     return () => {
-      console.log('🧹 Limpando callback onCompleteExercise');
+      console.log('🧹 Limpando callback onCompleteExercise', { workoutId, exerciseId });
       setOnCompleteExercise(null);
       callbackRegisteredRef.current = false;
     };
-  }, [setOnCompleteExercise, workout, currentExercise]);
+  }, [setOnCompleteExercise, workoutId, exerciseId]);
   
   // Ajustar top baseado se o treino está ativo
   const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
