@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
-import { SeriesCard } from "./SeriesCard";
-import { WeeklyProgressBar } from "./exercise/WeeklyProgressBar";
 import { workoutApi, exerciseApi, WorkoutPlan } from "../services/api";
 import { useWorkoutTimer } from "../contexts/WorkoutTimerContext";
 import { useExercise } from "../contexts/ExerciseContext";
 import { BackButton } from "./BackButton";
+import { ExerciseHeader } from "./exercise/ExerciseHeader";
+import { ExerciseSeriesList } from "./exercise/ExerciseSeriesList";
+import { ExerciseCompletedMessage } from "./exercise/ExerciseCompletedMessage";
+import { ExerciseLoadingState } from "./exercise/ExerciseLoadingState";
 
 interface SeriesData {
   repetitions: string;
@@ -765,140 +765,76 @@ export function ExerciseIdPage() {
 
   // Se está carregando o workout do backend, mostrar loading
   if (loadingWorkout) {
-    return (
-      <div className="bg-[#181818] relative size-full flex items-center justify-center">
-        <div className="text-white text-[18px] font-['Alexandria:Regular',_sans-serif]">
-          Carregando exercício...
-        </div>
-      </div>
-    );
+    return <ExerciseLoadingState />;
   }
+
+  // Callbacks memoizados para evitar recriações
+  const handleBackClick = useCallback(() => {
+    if (workout?.id || params.workoutPlanId) {
+      const workoutPlanId = workout?.id || params.workoutPlanId;
+      navigate(`/treino/${workoutPlanId}`);
+    } else {
+      navigate("/treino");
+    }
+  }, [workout?.id, params.workoutPlanId, navigate]);
+
+  const handleToggleExpand = useCallback((index: number) => {
+    setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index);
+  }, [expandedSeriesIndex]);
+
+  const handleSeriesWeightChangeNumber = useCallback((index: number, value: number) => {
+    setSeries(prevSeries => {
+      const newSeries = [...prevSeries];
+      newSeries[index].actualWeight = value;
+      return newSeries;
+    });
+  }, []);
+
+  const handleSeriesRestTimeChangeNumber = useCallback((index: number, value: number) => {
+    setSeries(prevSeries => {
+      const newSeries = [...prevSeries];
+      newSeries[index].actualRestTime = value;
+      return newSeries;
+    });
+  }, []);
+
+  const handleSeriesRepsChange = useCallback((index: number, min: number, max: number) => {
+    setSeries(prevSeries => {
+      const newSeries = [...prevSeries];
+      newSeries[index].actualReps = max;
+      return newSeries;
+    });
+  }, []);
 
   return (
     <div className="bg-[#181818] relative size-full" data-name="treino-id">
-      <BackButton onClick={() => {
-        // Usar rota semântica se temos workoutPlanId
-        if (workout?.id || params.workoutPlanId) {
-          const workoutPlanId = workout?.id || params.workoutPlanId;
-          navigate(`/treino/${workoutPlanId}`);
-        } else {
-          navigate("/treino");
-        }
-      }} />
+      <BackButton onClick={handleBackClick} />
+      
       <div className={`absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] ${topPosition} w-[350px]`}>
-        {/* Imagem do Exercício */}
-        <div className="bg-[#202020] h-[350px] relative rounded-[30px] shrink-0 w-full overflow-hidden">
-          <AnimatedExerciseImage
-            gifUrl={exerciseGifUrl || ""}
-            alt={exerciseName}
-            className="size-full"
-            transitionSpeed={800}
-          />
-        </div>
+        <ExerciseHeader
+          exerciseName={exerciseName}
+          gifUrl={exerciseGifUrl || ""}
+          topPosition={topPosition}
+        />
 
-        {/* Nome do Exercício e Séries */}
-        <div className="content-stretch flex flex-col gap-[15px] items-start relative shrink-0 w-full">
-          <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[16px] text-white w-full">
-            {exerciseName}
-          </p>
+        <ExerciseSeriesList
+          series={series}
+          expandedSeriesIndex={expandedSeriesIndex}
+          exerciseCompleted={exerciseCompleted}
+          exerciseHistory={exerciseHistory}
+          currentSeriesIndex={currentSeriesIndex}
+          currentReps={currentReps}
+          onToggleExpand={handleToggleExpand}
+          onStartRest={handleStartRest}
+          onRepetitionsChange={handleRepetitionsChange}
+          onWeightChange={handleWeightChange}
+          onRestTimeChange={handleRestTimeChange}
+          onWeightChangeNumber={handleSeriesWeightChangeNumber}
+          onRestTimeChangeNumber={handleSeriesRestTimeChangeNumber}
+          onRepsChange={handleSeriesRepsChange}
+        />
 
-          {/* Gráfico de Progresso Semanal */}
-          {exerciseHistory.length > 0 && (
-            <WeeklyProgressBar
-              history={exerciseHistory}
-              currentSet={currentSeriesIndex + 1}
-              totalSets={series.length}
-              targetReps={currentReps}
-            />
-          )}
-
-          {series.map((serie, index) => {
-            // Log detalhado para debug
-            console.log(`📋 Renderizando Série ${index + 1}:`, {
-              status: serie.status,
-              reps: serie.actualReps || serie.repetitions,
-              weight: serie.actualWeight || serie.weight,
-              restTime: serie.actualRestTime || serie.restTime
-            });
-            
-            if (serie.status === "completed") {
-              console.log(`✅ Série ${index + 1} está COMPLETED - deve aparecer verde`);
-            }
-            
-            return (
-              <SeriesCard
-                key={`series-${index}-${serie.status}`}
-                seriesNumber={index + 1}
-                repetitions={serie.repetitions}
-                weight={serie.weight}
-                restTime={serie.restTime}
-                status={serie.status}
-              isExpanded={expandedSeriesIndex === index && serie.status !== "completed"}
-              onToggleExpand={() => {
-                // Não permitir expandir séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index);
-                }
-              }}
-              onStartRest={(reps, weight, restTime) => {
-                // Não permitir iniciar timer para séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  handleStartRest(index, reps, weight, restTime);
-                }
-              }}
-              onRepetitionsChange={(value) => {
-                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  handleRepetitionsChange(index, value);
-                }
-              }}
-              onWeightChange={(value) => {
-                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  handleWeightChange(index, value);
-                }
-              }}
-              onRestTimeChange={(value) => {
-                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  handleRestTimeChange(index, value);
-                }
-              }}
-              onWeightChangeNumber={(value) => {
-                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  const newSeries = [...series];
-                  newSeries[index].actualWeight = value;
-                  setSeries(newSeries);
-                }
-              }}
-              onRestTimeChangeNumber={(value) => {
-                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  const newSeries = [...series];
-                  newSeries[index].actualRestTime = value;
-                  setSeries(newSeries);
-                }
-              }}
-              onRepsChange={(min, max) => {
-                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
-                if (serie.status !== "completed" && !exerciseCompleted) {
-                  const newSeries = [...series];
-                  newSeries[index].actualReps = max;
-                  setSeries(newSeries);
-                }
-              }}
-              />
-            );
-          })}
-        </div>
-
-        {/* Mensagem se o exercício já foi concluído */}
-        {exerciseCompleted && (
-          <div className="w-full mt-[15px] bg-[#6D9F28] rounded-full p-4 flex items-center justify-center">
-            <p className="text-white font-['Alexandria:Medium',_sans-serif]">Exercício Concluído Hoje</p>
-          </div>
-        )}
+        <ExerciseCompletedMessage exerciseCompleted={exerciseCompleted} />
       </div>
     </div>
   );
