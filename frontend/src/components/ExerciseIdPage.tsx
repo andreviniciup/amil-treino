@@ -46,16 +46,26 @@ export function ExerciseIdPage() {
   console.log('From workout:', fromWorkout);
   console.log('Has URL params:', hasUrlParams);
   
+  // Flag para evitar múltiplas chamadas simultâneas
+  const loadingWorkoutRef = useRef(false);
+  
   // Carregar dados do workout do backend se temos parâmetros da URL mas não temos dados no state
   useEffect(() => {
     const loadWorkoutFromUrl = async () => {
+      // Evitar múltiplas chamadas simultâneas
+      if (loadingWorkoutRef.current) {
+        console.log('⏭️ Carregamento de workout já em andamento, pulando...');
+        return;
+      }
+      
       // Carregar se temos parâmetros da URL mas não temos dados no state
       // OU se temos preservedSeries mas não temos workout (componente remontado)
-      const shouldLoad = (hasUrlParams && !workout && params.workoutPlanId) ||
-        (location.state?.preservedSeries && !workout && params.workoutPlanId);
+      const shouldLoad = (hasUrlParams && !workoutData && params.workoutPlanId) ||
+        (location.state?.preservedSeries && !workoutData && params.workoutPlanId);
       
       if (shouldLoad) {
         try {
+          loadingWorkoutRef.current = true;
           setLoadingWorkout(true);
           console.log('📥 Carregando workout do backend com ID:', params.workoutPlanId);
           const loadedWorkout = await workoutApi.getPlanById(params.workoutPlanId);
@@ -78,6 +88,7 @@ export function ExerciseIdPage() {
         } catch (err) {
           console.error('❌ Erro ao carregar workout:', err);
         } finally {
+          loadingWorkoutRef.current = false;
           setLoadingWorkout(false);
         }
       }
@@ -85,7 +96,7 @@ export function ExerciseIdPage() {
     
     loadWorkoutFromUrl();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.workoutPlanId, params.exerciseId, hasUrlParams, workout]);
+  }, [params.workoutPlanId, params.exerciseId, hasUrlParams]);
   
   // Se veio do treino, usar dados do treino
   const currentExercise = fromWorkout && workout?.workouts?.[0]?.exercises?.[currentExerciseIndex] 
