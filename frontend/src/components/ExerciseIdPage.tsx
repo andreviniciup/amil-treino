@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AnimatedExerciseImage } from "./AnimatedExerciseImage";
@@ -159,6 +159,10 @@ export function ExerciseIdPage() {
     setOnCompleteExercise 
   } = useExercise();
 
+  // Flag para evitar múltiplas chamadas simultâneas
+  const checkingCompletionRef = useRef(false);
+  const loadingHistoryRef = useRef(false);
+
   // Verificar se o exercício já foi concluído hoje
   useEffect(() => {
     const checkExerciseCompletion = async () => {
@@ -168,9 +172,16 @@ export function ExerciseIdPage() {
         return;
       }
       
+      // Evitar múltiplas chamadas simultâneas
+      if (checkingCompletionRef.current) {
+        console.log('⏭️ Verificação de conclusão já em andamento, pulando...');
+        return;
+      }
+      
       if (!workout || !currentExercise) return;
       
       try {
+        checkingCompletionRef.current = true;
         const workoutDayId = workout.workouts?.[0]?.id;
         const exerciseId = currentExercise.exerciseId || currentExercise.id;
         
@@ -212,17 +223,34 @@ export function ExerciseIdPage() {
         }
       } catch (error) {
         console.error('Erro ao verificar conclusão do exercício:', error);
+        // Não propagar erro para não quebrar a UI
+      } finally {
+        checkingCompletionRef.current = false;
       }
     };
     
-    checkExerciseCompletion();
+    // Adicionar debounce de 500ms para evitar chamadas muito frequentes
+    const timeoutId = setTimeout(() => {
+      checkExerciseCompletion();
+    }, 500);
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [workout, currentExercise, location.state?.preservedSeries]);
 
   // Carregar histórico do exercício
   useEffect(() => {
     const loadHistory = async () => {
+      // Evitar múltiplas chamadas simultâneas
+      if (loadingHistoryRef.current) {
+        console.log('⏭️ Carregamento de histórico já em andamento, pulando...');
+        return;
+      }
+      
       try {
         if (currentExercise?.exerciseId) {
+          loadingHistoryRef.current = true;
           const history = await exerciseApi.getHistory(currentExercise.exerciseId);
           setExerciseHistory(history.lastSets);
           setLastWeight(history.lastWeight);
@@ -239,10 +267,19 @@ export function ExerciseIdPage() {
       } catch (error) {
         console.error('Erro ao carregar histórico:', error);
         // Não fazer nada se falhar - continua com valores padrão
+      } finally {
+        loadingHistoryRef.current = false;
       }
     };
 
-    loadHistory();
+    // Adicionar debounce de 500ms para evitar chamadas muito frequentes
+    const timeoutId = setTimeout(() => {
+      loadHistory();
+    }, 500);
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [currentExercise?.exerciseId]);
 
   // Verifica se está retornando da página de descanso
@@ -602,19 +639,41 @@ export function ExerciseIdPage() {
           });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao salvar progresso:', err);
-      // Não marcar como concluído em caso de erro
+      
+      // Tratar erros específicos
+      if (err?.message?.includes('insecure') || err?.name === 'SecurityError') {
+        console.warn('Erro de segurança ao salvar - tentando continuar sem salvar no backend');
+        // Continuar navegação mesmo com erro de segurança
+      }
+      
+      // Não marcar como concluído em caso de erro crítico
+      // Mas ainda permitir navegação para não bloquear o usuário
       const targetRoute = fromWorkout ? "/treino-id" : "/treino";
-      navigate(targetRoute, { 
-        state: { 
-          exerciseCompleted: false,
-          exerciseName: exerciseName,
-          exerciseId: currentExercise?.id || currentExercise?.exerciseId,
-          workout: workout,
-          fromWorkout: fromWorkout
-        } 
-      });
+      const workoutPlanId = workout?.id || params.workoutPlanId;
+      
+      if (fromWorkout && workoutPlanId) {
+        navigate(`/treino/${workoutPlanId}`, { 
+          state: { 
+            exerciseCompleted: false,
+            exerciseName: exerciseName,
+            exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+            workout: workout,
+            fromWorkout: fromWorkout
+          } 
+        });
+      } else {
+        navigate(targetRoute, { 
+          state: { 
+            exerciseCompleted: false,
+            exerciseName: exerciseName,
+            exerciseId: currentExercise?.id || currentExercise?.exerciseId,
+            workout: workout,
+            fromWorkout: fromWorkout
+          } 
+        });
+      }
     } finally {
       setSaving(false);
     }

@@ -11,9 +11,35 @@ const api = axios.create({
   }
 });
 
+// Funções helper para acessar localStorage de forma segura
+const safeGetLocalStorage = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.warn('Erro ao acessar localStorage:', error);
+    return null;
+  }
+};
+
+const safeSetLocalStorage = (key: string, value: string): void => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.warn('Erro ao salvar no localStorage:', error);
+  }
+};
+
+const safeRemoveLocalStorage = (key: string): void => {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.warn('Erro ao remover do localStorage:', error);
+  }
+};
+
 // Interceptor para adicionar token de autenticação
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
+  const token = safeGetLocalStorage('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -183,7 +209,7 @@ export const authApi = {
       ...profileData 
     });
     const { token, user } = response.data.data;
-    localStorage.setItem('auth_token', token);
+    safeSetLocalStorage('auth_token', token);
     return { user, token };
   },
 
@@ -191,7 +217,7 @@ export const authApi = {
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
     const response = await api.post('/users/login', { email, password });
     const { token, user } = response.data.data;
-    localStorage.setItem('auth_token', token);
+    safeSetLocalStorage('auth_token', token);
     return { user, token };
   },
 
@@ -217,12 +243,12 @@ export const authApi = {
 
   // Logout
   logout: () => {
-    localStorage.removeItem('auth_token');
+    safeRemoveLocalStorage('auth_token');
   },
 
   // Verificar se está autenticado
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem('auth_token');
+    return !!safeGetLocalStorage('auth_token');
   }
 };
 
