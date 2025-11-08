@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { NavigationMenuBar } from './NavigationMenuBar';
 import { WorkoutActionBar } from './WorkoutActionBar';
 import { ExerciseCompleteBar } from './ExerciseCompleteBar';
+import { RestTimerBar } from './RestTimerBar';
 import { useWorkoutTimer } from '../../contexts/WorkoutTimerContext';
 
 interface ContextualMenuBarProps {
@@ -27,26 +29,55 @@ export function ContextualMenuBar({
   const location = useLocation();
   const { isRunning, elapsedTime, formatTime } = useWorkoutTimer();
   
-  const workoutTime = formatTime(elapsedTime);
+  const workoutTime = useMemo(() => formatTime(elapsedTime), [formatTime, elapsedTime]);
   
-  // Páginas que não devem mostrar menubar
-  const isWorkoutCompletion = location.pathname === '/workout-completion';
-  const isOnboarding = location.pathname.startsWith('/onboarding');
-  const isAuth = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
-  const isLanding = location.pathname === '/landing';
-  const isSplash = location.pathname === '/';
-  const isWorkoutCreator = location.pathname.startsWith('/workout/create');
+  // Páginas que não devem mostrar menubar (memoizado)
+  const shouldHideMenubar = useMemo(() => {
+    const isWorkoutCompletion = location.pathname === '/workout-completion';
+    const isOnboarding = location.pathname.startsWith('/onboarding');
+    const isAuth = location.pathname.startsWith('/login') || location.pathname.startsWith('/register');
+    const isLanding = location.pathname === '/landing';
+    const isSplash = location.pathname === '/';
+    const isWorkoutCreator = location.pathname.startsWith('/workout/create');
+    
+    return isWorkoutCompletion || isOnboarding || isAuth || isLanding || isSplash || isWorkoutCreator;
+  }, [location.pathname]);
 
-  if (isWorkoutCompletion || isOnboarding || isAuth || isLanding || isSplash || isWorkoutCreator) {
-    return null;
-  }
-
-  // Páginas principais - mostrar NavigationMenuBar
-  const isMainPage = 
+  // Páginas principais - mostrar NavigationMenuBar (memoizado)
+  const isMainPage = useMemo(() => 
     location.pathname === '/home' || 
     location.pathname === '/streak' || 
     location.pathname === '/workout-list' ||
-    location.pathname === '/my-workouts';
+    location.pathname === '/my-workouts',
+    [location.pathname]
+  );
+
+  // Página de treino (TreinoIdPage) - mostrar WorkoutActionBar (memoizado)
+  const isTreinoIdPage = useMemo(() => {
+    return (location.pathname.startsWith('/treino/') && 
+      !location.pathname.includes('/descanso') &&
+      location.pathname.split('/').length === 3) || // /treino/:workoutPlanId
+      location.pathname === '/treino-id';
+  }, [location.pathname]);
+
+  // Página de exercício (ExerciseIdPage) - mostrar ExerciseCompleteBar (memoizado)
+  const isExerciseIdPage = useMemo(() => {
+    return (location.pathname.startsWith('/treino/') && 
+      !location.pathname.includes('/descanso') &&
+      location.pathname.split('/').length === 5) || // /treino/:workoutPlanId/:workoutId/:exerciseId
+      location.pathname === '/exercise-id';
+  }, [location.pathname]);
+
+  // Página de descanso - mostrar apenas timer (memoizado)
+  const isRestPage = useMemo(() => 
+    location.pathname.includes('/descanso') || 
+    location.pathname === '/treino-tempo-descanso',
+    [location.pathname]
+  );
+
+  if (shouldHideMenubar) {
+    return null;
+  }
 
   if (isMainPage) {
     return (
@@ -56,13 +87,7 @@ export function ContextualMenuBar({
     );
   }
 
-  // Página de treino (TreinoIdPage) - mostrar WorkoutActionBar
-  const isTreinoIdPage = 
-    location.pathname.startsWith('/treino/') && 
-    !location.pathname.includes('/descanso') &&
-    location.pathname.split('/').length === 3; // /treino/:workoutPlanId
-
-  if (isTreinoIdPage || location.pathname === '/treino-id') {
+  if (isTreinoIdPage) {
     return (
       <div className="fixed bottom-[20px] left-1/2 -translate-x-1/2 z-50">
         <WorkoutActionBar
@@ -75,13 +100,7 @@ export function ContextualMenuBar({
     );
   }
 
-  // Página de exercício (ExerciseIdPage) - mostrar ExerciseCompleteBar
-  const isExerciseIdPage = 
-    location.pathname.startsWith('/treino/') && 
-    !location.pathname.includes('/descanso') &&
-    location.pathname.split('/').length === 5; // /treino/:workoutPlanId/:workoutId/:exerciseId
-
-  if (isExerciseIdPage || location.pathname === '/exercise-id') {
+  if (isExerciseIdPage) {
     return (
       <div className="fixed bottom-[20px] left-1/2 -translate-x-1/2 z-50">
         <ExerciseCompleteBar
@@ -94,30 +113,8 @@ export function ContextualMenuBar({
     );
   }
 
-  // Página de descanso - mostrar apenas timer
-  const isRestPage = 
-    location.pathname.includes('/descanso') || 
-    location.pathname === '/treino-tempo-descanso';
-
   if (isRestPage) {
-    return (
-      <div className="fixed bottom-[20px] left-1/2 -translate-x-1/2 z-50">
-        <div className="w-[320px] h-[40px] px-[32px] py-[11px] bg-[#222222] rounded-[99px] flex flex-col items-start justify-start gap-[10px]">
-          <div className="w-full flex items-center justify-end">
-            <div className="flex items-center justify-center gap-[10px]">
-              <div className="flex items-end justify-center">
-                <div className="text-[#FDCB1A] text-[14px] font-['Alexandria:Medium',_sans-serif] font-medium">
-                  {workoutTime}
-                </div>
-                <div className="text-center text-[#484848] text-[12px] font-['Alexandria:Regular',_sans-serif] font-normal">
-                  min
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <RestTimerBar workoutTime={workoutTime} />;
   }
 
   // Fallback - mostrar NavigationMenuBar

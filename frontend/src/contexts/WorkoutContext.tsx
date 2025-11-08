@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react';
 
 interface WorkoutContextType {
   workoutName: string;
@@ -13,15 +13,23 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [workoutName, setWorkoutName] = useState('Treino');
   const [onStartWorkout, setOnStartWorkout] = useState<(() => void) | null>(null);
 
+  const handleSetWorkoutName = useCallback((name: string) => {
+    setWorkoutName(name);
+  }, []);
+
+  const handleSetOnStartWorkout = useCallback((callback: (() => void) | null) => {
+    setOnStartWorkout(callback);
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    workoutName,
+    setWorkoutName: handleSetWorkoutName,
+    onStartWorkout,
+    setOnStartWorkout: handleSetOnStartWorkout,
+  }), [workoutName, handleSetWorkoutName, onStartWorkout, handleSetOnStartWorkout]);
+
   return (
-    <WorkoutContext.Provider
-      value={{
-        workoutName,
-        setWorkoutName,
-        onStartWorkout,
-        setOnStartWorkout,
-      }}
-    >
+    <WorkoutContext.Provider value={contextValue}>
       {children}
     </WorkoutContext.Provider>
   );

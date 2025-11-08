@@ -1,11 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ExerciseCard } from './ExerciseCard';
-import svgPaths from "../imports/svg-c71qf4vhvy";
 import { workoutApi, WorkoutPlan } from '../services/api';
 import { getMuscleImage, getUniqueMuscles } from '../utils/muscleMapping';
 import { useWorkoutTimer } from '../contexts/WorkoutTimerContext';
 import { useWorkout } from '../contexts/WorkoutContext';
+import { MuscleGroupCarousel } from './workout/MuscleGroupCarousel';
+import { WorkoutHeader } from './workout/WorkoutHeader';
+import { WorkoutActionButton } from './workout/WorkoutActionButton';
+import { ExercisesList } from './workout/ExercisesList';
 
 interface Exercise {
   id: string;
@@ -25,25 +27,7 @@ interface Exercise {
   restTime?: number;
 }
 
-function MuscleGroup({ label, imageUrl }: { label: string; imageUrl: string }) {
-  return (
-    <div className="bg-[#202020] border border-[#252525] box-border content-stretch flex flex-col gap-[10px] items-center justify-center px-[20px] py-[20px] relative rounded-[20px] shrink-0 w-[120px] h-[120px] min-w-[120px]">
-      <img 
-        src={imageUrl} 
-        alt={label}
-        className="w-[60px] h-[60px] object-contain"
-        onError={(e) => {
-          // Fallback se a imagem não carregar
-          e.currentTarget.style.display = 'none';
-        }}
-      />
-      <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[10px] text-white w-[80px] text-center">{label}</p>
-    </div>
-  );
-}
-
 export function TreinoIdPage() {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const params = useParams<{ workoutPlanId?: string }>();
@@ -61,7 +45,7 @@ export function TreinoIdPage() {
   const [workoutCompleted, setWorkoutCompleted] = useState(false);
   
   // Ajustar padding-top baseado se o treino está ativo
-  const topPadding = isRunning ? 'pt-[120px]' : 'pt-[98px]';
+  const topPadding = useMemo(() => isRunning ? 'pt-[120px]' : 'pt-[98px]', [isRunning]);
 
   // Carregar planos e workout do dia
   useEffect(() => {
@@ -143,7 +127,7 @@ export function TreinoIdPage() {
                 setWorkoutCompleted(false);
               }
               
-              // Extrair músculos únicos trabalhados
+              // Extrair músculos únicos trabalhados (será calculado com useMemo depois)
               const uniqueMuscles = getUniqueMuscles(mappedExercises);
               const musclesWithImages = uniqueMuscles.map(muscle => ({
                 name: muscle,
@@ -255,7 +239,7 @@ export function TreinoIdPage() {
     }
   }, [location.state]);
 
-  const handleStartWorkout = () => {
+  const handleStartWorkout = useCallback(() => {
     // Bloquear se o workout já foi concluído hoje
     if (workoutCompleted) {
       console.log('⚠️ Workout já foi concluído hoje');
@@ -291,7 +275,7 @@ export function TreinoIdPage() {
         });
       }
     }
-  };
+  }, [workoutCompleted, exercises, currentPlan, workoutPlanIdFromUrl, resetTimer, startTimer, navigate]);
   
   // Registrar callback e nome do workout no contexto
   useEffect(() => {
@@ -299,7 +283,7 @@ export function TreinoIdPage() {
     return () => setOnStartWorkout(null);
   }, [setOnStartWorkout, exercises.length, workoutCompleted, currentPlan, workoutPlanIdFromUrl]);
 
-  const handleExerciseClick = (exercise: Exercise) => {
+  const handleExerciseClick = useCallback((exercise: Exercise) => {
     const exerciseIndex = exercises.findIndex(ex => ex.id === exercise.id);
     const workoutPlanId = currentPlan?.id || workoutPlanIdFromUrl;
     const workoutId = currentPlan?.workouts?.[0]?.id;
@@ -325,7 +309,7 @@ export function TreinoIdPage() {
         }
       });
     }
-  };
+  }, [exercises, currentPlan, workoutPlanIdFromUrl, navigate]);
 
   if (loading) {
     return (
@@ -374,80 +358,18 @@ export function TreinoIdPage() {
       {/* Container com scroll */}
       <div className={`flex-1 overflow-y-auto overflow-x-hidden px-5 ${topPadding} pb-5`}>
         <div className="flex flex-col gap-[18px] max-w-[393px] mx-auto">
-          {/* Header */}
-          <div className="content-stretch flex font-['Alexandria:Regular',_sans-serif] font-normal items-center justify-between leading-[normal] relative shrink-0 text-[20px] text-nowrap w-full whitespace-pre">
-            <p className="relative shrink-0 text-white">Hoje</p>
-            <p className="relative shrink-0 text-[#2c2c2c]">{workoutName}</p>
-          </div>
+          <WorkoutHeader workoutName={workoutName} />
           
-          {/* Muscle Groups Carousel */}
-          <div className="relative w-full">
-            <div 
-              ref={scrollRef}
-              className="content-stretch flex gap-[8px] items-center relative shrink-0 w-full overflow-x-auto scrollbar-hide touch-pan-x"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {musclesWorked.length > 0 ? (
-                musclesWorked.map((muscle, index) => (
-                  <MuscleGroup 
-                    key={index} 
-                    label={muscle.name} 
-                    imageUrl={muscle.imageUrl}
-                  />
-                ))
-              ) : (
-                <p className="text-[#2c2c2c] text-[14px] font-['Alexandria:Regular',_sans-serif]">
-                  Nenhum músculo identificado
-                </p>
-              )}
-            </div>
-          </div>
+          <MuscleGroupCarousel muscles={musclesWorked} />
 
-          {/* Exercises List */}
-          <div className="content-stretch flex flex-col gap-[10px] items-start relative shrink-0 w-full">
-            {exercises.map((exercise, index) => (
-              <ExerciseCard 
-                key={exercise.id}
-                name={exercise.name}
-                sets={exercise.sets}
-                completed={exercise.completed}
-                improvement={exercise.improvement}
-                onExerciseClick={() => handleExerciseClick(exercise)}
-                defaultExpanded={index === 0}
-              />
-            ))}
-          </div>
+          <ExercisesList exercises={exercises} onExerciseClick={handleExerciseClick} />
         </div>
       </div>
 
-      {/* Botão fixo na parte inferior */}
-      <div className="flex-shrink-0 px-5 py-4 bg-[#181818]">
-        {workoutCompleted ? (
-          <div className="bg-[#6D9F28] box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto">
-            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-white text-[16px] text-nowrap whitespace-pre">Treino Concluído Hoje</p>
-          </div>
-        ) : (
-          <button
-            onClick={handleStartWorkout}
-            className="bg-white hover:bg-gray-100 transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto"
-          >
-            <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
-              <div className="h-[18px] relative shrink-0 w-[15px]" data-name="Vector">
-                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15 18">
-                  <path d={svgPaths.p26ee6680} fill="var(--fill-0, #202020)" id="Vector" />
-                </svg>
-              </div>
-              <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[#202020] text-[16px] text-nowrap whitespace-pre">iniciar treino</p>
-            </div>
-          </button>
-        )}
-      </div>
-
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+      <WorkoutActionButton 
+        workoutCompleted={workoutCompleted} 
+        onStartWorkout={handleStartWorkout} 
+      />
     </div>
   );
 }

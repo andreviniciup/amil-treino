@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, memo, useCallback } from 'react';
 import { Minus, Plus, Check, Clock, Play } from 'lucide-react';
 
 interface SeriesCardProps {
@@ -21,7 +21,7 @@ interface SeriesCardProps {
   onComplete?: (reps: number, weight: number) => void;
 }
 
-export function SeriesCard({
+export const SeriesCard = memo(function SeriesCard({
   seriesNumber,
   repetitions,
   weight,
@@ -170,7 +170,7 @@ export function SeriesCard({
     }
   }, [isExpanded, activeField, currentReps, initialReps, status]);
 
-  const handleOpenField = (field: 'reps' | 'weight' | 'rest') => {
+  const handleOpenField = useCallback((field: 'reps' | 'weight' | 'rest') => {
     // Não permitir abrir campos de séries completadas
     if (status === "completed") {
       return;
@@ -187,55 +187,55 @@ export function SeriesCard({
       setCurrentRestTime(initialRestTime);
     }
     onToggleExpand?.();
-  };
+  }, [status, currentReps, initialReps, currentWeight, initialWeight, currentRestTime, initialRestTime, onToggleExpand]);
 
-  const updateReps = (newMax: number) => {
+  const updateReps = useCallback((newMax: number) => {
     const clamped = Math.max(repsMin, newMax);
     setCurrentReps(clamped);
     setFinalReps(clamped);
     onRepetitionsChange?.(clamped.toString());
     onRepsChange?.(repsMin, clamped);
-  };
+  }, [repsMin, onRepetitionsChange, onRepsChange]);
 
-  const handleRepsIncrease = () => {
+  const handleRepsIncrease = useCallback(() => {
     updateReps(currentReps + 1);
-  };
+  }, [currentReps, updateReps]);
 
-  const handleRepsDecrease = () => {
+  const handleRepsDecrease = useCallback(() => {
     updateReps(currentReps - 1);
-  };
+  }, [currentReps, updateReps]);
 
-  const handleWeightIncrease = () => {
+  const handleWeightIncrease = useCallback(() => {
     const newWeight = currentWeight + 1;
     setCurrentWeight(newWeight);
     setFinalWeight(newWeight);
     onWeightChange?.(newWeight.toString());
     onWeightChangeNumber?.(newWeight);
-  };
+  }, [currentWeight, onWeightChange, onWeightChangeNumber]);
 
-  const handleWeightDecrease = () => {
+  const handleWeightDecrease = useCallback(() => {
     const newWeight = Math.max(0, currentWeight - 1);
     setCurrentWeight(newWeight);
     setFinalWeight(newWeight);
     onWeightChange?.(newWeight.toString());
     onWeightChangeNumber?.(newWeight);
-  };
+  }, [currentWeight, onWeightChange, onWeightChangeNumber]);
 
-  const handleRestTimeIncrease = () => {
+  const handleRestTimeIncrease = useCallback(() => {
     const newTime = currentRestTime + 5;
     setCurrentRestTime(newTime);
     onRestTimeChange?.(newTime.toString());
     onRestTimeChangeNumber?.(newTime);
-  };
+  }, [currentRestTime, onRestTimeChange, onRestTimeChangeNumber]);
 
-  const handleRestTimeDecrease = () => {
+  const handleRestTimeDecrease = useCallback(() => {
     const newTime = Math.max(0, currentRestTime - 5);
     setCurrentRestTime(newTime);
     onRestTimeChange?.(newTime.toString());
     onRestTimeChangeNumber?.(newTime);
-  };
+  }, [currentRestTime, onRestTimeChange, onRestTimeChangeNumber]);
 
-  const handleStartRestClick = () => {
+  const handleStartRestClick = useCallback(() => {
     // Não permitir iniciar timer para séries completadas
     if (status === "completed") {
       return;
@@ -244,7 +244,7 @@ export function SeriesCard({
     setFinalReps(currentReps);
     setFinalWeight(currentWeight);
     onStartRest?.(currentReps, currentWeight, currentRestTime);
-  };
+  }, [status, currentReps, currentWeight, currentRestTime, onStartRest]);
 
   useEffect(() => {
     if (status === "completed") {
@@ -279,7 +279,7 @@ export function SeriesCard({
     );
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     // Garantir que os valores finais estão salvos antes de fechar
     setFinalReps(currentReps);
     setFinalWeight(currentWeight);
@@ -294,7 +294,7 @@ export function SeriesCard({
     onRestTimeChangeNumber?.(currentRestTime);
     
     onToggleExpand?.();
-  };
+  }, [currentReps, currentWeight, currentRestTime, repsMin, onRepetitionsChange, onWeightChange, onRestTimeChange, onRepsChange, onWeightChangeNumber, onRestTimeChangeNumber, onToggleExpand]);
 
   if (status === "active" && isExpanded) {
     const decreaseHandler = activeField === 'reps' ? handleRepsDecrease : activeField === 'weight' ? handleWeightDecrease : handleRestTimeDecrease;
@@ -417,4 +417,16 @@ export function SeriesCard({
       </div>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Comparação customizada para otimizar re-renderizações
+  return (
+    prevProps.seriesNumber === nextProps.seriesNumber &&
+    prevProps.repetitions === nextProps.repetitions &&
+    prevProps.weight === nextProps.weight &&
+    prevProps.restTime === nextProps.restTime &&
+    prevProps.status === nextProps.status &&
+    prevProps.isExpanded === nextProps.isExpanded &&
+    prevProps.repsMin === nextProps.repsMin &&
+    prevProps.repsMax === nextProps.repsMax
+  );
+});

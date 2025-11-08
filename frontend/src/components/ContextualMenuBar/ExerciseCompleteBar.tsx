@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo, useCallback } from 'react';
 import svgPaths from '../../imports/svg-9cga2voabl';
 
 interface ExerciseCompleteBarProps {
@@ -8,7 +8,7 @@ interface ExerciseCompleteBarProps {
   onComplete: () => void;
 }
 
-export function ExerciseCompleteBar({ 
+export const ExerciseCompleteBar = memo(function ExerciseCompleteBar({ 
   workoutTime = '00:00',
   allSeriesCompleted,
   exerciseCompleted,
@@ -175,5 +175,5 @@ export function ExerciseCompleteBar({
       </div>
     </div>
   );
-}
+});
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react';
 
 interface WorkoutTimerContextType {
   isRunning: boolean;
@@ -30,24 +30,24 @@ export function WorkoutTimerProvider({ children }: { children: ReactNode }) {
     };
   }, [isRunning]);
 
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     setIsRunning(true);
-  };
+  }, []);
 
-  const pauseTimer = () => {
+  const pauseTimer = useCallback(() => {
     setIsRunning(false);
-  };
+  }, []);
 
-  const stopTimer = () => {
+  const stopTimer = useCallback(() => {
     setIsRunning(false);
-  };
+  }, []);
 
-  const resetTimer = () => {
+  const resetTimer = useCallback(() => {
     setIsRunning(false);
     setElapsedTime(0);
-  };
+  }, []);
 
-  const formatTime = (seconds: number): string => {
+  const formatTime = useCallback((seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -56,20 +56,20 @@ export function WorkoutTimerProvider({ children }: { children: ReactNode }) {
       return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    isRunning,
+    elapsedTime,
+    startTimer,
+    pauseTimer,
+    stopTimer,
+    resetTimer,
+    formatTime,
+  }), [isRunning, elapsedTime, startTimer, pauseTimer, stopTimer, resetTimer, formatTime]);
 
   return (
-    <WorkoutTimerContext.Provider
-      value={{
-        isRunning,
-        elapsedTime,
-        startTimer,
-        pauseTimer,
-        stopTimer,
-        resetTimer,
-        formatTime,
-      }}
-    >
+    <WorkoutTimerContext.Provider value={contextValue}>
       {children}
     </WorkoutTimerContext.Provider>
   );

@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import { Play } from 'lucide-react';
 
 interface WorkoutActionBarProps {
@@ -7,18 +8,23 @@ interface WorkoutActionBarProps {
   onStartWorkout?: () => void;
 }
 
-export function WorkoutActionBar({ 
+export const WorkoutActionBar = memo(function WorkoutActionBar({ 
   workoutName = 'Treino',
   workoutTime = '00:00',
   isWorkoutActive,
   onStartWorkout
 }: WorkoutActionBarProps) {
+  const handleStart = useCallback(() => {
+    if (onStartWorkout) {
+      onStartWorkout();
+    }
+  }, [onStartWorkout]);
   // Se o treino não foi iniciado, mostrar botão "iniciar treino"
   if (!isWorkoutActive) {
     return (
       <div 
         className="w-[320px] h-[40px] px-[88px] py-[10px] bg-[#222222] rounded-[99px] flex flex-col items-center justify-center gap-[10px] cursor-pointer hover:bg-[#2a2a2a] transition-colors"
-        onClick={onStartWorkout}
+        onClick={handleStart}
       >
         <div className="flex items-center gap-[20px]">
           <div className="w-[15px] h-[18px] bg-white" />
@@ -52,5 +58,5 @@ export function WorkoutActionBar({
       </div>
     </div>
   );
-}
+});
 

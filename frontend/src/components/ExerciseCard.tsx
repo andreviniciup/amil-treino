@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { Check } from 'lucide-react';
 import svgPaths from "../imports/svg-c71qf4vhvy";
 
@@ -18,7 +18,7 @@ interface ExerciseCardProps {
   defaultExpanded?: boolean;
 }
 
-export function ExerciseCard({ 
+export const ExerciseCard = memo(function ExerciseCard({ 
   name, 
   sets, 
   completed = false,
@@ -30,14 +30,17 @@ export function ExerciseCard({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   // Gera séries dinamicamente baseado no número de sets
-  const displaySeries = series || Array.from({ length: sets }, () => ({
-    reps: '6 a 8 repetições',
-    weight: '12kg'
-  }));
+  const displaySeries = useMemo(() => 
+    series || Array.from({ length: sets }, () => ({
+      reps: '6 a 8 repetições',
+      weight: '12kg'
+    })),
+    [series, sets]
+  );
 
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const handleToggle = useCallback(() => {
+    setIsExpanded(prev => !prev);
+  }, []);
 
   // Se está concluído, renderizar visual simplificado (não expansível)
   if (completed) {
@@ -128,4 +131,14 @@ export function ExerciseCard({
       )}
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Comparação customizada para otimizar re-renderizações
+  return (
+    prevProps.name === nextProps.name &&
+    prevProps.sets === nextProps.sets &&
+    prevProps.completed === nextProps.completed &&
+    JSON.stringify(prevProps.improvement) === JSON.stringify(nextProps.improvement) &&
+    JSON.stringify(prevProps.series) === JSON.stringify(nextProps.series) &&
+    prevProps.defaultExpanded === nextProps.defaultExpanded
+  );
+});
