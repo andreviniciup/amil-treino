@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 interface ExerciseContextType {
   allSeriesCompleted: boolean;
@@ -16,17 +16,18 @@ export function ExerciseProvider({ children }: { children: ReactNode }) {
   const [exerciseCompleted, setExerciseCompleted] = useState(false);
   const [onCompleteExercise, setOnCompleteExercise] = useState<(() => void) | null>(null);
 
+  // Memoizar o valor do contexto para evitar recriações desnecessárias
+  const contextValue = useMemo(() => ({
+    allSeriesCompleted,
+    exerciseCompleted,
+    setAllSeriesCompleted,
+    setExerciseCompleted,
+    onCompleteExercise,
+    setOnCompleteExercise,
+  }), [allSeriesCompleted, exerciseCompleted, onCompleteExercise]);
+
   return (
-    <ExerciseContext.Provider
-      value={{
-        allSeriesCompleted,
-        exerciseCompleted,
-        setAllSeriesCompleted,
-        setExerciseCompleted,
-        onCompleteExercise,
-        setOnCompleteExercise,
-      }}
-    >
+    <ExerciseContext.Provider value={contextValue}>
       {children}
     </ExerciseContext.Provider>
   );
