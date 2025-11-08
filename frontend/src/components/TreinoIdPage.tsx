@@ -429,7 +429,7 @@ export function TreinoIdPage() {
         ) : (
           <button
             onClick={handleStartWorkout}
-            className="bg-[#d9d9d9] hover:bg-[#e9e9e9] transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto"
+            className="bg-white hover:bg-gray-100 transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto"
           >
             <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
               <div className="h-[18px] relative shrink-0 w-[15px]" data-name="Vector">

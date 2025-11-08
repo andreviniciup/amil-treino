@@ -42,10 +42,10 @@ export function ExerciseCard({
   // Se está concluído, renderizar visual simplificado (não expansível)
   if (completed) {
     return (
-      <div className="bg-[#202020] border border-[#252525] relative rounded-[35px] w-full overflow-hidden">
-        <div className="h-[50px] relative rounded-[35px] w-full px-[13px] py-[15px] flex items-center justify-between gap-[104px]">
+      <div className="bg-[#202020] border border-[#252525] relative rounded-[35px] w-full overflow-hidden min-h-[60px]">
+        <div className="h-[60px] relative rounded-[35px] w-full px-[13px] py-[15px] flex items-center justify-between gap-[104px]">
           <div className="flex items-center gap-[20px]">
-            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[14px] text-white">{name}</p>
+            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] text-[16px] text-white">{name}</p>
             {improvement && (
               <div className="flex items-center gap-[5px]">
                 <div className="relative shrink-0 size-[20px]" data-name="Subtract">
@@ -57,8 +57,8 @@ export function ExerciseCard({
               </div>
             )}
           </div>
-          <div className="w-5 h-5 bg-[#6D9F28] rounded-full flex items-center justify-center">
-            <Check className="w-3 h-3 text-white" />
+          <div className="w-6 h-6 bg-[#6D9F28] rounded-full flex items-center justify-center">
+            <Check className="w-4 h-4 text-white" />
           </div>
         </div>
       </div>
@@ -66,19 +66,19 @@ export function ExerciseCard({
   }
 
   return (
-    <div className="bg-[#202020] border border-[#252525] relative rounded-[35px] w-full overflow-hidden">
+    <div className="bg-[#202020] border border-[#252525] relative rounded-[35px] w-full overflow-hidden min-h-[60px]">
       {/* Header clickable */}
       <button
         onClick={handleToggle}
-        className="h-[50px] relative rounded-[35px] w-full hover:bg-[#252525] transition-colors"
+        className="h-[60px] relative rounded-[35px] w-full hover:bg-[#252525] transition-colors"
       >
         <div className="flex flex-row items-center size-full px-[13px]">
           <div className="flex items-center justify-between w-full">
             <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
-              <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[14px] text-nowrap text-white whitespace-pre">{name}</p>
+              <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[16px] text-nowrap text-white whitespace-pre">{name}</p>
             </div>
             <div className="flex items-center gap-[10px]">
-              <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[#484848] text-[14px] text-nowrap whitespace-pre">{sets} series</p>
+              <p className="font-['Alexandria:Regular',_sans-serif] font-normal leading-[normal] relative shrink-0 text-[#484848] text-[15px] text-nowrap whitespace-pre">{sets} series</p>
             </div>
           </div>
         </div>
