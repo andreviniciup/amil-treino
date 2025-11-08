@@ -57,6 +57,7 @@ export function TreinoIdPage() {
   const [currentPlan, setCurrentPlan] = useState<WorkoutPlan | null>(null);
   const [workoutName, setWorkoutName] = useState<string>('Treino');
   const [musclesWorked, setMusclesWorked] = useState<Array<{ name: string; imageUrl: string }>>([]);
+  const [workoutCompleted, setWorkoutCompleted] = useState(false);
   
   // Ajustar padding-top baseado se o treino está ativo
   const topPadding = isRunning ? 'pt-[120px]' : 'pt-[98px]';
@@ -110,7 +111,35 @@ export function TreinoIdPage() {
               }));
               
               console.log('Mapped exercises:', mappedExercises);
-              setExercises(mappedExercises);
+              
+              // Verificar estado de conclusão dos exercícios hoje
+              try {
+                const workoutDayId = workout.id;
+                console.log('🔍 Verificando estado de conclusão do workout:', workoutDayId);
+                const status = await workoutApi.getWorkoutExercisesStatus(workoutDayId);
+                console.log('✅ Estado de conclusão:', status);
+                
+                // Verificar se o workout inteiro foi concluído
+                setWorkoutCompleted(status.workoutCompleted);
+                
+                // Atualizar exercícios com estado de conclusão
+                const exercisesWithStatus = mappedExercises.map(ex => {
+                  const exerciseId = ex.id;
+                  const isCompleted = status.exercises[exerciseId] === true;
+                  console.log(`📋 Exercício ${ex.name} (${exerciseId}): ${isCompleted ? 'CONCLUÍDO' : 'PENDENTE'}`);
+                  return {
+                    ...ex,
+                    completed: isCompleted
+                  };
+                });
+                
+                setExercises(exercisesWithStatus);
+              } catch (statusErr) {
+                console.error('Erro ao verificar estado de conclusão:', statusErr);
+                // Se der erro, usar exercícios sem status
+                setExercises(mappedExercises);
+                setWorkoutCompleted(false);
+              }
               
               // Extrair músculos únicos trabalhados
               const uniqueMuscles = getUniqueMuscles(mappedExercises);
@@ -162,7 +191,30 @@ export function TreinoIdPage() {
               restTime: ex.restTime
             }));
             
-            setExercises(mappedExercises);
+            // Verificar estado de conclusão dos exercícios hoje
+            try {
+              const workoutDayId = workout.id;
+              const status = await workoutApi.getWorkoutExercisesStatus(workoutDayId);
+              
+              // Verificar se o workout inteiro foi concluído
+              setWorkoutCompleted(status.workoutCompleted);
+              
+              // Atualizar exercícios com estado de conclusão
+              const exercisesWithStatus = mappedExercises.map(ex => {
+                const exerciseId = ex.id;
+                const isCompleted = status.exercises[exerciseId] === true;
+                return {
+                  ...ex,
+                  completed: isCompleted
+                };
+              });
+              
+              setExercises(exercisesWithStatus);
+            } catch (statusErr) {
+              console.error('Erro ao verificar estado de conclusão:', statusErr);
+              setExercises(mappedExercises);
+              setWorkoutCompleted(false);
+            }
             
             // Extrair músculos únicos trabalhados
             const uniqueMuscles = getUniqueMuscles(mappedExercises);
@@ -202,6 +254,12 @@ export function TreinoIdPage() {
   }, [location.state]);
 
   const handleStartWorkout = () => {
+    // Bloquear se o workout já foi concluído hoje
+    if (workoutCompleted) {
+      console.log('⚠️ Workout já foi concluído hoje');
+      return;
+    }
+    
     if (exercises.length > 0) {
       // Resetar e iniciar o timer
       resetTimer();
@@ -356,19 +414,25 @@ export function TreinoIdPage() {
 
       {/* Botão fixo na parte inferior */}
       <div className="flex-shrink-0 px-5 py-4 bg-[#181818]">
-        <button
-          onClick={handleStartWorkout}
-          className="bg-[#d9d9d9] hover:bg-[#e9e9e9] transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto"
-        >
-          <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
-            <div className="h-[18px] relative shrink-0 w-[15px]" data-name="Vector">
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15 18">
-                <path d={svgPaths.p26ee6680} fill="var(--fill-0, #202020)" id="Vector" />
-              </svg>
-            </div>
-            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[#202020] text-[16px] text-nowrap whitespace-pre">iniciar treino</p>
+        {workoutCompleted ? (
+          <div className="bg-[#6D9F28] box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto">
+            <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-white text-[16px] text-nowrap whitespace-pre">Treino Concluído Hoje</p>
           </div>
-        </button>
+        ) : (
+          <button
+            onClick={handleStartWorkout}
+            className="bg-[#d9d9d9] hover:bg-[#e9e9e9] transition-colors box-border content-stretch flex flex-col gap-[10px] h-[50px] items-center justify-center px-[106px] py-[14px] relative rounded-[999px] shrink-0 w-full max-w-[393px] mx-auto"
+          >
+            <div className="content-stretch flex gap-[20px] items-center relative shrink-0">
+              <div className="h-[18px] relative shrink-0 w-[15px]" data-name="Vector">
+                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 15 18">
+                  <path d={svgPaths.p26ee6680} fill="var(--fill-0, #202020)" id="Vector" />
+                </svg>
+              </div>
+              <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[#202020] text-[16px] text-nowrap whitespace-pre">iniciar treino</p>
+            </div>
+          </button>
+        )}
       </div>
 
       <style>{`

@@ -137,6 +137,60 @@ export function ExerciseIdPage() {
   const [lastReps, setLastReps] = useState(0);
   const [currentWeight, setCurrentWeight] = useState(12);
   const [currentReps, setCurrentReps] = useState(8);
+  const [exerciseCompleted, setExerciseCompleted] = useState(false);
+
+  // Verificar se o exercício já foi concluído hoje
+  useEffect(() => {
+    const checkExerciseCompletion = async () => {
+      if (!workout || !currentExercise) return;
+      
+      try {
+        const workoutDayId = workout.workouts?.[0]?.id;
+        const exerciseId = currentExercise.exerciseId || currentExercise.id;
+        
+        if (workoutDayId && exerciseId) {
+          console.log('🔍 Verificando se exercício foi concluído hoje:', { workoutDayId, exerciseId });
+          const status = await workoutApi.checkExerciseCompletedToday(workoutDayId, exerciseId);
+          console.log('✅ Status de conclusão do exercício:', status);
+          
+          if (status.completed && status.workoutLog) {
+            setExerciseCompleted(true);
+            
+            // Carregar séries completadas do log
+            const exerciseLog = status.workoutLog.exercises.find(
+              (ex: any) => ex.exerciseId === exerciseId && ex.completed === true
+            );
+            
+            if (exerciseLog) {
+              const repsArray = JSON.parse(exerciseLog.reps || '[]');
+              const weightsArray = JSON.parse(exerciseLog.weights || '[]');
+              
+              // Atualizar séries com dados do log
+              setSeries(prevSeries => {
+                return prevSeries.map((serie, index) => {
+                  if (index < repsArray.length && index < weightsArray.length) {
+                    return {
+                      ...serie,
+                      status: "completed",
+                      repetitions: repsArray[index].toString(),
+                      weight: weightsArray[index].toString(),
+                      actualReps: repsArray[index],
+                      actualWeight: weightsArray[index]
+                    };
+                  }
+                  return serie;
+                });
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar conclusão do exercício:', error);
+      }
+    };
+    
+    checkExerciseCompletion();
+  }, [workout, currentExercise]);
 
   // Carregar histórico do exercício
   useEffect(() => {
@@ -344,6 +398,12 @@ export function ExerciseIdPage() {
   };
 
   const handleCompleteExercise = async () => {
+    // Bloquear se o exercício já foi concluído hoje
+    if (exerciseCompleted) {
+      console.log('⚠️ Exercício já foi concluído hoje');
+      return;
+    }
+    
     try {
       setSaving(true);
       
@@ -576,54 +636,54 @@ export function ExerciseIdPage() {
                 status={serie.status}
               isExpanded={expandedSeriesIndex === index && serie.status !== "completed"}
               onToggleExpand={() => {
-                // Não permitir expandir séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir expandir séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   setExpandedSeriesIndex(expandedSeriesIndex === index ? null : index);
                 }
               }}
               onStartRest={(reps, weight, restTime) => {
-                // Não permitir iniciar timer para séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir iniciar timer para séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   handleStartRest(index, reps, weight, restTime);
                 }
               }}
               onRepetitionsChange={(value) => {
-                // Não permitir alterar valores de séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   handleRepetitionsChange(index, value);
                 }
               }}
               onWeightChange={(value) => {
-                // Não permitir alterar valores de séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   handleWeightChange(index, value);
                 }
               }}
               onRestTimeChange={(value) => {
-                // Não permitir alterar valores de séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   handleRestTimeChange(index, value);
                 }
               }}
               onWeightChangeNumber={(value) => {
-                // Não permitir alterar valores de séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   const newSeries = [...series];
                   newSeries[index].actualWeight = value;
                   setSeries(newSeries);
                 }
               }}
               onRestTimeChangeNumber={(value) => {
-                // Não permitir alterar valores de séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   const newSeries = [...series];
                   newSeries[index].actualRestTime = value;
                   setSeries(newSeries);
                 }
               }}
               onRepsChange={(min, max) => {
-                // Não permitir alterar valores de séries completadas
-                if (serie.status !== "completed") {
+                // Não permitir alterar valores de séries completadas ou se o exercício foi concluído
+                if (serie.status !== "completed" && !exerciseCompleted) {
                   const newSeries = [...series];
                   newSeries[index].actualReps = max;
                   setSeries(newSeries);
@@ -634,8 +694,8 @@ export function ExerciseIdPage() {
           })}
         </div>
 
-        {/* Slide to Complete - Só aparece quando todas as séries estiverem completas */}
-        {allSeriesCompleted && (
+        {/* Slide to Complete - Só aparece quando todas as séries estiverem completas e o exercício não foi concluído */}
+        {allSeriesCompleted && !exerciseCompleted && (
           <div className="w-full mt-[15px]">
             {saving ? (
               <div className="w-full bg-[#202020] rounded-full p-4 flex items-center justify-center">
@@ -644,6 +704,13 @@ export function ExerciseIdPage() {
             ) : (
               <SlideToComplete onComplete={handleCompleteExercise} />
             )}
+          </div>
+        )}
+        
+        {/* Mensagem se o exercício já foi concluído */}
+        {exerciseCompleted && (
+          <div className="w-full mt-[15px] bg-[#6D9F28] rounded-full p-4 flex items-center justify-center">
+            <p className="text-white font-['Alexandria:Medium',_sans-serif]">Exercício Concluído Hoje</p>
           </div>
         )}
       </div>

@@ -264,6 +264,177 @@ export class LogController {
       });
     }
   }
+
+  // Verificar se um workout foi concluído hoje
+  async checkWorkoutCompletedToday(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Not authenticated'
+        });
+      }
+
+      const { workoutId } = req.params;
+
+      // Obter início e fim do dia atual (UTC)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const log = await prisma.workoutLog.findFirst({
+        where: {
+          userId: req.user.userId,
+          workoutId: workoutId,
+          completedAt: {
+            gte: today,
+            lt: tomorrow
+          }
+        },
+        include: {
+          exercises: true
+        }
+      });
+
+      res.json({
+        success: true,
+        completed: !!log,
+        log: log || null
+      });
+    } catch (error) {
+      console.error('Error in checkWorkoutCompletedToday:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to check workout completion'
+      });
+    }
+  }
+
+  // Verificar se um exercício foi concluído hoje em um workout específico
+  async checkExerciseCompletedToday(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Not authenticated'
+        });
+      }
+
+      const { workoutId, exerciseId } = req.params;
+
+      // Obter início e fim do dia atual (UTC)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      // Buscar workout log do dia
+      const workoutLog = await prisma.workoutLog.findFirst({
+        where: {
+          userId: req.user.userId,
+          workoutId: workoutId,
+          completedAt: {
+            gte: today,
+            lt: tomorrow
+          }
+        },
+        include: {
+          exercises: true
+        }
+      });
+
+      if (!workoutLog) {
+        return res.json({
+          success: true,
+          completed: false,
+          log: null
+        });
+      }
+
+      // Verificar se o exercício está nos logs
+      const exerciseLog = workoutLog.exercises.find(
+        ex => ex.exerciseId === exerciseId && ex.completed === true
+      );
+
+      res.json({
+        success: true,
+        completed: !!exerciseLog,
+        log: exerciseLog || null,
+        workoutLog: workoutLog
+      });
+    } catch (error) {
+      console.error('Error in checkExerciseCompletedToday:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to check exercise completion'
+      });
+    }
+  }
+
+  // Obter estado de conclusão de todos os exercícios de um workout hoje
+  async getWorkoutExercisesStatus(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'Not authenticated'
+        });
+      }
+
+      const { workoutId } = req.params;
+
+      // Obter início e fim do dia atual (UTC)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      // Buscar workout log do dia
+      const workoutLog = await prisma.workoutLog.findFirst({
+        where: {
+          userId: req.user.userId,
+          workoutId: workoutId,
+          completedAt: {
+            gte: today,
+            lt: tomorrow
+          }
+        },
+        include: {
+          exercises: true
+        }
+      });
+
+      if (!workoutLog) {
+        return res.json({
+          success: true,
+          workoutCompleted: false,
+          exercises: {}
+        });
+      }
+
+      // Criar mapa de exercícios concluídos
+      const exercisesMap: { [key: string]: boolean } = {};
+      workoutLog.exercises.forEach(ex => {
+        if (ex.completed) {
+          exercisesMap[ex.exerciseId] = true;
+        }
+      });
+
+      res.json({
+        success: true,
+        workoutCompleted: true,
+        exercises: exercisesMap,
+        workoutLog: workoutLog
+      });
+    } catch (error) {
+      console.error('Error in getWorkoutExercisesStatus:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to get workout exercises status'
+      });
+    }
+  }
 }
 
 export default new LogController();

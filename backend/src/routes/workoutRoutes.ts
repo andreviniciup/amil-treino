@@ -20,6 +20,11 @@ router.post('/logs', logController.createWorkoutLog.bind(logController));
 router.get('/logs', logController.getUserLogs.bind(logController));
 router.get('/logs/:id', logController.getLogById.bind(logController));
 
+// Check completion status
+router.get('/logs/check-workout/:workoutId', logController.checkWorkoutCompletedToday.bind(logController));
+router.get('/logs/check-exercise/:workoutId/:exerciseId', logController.checkExerciseCompletedToday.bind(logController));
+router.get('/logs/workout-status/:workoutId', logController.getWorkoutExercisesStatus.bind(logController));
+
 // Stats
 router.get('/stats', logController.getStats.bind(logController));
 

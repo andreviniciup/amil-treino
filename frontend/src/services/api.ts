@@ -289,6 +289,35 @@ export const workoutApi = {
   }> => {
     const response = await api.get('/workouts/stats');
     return response.data.data;
+  },
+
+  // Verificar se workout foi concluído hoje
+  checkWorkoutCompletedToday: async (workoutId: string): Promise<{
+    completed: boolean;
+    log: any | null;
+  }> => {
+    const response = await api.get(`/workouts/logs/check-workout/${workoutId}`);
+    return response.data;
+  },
+
+  // Verificar se exercício foi concluído hoje
+  checkExerciseCompletedToday: async (workoutId: string, exerciseId: string): Promise<{
+    completed: boolean;
+    log: any | null;
+    workoutLog: any | null;
+  }> => {
+    const response = await api.get(`/workouts/logs/check-exercise/${workoutId}/${exerciseId}`);
+    return response.data;
+  },
+
+  // Obter estado de conclusão de todos os exercícios de um workout hoje
+  getWorkoutExercisesStatus: async (workoutId: string): Promise<{
+    workoutCompleted: boolean;
+    exercises: { [key: string]: boolean };
+    workoutLog: any | null;
+  }> => {
+    const response = await api.get(`/workouts/logs/workout-status/${workoutId}`);
+    return response.data;
   }
 };
 
