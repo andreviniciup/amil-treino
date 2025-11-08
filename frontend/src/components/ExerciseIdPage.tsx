@@ -175,6 +175,7 @@ export function ExerciseIdPage() {
   // Flag para evitar múltiplas chamadas simultâneas
   const checkingCompletionRef = useRef(false);
   const loadingHistoryRef = useRef(false);
+  const completingExerciseRef = useRef(false);
 
   // Verificar se o exercício já foi concluído hoje
   useEffect(() => {
@@ -515,7 +516,14 @@ export function ExerciseIdPage() {
       return;
     }
     
+    // Evitar múltiplas chamadas simultâneas
+    if (completingExerciseRef.current) {
+      console.log('⏭️ Conclusão de exercício já em andamento, pulando...');
+      return;
+    }
+    
     try {
+      completingExerciseRef.current = true;
       setSaving(true);
       
       // Verificar se é o último exercício do treino
