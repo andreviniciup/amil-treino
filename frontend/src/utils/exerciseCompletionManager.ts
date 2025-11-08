@@ -72,3 +72,5 @@ class ExerciseCompletionManager {
 // Instância singleton
 export const exerciseCompletionManager = new ExerciseCompletionManager();
 
+
+
