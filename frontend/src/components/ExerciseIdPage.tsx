@@ -509,7 +509,7 @@ export function ExerciseIdPage() {
     });
   };
 
-  const handleCompleteExercise = async () => {
+  const handleCompleteExercise = useCallback(async () => {
     // Bloquear se o exercício já foi concluído hoje
     if (exerciseCompleted) {
       console.log('⚠️ Exercício já foi concluído hoje');
@@ -699,7 +699,7 @@ export function ExerciseIdPage() {
       completingExerciseRef.current = false;
       setSaving(false);
     }
-  };
+  }, [exerciseCompleted, fromWorkout, workout, currentExerciseIndex, navigate, elapsedTime, series, params.workoutPlanId, exerciseName, currentExercise?.id, currentExercise?.exerciseId, stopTimer]);
 
   const allSeriesCompleted = series.every((s) => s.status === "completed");
   
