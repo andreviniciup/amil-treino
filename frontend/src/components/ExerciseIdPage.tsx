@@ -182,6 +182,7 @@ export function ExerciseIdPage() {
   const completingExerciseRef = useRef(false);
   const callbackRegisteredRef = useRef(false);
   const callbackExecutedRef = useRef(false);
+  const lastExecutionTimeRef = useRef(0); // Timestamp da última execução
   
   // Refs para estabilizar dependências do useEffect que registra callback
   const workoutIdRef = useRef<string | undefined>(undefined);
@@ -584,17 +585,28 @@ export function ExerciseIdPage() {
   }, [currentExercise]);
 
   const handleCompleteExercise = useCallback(async () => {
-    // Bloquear se o exercício já foi concluído hoje
+    // PROTEÇÃO 1: Rate limiting - não executar se foi chamado há menos de 5 segundos
+    const now = Date.now();
+    const timeSinceLastExecution = now - lastExecutionTimeRef.current;
+    if (timeSinceLastExecution < 5000 && lastExecutionTimeRef.current !== 0) {
+      console.log(`⏭️ Rate limit: última execução há ${timeSinceLastExecution}ms, aguardando...`);
+      return;
+    }
+    
+    // PROTEÇÃO 2: Bloquear se o exercício já foi concluído hoje
     if (exerciseCompleted) {
       console.log('⚠️ Exercício já foi concluído hoje');
       return;
     }
     
-    // Evitar múltiplas chamadas simultâneas - VERIFICAÇÃO CRÍTICA
+    // PROTEÇÃO 3: Evitar múltiplas chamadas simultâneas - VERIFICAÇÃO CRÍTICA
     if (completingExerciseRef.current) {
       console.log('⏭️ Conclusão de exercício já em andamento, pulando...');
       return;
     }
+    
+    // Marcar timestamp da execução
+    lastExecutionTimeRef.current = now;
     
     // Usar refs para obter valores atuais sem adicionar como dependências
     const currentWorkout = workoutRef.current;

@@ -18,6 +18,7 @@ export const ExerciseCompleteBar = memo(function ExerciseCompleteBar({
   const [position, setPosition] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isCompleted, setIsCompleted] = useState(false);
+  const completedRef = useRef(false); // Flag para evitar múltiplas chamadas de onComplete
 
   const handleStart = (clientX: number) => {
     if (isCompleted || exerciseCompleted || !allSeriesCompleted) return;
@@ -39,6 +40,13 @@ export const ExerciseCompleteBar = memo(function ExerciseCompleteBar({
 
   const handleEnd = () => {
     if (!isDragging || isCompleted || exerciseCompleted || !allSeriesCompleted) return;
+    
+    // Verificar se já foi completado antes (proteção adicional)
+    if (completedRef.current) {
+      console.log('⚠️ ExerciseCompleteBar: já foi completado, ignorando');
+      return;
+    }
+    
     setIsDragging(false);
 
     if (!containerRef.current) return;
@@ -50,6 +58,8 @@ export const ExerciseCompleteBar = memo(function ExerciseCompleteBar({
 
     if (position >= threshold) {
       // Completo!
+      console.log('✅ ExerciseCompleteBar: completando exercício');
+      completedRef.current = true; // Marcar como completado
       setPosition(maxPosition);
       setIsCompleted(true);
       setTimeout(() => {
@@ -80,7 +90,7 @@ export const ExerciseCompleteBar = memo(function ExerciseCompleteBar({
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [isDragging, position]);
+  }, [isDragging]); // Removido 'position' das dependências
 
   // Calcular a porcentagem para o degradê
   const maxWidth = containerRef.current 
