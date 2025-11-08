@@ -181,6 +181,7 @@ export function ExerciseIdPage() {
   const loadingHistoryRef = useRef(false);
   const completingExerciseRef = useRef(false);
   const callbackRegisteredRef = useRef(false);
+  const callbackExecutedRef = useRef(false);
   
   // Refs para estabilizar dependências do useEffect que registra callback
   const workoutIdRef = useRef<string | undefined>(undefined);
@@ -812,19 +813,27 @@ export function ExerciseIdPage() {
   
   // Registrar callback de conclusão - usar useRef para evitar recriação
   const handleCompleteExerciseRef = useRef(handleCompleteExercise);
+  const previousHandleCompleteExerciseRef = useRef(handleCompleteExercise);
+  
   useEffect(() => {
-    handleCompleteExerciseRef.current = handleCompleteExercise;
+    // Só atualizar se a função realmente mudou (comparar referências)
+    if (handleCompleteExercise !== previousHandleCompleteExerciseRef.current) {
+      console.log('🔄 Atualizando handleCompleteExerciseRef');
+      handleCompleteExerciseRef.current = handleCompleteExercise;
+      previousHandleCompleteExerciseRef.current = handleCompleteExercise;
+    }
   }, [handleCompleteExercise]);
   
   // Só registrar callback se temos dados do workout e exercício
   // Usar apenas IDs memoizados como dependências para evitar re-registros desnecessários
   useEffect(() => {
-    // Não registrar callback se não temos IDs necessários
-    if (!workoutId || !exerciseId) {
-      console.log('⏭️ Não registrando callback - IDs não disponíveis', { workoutId, exerciseId });
+    // Não registrar callback se não temos IDs necessários (verificar se são strings válidas)
+    if (!workoutId || !exerciseId || typeof workoutId !== 'string' || typeof exerciseId !== 'string') {
+      console.log('⏭️ Não registrando callback - IDs não disponíveis ou inválidos', { workoutId, exerciseId, workoutIdType: typeof workoutId, exerciseIdType: typeof exerciseId });
       if (callbackRegisteredRef.current) {
         setOnCompleteExercise(null);
         callbackRegisteredRef.current = false;
+        callbackExecutedRef.current = false;
       }
       return;
     }
@@ -851,12 +860,21 @@ export function ExerciseIdPage() {
       });
       setOnCompleteExercise(null);
       callbackRegisteredRef.current = false;
+      callbackExecutedRef.current = false; // Resetar flag de execução para novo exercício
     }
 
     const callback = () => {
       console.log('🔔 Callback onCompleteExercise chamado!', { workoutId, exerciseId });
+      
+      // Verificar se já foi executado para este exercício
+      if (callbackExecutedRef.current) {
+        console.log('⚠️ Callback já foi executado, ignorando chamada duplicada');
+        return;
+      }
+      
       // Verificar se ainda estamos no mesmo exercício antes de executar
       if (workoutIdRef.current === workoutId && exerciseIdRef.current === exerciseId) {
+        callbackExecutedRef.current = true;
         handleCompleteExerciseRef.current();
       } else {
         console.log('⚠️ Callback ignorado - workout ou exercício mudou', {
@@ -878,6 +896,7 @@ export function ExerciseIdPage() {
       console.log('🧹 Limpando callback onCompleteExercise', { workoutId, exerciseId });
       setOnCompleteExercise(null);
       callbackRegisteredRef.current = false;
+      callbackExecutedRef.current = false; // Resetar flag de execução no cleanup
     };
   }, [setOnCompleteExercise, workoutId, exerciseId]);
   
