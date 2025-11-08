@@ -32,8 +32,8 @@ export const ExerciseCard = memo(function ExerciseCard({
   // Gera séries dinamicamente baseado no número de sets
   const displaySeries = useMemo(() => 
     series || Array.from({ length: sets }, () => ({
-      reps: '6 a 8 repetições',
-      weight: '12kg'
+    reps: '6 a 8 repetições',
+    weight: '12kg'
     })),
     [series, sets]
   );

@@ -76,13 +76,13 @@ export function LoginPage() {
     
     try {
       console.log('🔄 Iniciando login...');
-      setError('');
-      await login(email, senha);
+        setError('');
+        await login(email, senha);
       console.log('✅ Login bem-sucedido, navegando para /home');
-      navigate('/home');
-    } catch (error: any) {
+        navigate('/home');
+      } catch (error: any) {
       console.error('❌ Erro no login:', error);
-      setError(error.response?.data?.error || 'Erro ao fazer login');
+        setError(error.response?.data?.error || 'Erro ao fazer login');
     }
   };
 

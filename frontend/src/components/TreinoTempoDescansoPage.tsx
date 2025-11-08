@@ -140,20 +140,20 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
           });
         } else {
           // Fallback para rota legada
-          navigate('/exercise-id', {
-            state: {
-              fromRest: true,
-              seriesIndex,
-              reps,
-              weight,
+        navigate('/exercise-id', {
+          state: {
+            fromRest: true,
+            seriesIndex,
+            reps,
+            weight,
               restTime,
               workout,
               exercise,
               currentExerciseIndex,
               fromWorkout,
               preservedSeries
-            }
-          });
+          }
+        });
         }
         onFinish?.();
       }
@@ -196,20 +196,20 @@ export function TreinoTempoDescansoPage({ onFinish }: TreinoTempoDescansoPagePro
       });
     } else {
       // Fallback para rota legada
-      navigate('/exercise-id', {
-        state: {
-          fromRest: true,
-          seriesIndex,
-          reps,
-          weight,
+    navigate('/exercise-id', {
+      state: {
+        fromRest: true,
+        seriesIndex,
+        reps,
+        weight,
           restTime,
           workout,
           exercise,
           currentExerciseIndex,
           fromWorkout,
           preservedSeries
-        }
-      });
+      }
+    });
     }
     onFinish?.();
   };

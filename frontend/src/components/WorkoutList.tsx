@@ -64,11 +64,11 @@ export function WorkoutList() {
       });
     } else {
       // Fallback para rota legada
-      navigate('/treino-id', { 
-        state: { 
-          workout 
-        } 
-      });
+    navigate('/treino-id', { 
+      state: { 
+        workout
+      } 
+    });
     }
   };
 

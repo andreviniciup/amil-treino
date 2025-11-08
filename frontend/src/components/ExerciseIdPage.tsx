@@ -312,7 +312,7 @@ export function ExerciseIdPage() {
 
     // Adicionar debounce de 500ms para evitar chamadas muito frequentes
     const timeoutId = setTimeout(() => {
-      loadHistory();
+    loadHistory();
     }, 500);
     
     return () => {
@@ -334,10 +334,10 @@ export function ExerciseIdPage() {
         const newSeries = [...baseSeries];
         
         // Atualizar status e valores numéricos da série atual
-        newSeries[seriesIndex].status = "completed";
-        newSeries[seriesIndex].actualReps = reps;
-        newSeries[seriesIndex].actualWeight = weight;
-        newSeries[seriesIndex].actualRestTime = restTime;
+      newSeries[seriesIndex].status = "completed";
+      newSeries[seriesIndex].actualReps = reps;
+      newSeries[seriesIndex].actualWeight = weight;
+      newSeries[seriesIndex].actualRestTime = restTime;
         // Atualizar também as props string para manter sincronização
         newSeries[seriesIndex].repetitions = reps.toString();
         newSeries[seriesIndex].weight = weight.toString();
@@ -360,16 +360,16 @@ export function ExerciseIdPage() {
             }
           }
         }
-        
-        // Verifica se há próxima série
+      
+      // Verifica se há próxima série
         if (seriesIndex < newSeries.length - 1) {
           // Só mudar para active se não estiver completed
           if (newSeries[seriesIndex + 1].status !== "completed") {
-            newSeries[seriesIndex + 1].status = "active";
+        newSeries[seriesIndex + 1].status = "active";
           }
-          setCurrentSeriesIndex(seriesIndex + 1);
-        }
-        
+        setCurrentSeriesIndex(seriesIndex + 1);
+      }
+      
         console.log('✅ Séries atualizadas após timer:', newSeries.map((s, idx) => ({
           index: idx,
           status: s.status,
@@ -467,19 +467,19 @@ export function ExerciseIdPage() {
       });
     } else {
       // Fallback para rota legada
-      navigate("/treino-tempo-descanso", { 
-        state: { 
-          seriesIndex: index,
-          reps,
-          weight,
+    navigate("/treino-tempo-descanso", { 
+      state: { 
+        seriesIndex: index,
+        reps,
+        weight,
           restTime,
           workout,
           exercise,
           currentExerciseIndex,
           fromWorkout,
           preservedSeries: series
-        } 
-      });
+      } 
+    });
     }
   };
 
@@ -493,7 +493,7 @@ export function ExerciseIdPage() {
       
       const newSeries = [...prevSeries];
       const repsNum = parseInt(value, 10);
-      newSeries[index].repetitions = value;
+    newSeries[index].repetitions = value;
       // Salvar também o valor numérico para uso no backend
       if (!isNaN(repsNum)) {
         newSeries[index].actualReps = repsNum;
@@ -512,7 +512,7 @@ export function ExerciseIdPage() {
       
       const newSeries = [...prevSeries];
       const weightNum = parseFloat(value);
-      newSeries[index].weight = value;
+    newSeries[index].weight = value;
       // Salvar também o valor numérico para uso no backend
       if (!isNaN(weightNum)) {
         newSeries[index].actualWeight = weightNum;
@@ -531,7 +531,7 @@ export function ExerciseIdPage() {
       
       const newSeries = [...prevSeries];
       const restTimeNum = parseInt(value, 10);
-      newSeries[index].restTime = value;
+    newSeries[index].restTime = value;
       // Salvar também o valor numérico para uso no backend
       if (!isNaN(restTimeNum)) {
         newSeries[index].actualRestTime = restTimeNum;
@@ -620,7 +620,7 @@ export function ExerciseIdPage() {
       
       try {
         completingExerciseRef.current = true;
-        setSaving(true);
+      setSaving(true);
       
         // Usar valores dos refs para evitar dependências desnecessárias
         const currentElapsedTime = elapsedTimeRef.current;
@@ -638,14 +638,14 @@ export function ExerciseIdPage() {
           currentIndex: currentExerciseIndexRef.current,
           isLastExercise
         });
-        
-        // Se for o último exercício, parar o timer
-        if (isLastExercise) {
-          stopTimer();
+      
+      // Se for o último exercício, parar o timer
+      if (isLastExercise) {
+        stopTimer();
           console.log(`Treino finalizado! Tempo total: ${currentElapsedTime} segundos`);
-        }
-        
-        // Coletar dados das séries completadas (usar valores reais)
+      }
+      
+      // Coletar dados das séries completadas (usar valores reais)
         const repsArray = currentSeries.map((s, idx) => {
           // Priorizar actualReps, depois tentar extrair do string
           if (s.actualReps !== undefined) {
@@ -693,41 +693,41 @@ export function ExerciseIdPage() {
         const workoutDayId = currentWorkout?.workouts?.[0]?.id || currentWorkout?.id || '1';
         
         // Criar log do exercício (será agrupado no treino completo depois)
-        const logData = {
+      const logData = {
           workoutId: workoutDayId, // ID do Workout (treino do dia), não do WorkoutPlan
           duration: currentElapsedTime,
-          exercises: [{
+        exercises: [{
             exerciseId: currentExerciseValue?.exerciseId || currentExerciseValue?.id || '1',
             sets: currentSeries.length,
-            reps: repsArray,
-            weights: weightsArray,
-            completed: true
-          }]
-        };
+          reps: repsArray,
+          weights: weightsArray,
+          completed: true
+        }]
+      };
         
         console.log('📤 Enviando para backend:', logData);
         console.log('📅 Workout ID (treino do dia):', workoutDayId);
         console.log('📅 Workout Plan ID:', currentWorkout?.id);
         console.log('📅 Workout Day:', currentWorkout?.workouts?.[0]?.dayOfWeek);
-        
-        // Salvar no backend
-        await workoutApi.createLog(logData);
-        
-        // Se for o último exercício, navegar para a página de conclusão
-        if (isLastExercise) {
+      
+      // Salvar no backend
+      await workoutApi.createLog(logData);
+      
+      // Se for o último exercício, navegar para a página de conclusão
+      if (isLastExercise) {
           console.log('🏁 Último exercício completado - navegando para conclusão');
-          navigate("/workout-completion", {
-            state: {
-              workoutData: {
+        navigate("/workout-completion", {
+          state: {
+            workoutData: {
                 name: currentWorkout?.name || 'Treino',
                 exercises: currentWorkout?.workouts?.[0]?.exercises || []
-              },
+            },
               duration: currentElapsedTime
-            }
-          });
-        } else {
+          }
+        });
+      } else {
           console.log('📋 Exercício completado (não é o último) - navegando para /treino-id');
-          // Navega de volta para a página de treino com informação de que o exercício foi concluído
+        // Navega de volta para a página de treino com informação de que o exercício foi concluído
           // Só marca como concluído se todas as séries foram completadas
           const allSeriesCompleted = currentSeries.every((s) => s.status === "completed");
           
@@ -751,19 +751,19 @@ export function ExerciseIdPage() {
             // Fallback para rota legada
             const targetRoute = currentFromWorkout ? "/treino-id" : "/treino";
             navigate(targetRoute, { 
-              state: { 
+          state: { 
                 exerciseCompleted: allSeriesCompleted,
                 exerciseName: currentExerciseName,
                 exerciseId: currentExerciseValue?.id || currentExerciseValue?.exerciseId,
                 allSeriesCompleted: allSeriesCompleted,
                 workout: currentWorkout,
                 fromWorkout: currentFromWorkout
-              } 
-            });
-          }
+          } 
+        });
+      }
         }
       } catch (err: any) {
-        console.error('Erro ao salvar progresso:', err);
+      console.error('Erro ao salvar progresso:', err);
         
         // Tratar erros específicos
         if (err?.message?.includes('insecure') || err?.name === 'SecurityError') {
@@ -790,21 +790,21 @@ export function ExerciseIdPage() {
           });
         } else {
           navigate(targetRoute, { 
-            state: { 
+        state: { 
               exerciseCompleted: false,
               exerciseName: currentExerciseName,
               exerciseId: currentExerciseValue?.id || currentExerciseValue?.exerciseId,
               workout: currentWorkout,
               fromWorkout: currentFromWorkout
-            } 
-          });
+        } 
+      });
         }
-      } finally {
+    } finally {
         completingExerciseRef.current = false;
-        setSaving(false);
-      }
+      setSaving(false);
+    }
     }, currentExerciseId);
-    
+
     // Se o gerenciador bloqueou a execução, retornar
     if (!shouldExecute) {
       console.log('⏭️ Gerenciador bloqueou execução');
@@ -972,7 +972,7 @@ export function ExerciseIdPage() {
       <div className={`absolute content-stretch flex flex-col gap-[19px] items-start left-[20px] ${topPosition} w-[350px]`}>
         <ExerciseHeader
           exerciseName={exerciseName}
-          gifUrl={exerciseGifUrl || ""}
+            gifUrl={exerciseGifUrl || ""}
         />
 
         <ExerciseSeriesList

@@ -217,12 +217,12 @@ export const authApi = {
   login: async (email: string, password: string): Promise<{ user: User; token: string }> => {
     console.log('🌐 authApi.login - fazendo requisição para /users/login', { email, hasPassword: !!password });
     try {
-      const response = await api.post('/users/login', { email, password });
+    const response = await api.post('/users/login', { email, password });
       console.log('✅ Resposta do servidor recebida', { status: response.status, hasData: !!response.data });
-      const { token, user } = response.data.data;
+    const { token, user } = response.data.data;
       safeSetLocalStorage('auth_token', token);
       console.log('💾 Token salvo no localStorage');
-      return { user, token };
+    return { user, token };
     } catch (error: any) {
       console.error('❌ Erro na requisição de login:', {
         message: error.message,

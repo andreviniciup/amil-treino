@@ -123,7 +123,7 @@ export function TreinoIdPage() {
               } catch (statusErr) {
                 console.error('Erro ao verificar estado de conclusão:', statusErr);
                 // Se der erro, usar exercícios sem status
-                setExercises(mappedExercises);
+              setExercises(mappedExercises);
                 setWorkoutCompleted(false);
               }
               
@@ -198,7 +198,7 @@ export function TreinoIdPage() {
               setExercises(exercisesWithStatus);
             } catch (statusErr) {
               console.error('Erro ao verificar estado de conclusão:', statusErr);
-              setExercises(mappedExercises);
+            setExercises(mappedExercises);
               setWorkoutCompleted(false);
             }
             
@@ -266,14 +266,14 @@ export function TreinoIdPage() {
         });
       } else {
         // Fallback para rota legada
-        navigate('/exercise-id', {
-          state: {
-            workout: currentPlan,
-            currentExerciseIndex: 0,
-            fromWorkout: true
-          }
-        });
-      }
+      navigate('/exercise-id', {
+        state: {
+          workout: currentPlan,
+          currentExerciseIndex: 0,
+          fromWorkout: true
+        }
+      });
+    }
     }
   }, [workoutCompleted, exercises, currentPlan, workoutPlanIdFromUrl, resetTimer, startTimer, navigate]);
   
@@ -300,14 +300,14 @@ export function TreinoIdPage() {
       });
     } else {
       // Fallback para rota legada
-      navigate('/exercise-id', {
-        state: {
+    navigate('/exercise-id', {
+      state: {
           exercise: exercise,
-          workout: currentPlan,
-          currentExerciseIndex: exerciseIndex,
-          fromWorkout: true
-        }
-      });
+        workout: currentPlan,
+        currentExerciseIndex: exerciseIndex,
+        fromWorkout: true
+      }
+    });
     }
   }, [exercises, currentPlan, workoutPlanIdFromUrl, navigate]);
 

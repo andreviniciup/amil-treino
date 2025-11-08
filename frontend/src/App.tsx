@@ -198,14 +198,14 @@ function AppContentInner() {
 
       {/* ContextualMenuBar - substitui a MenuBar antiga */}
       <ContextualMenuBar
-        currentPage={currentPage}
-        onNavigate={handleMenuNavigate}
-        workoutName={workoutName}
+          currentPage={currentPage} 
+          onNavigate={handleMenuNavigate}
+          workoutName={workoutName}
         onStartWorkout={onStartWorkout || undefined}
         allSeriesCompleted={allSeriesCompleted}
         exerciseCompleted={exerciseCompleted}
         onCompleteExercise={onCompleteExercise || undefined}
-      />
+        />
     </div>
   );
 }
