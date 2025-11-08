@@ -171,11 +171,43 @@ git push origin mvp-v0.01
 4. **Agora há DOIS loops infinitos**: POST logs + GET workout-status
 5. **O loop infinito está causando SOBRECARGA MASSIVA no backend**
 
+## 🔴 TESTE 3 - PÓS-DEPLOY (21:13 UTC)
+
+### Resultados Após Deploy
+- **Deploy realizado**: Commit `a620274` enviado para `mvp-v0.01`
+- **186 requisições POST** para `/api/workouts/logs` (**AINDA COM LOOP INFINITO**)
+- **1 requisição GET** para `/workout-status` (✅ melhorou!)
+- **4.481 mensagens** no console
+- **4.508 linhas** de logs
+
+### Comparação Entre Todos os Testes
+
+| Métrica | Teste 1 | Teste 2 | Teste 3 (Pós-Deploy) | Status |
+|---------|---------|---------|---------------------|--------|
+| POST logs | 57 | 135 | **186** | ❌ PIOROU |
+| GET workout-status | 0 | 100+ | **1** | ✅ CORRIGIDO |
+| Console msgs | 4.977 | 4.154 | 4.481 | ⚠️ Similar |
+| Status | ❌ Loop | ❌ Loop | ❌ **AINDA COM LOOP** | ❌ |
+
+### Análise do Problema
+
+1. **GET workout-status**: ✅ **CORRIGIDO** (de 100+ para apenas 1)
+2. **POST logs**: ❌ **AINDA COM LOOP** (piorou de 135 para 186)
+3. **ExerciseCompletionManager**: Pode não estar sendo executado ou não está funcionando corretamente
+
+### Possíveis Causas
+
+1. **Build ainda não finalizado**: O Vercel pode estar fazendo build ainda
+2. **Cache do navegador**: O navegador pode estar usando versão antiga
+3. **Problema na implementação**: O `ExerciseCompletionManager` pode não estar sendo chamado corretamente
+4. **Múltiplos pontos de entrada**: Pode haver outros lugares que chamam `handleCompleteExercise` sem passar pelo gerenciador
+
 ## 📞 Ação Imediata Necessária
 
-**URGENTE**: Fazer deploy das correções para produção para evitar:
-- Sobrecarga no backend
-- Experiência ruim do usuário
-- Custos desnecessários de API
-- Possível bloqueio por rate limiting
+**URGENTE**: Investigar por que o `ExerciseCompletionManager` não está funcionando:
+1. Verificar se o código foi realmente deployado (verificar build do Vercel)
+2. Verificar logs do console para ver se há mensagens do `ExerciseCompletionManager`
+3. Verificar se há outros pontos de entrada que não estão usando o gerenciador
+4. Adicionar mais logs para debug
+5. Verificar se o problema está no callback sendo chamado automaticamente
 

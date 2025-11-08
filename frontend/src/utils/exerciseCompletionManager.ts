@@ -19,32 +19,37 @@ class ExerciseCompletionManager {
     const now = Date.now();
     const timeSinceLastExecution = now - this.lastExecutionTime;
 
-    // Proteção 1: Verificar se já está executando
+    // PROTEÇÃO 1: Verificar e SETAR flag IMEDIATAMENTE para evitar race conditions
     if (this.isExecuting) {
-      console.log(`⏭️ [ExerciseCompletionManager] Já está executando, bloqueando nova chamada`, { exerciseId });
+      console.log(`⏭️ [ExerciseCompletionManager] Já está executando, bloqueando nova chamada`, { exerciseId, timestamp: now });
       return false;
     }
 
-    // Proteção 2: Rate limiting
+    // PROTEÇÃO 2: Rate limiting (mais agressivo)
     if (this.lastExecutionTime !== 0 && timeSinceLastExecution < this.MIN_INTERVAL_MS) {
-      console.log(`⏭️ [ExerciseCompletionManager] Rate limit ativo: última execução há ${timeSinceLastExecution}ms`, { exerciseId });
+      console.log(`⏭️ [ExerciseCompletionManager] Rate limit ativo: última execução há ${timeSinceLastExecution}ms`, { exerciseId, timestamp: now });
       return false;
     }
+
+    // PROTEÇÃO 3: Setar flag ANTES de executar para evitar race conditions
+    this.isExecuting = true;
+    this.lastExecutionTime = now;
 
     try {
       console.log(`✅ [ExerciseCompletionManager] Executando conclusão`, { exerciseId, timestamp: now });
-      this.isExecuting = true;
-      this.lastExecutionTime = now;
       
       await callback();
       
-      console.log(`✅ [ExerciseCompletionManager] Conclusão executada com sucesso`, { exerciseId });
+      console.log(`✅ [ExerciseCompletionManager] Conclusão executada com sucesso`, { exerciseId, timestamp: Date.now() });
       return true;
     } catch (error) {
-      console.error(`❌ [ExerciseCompletionManager] Erro ao executar conclusão:`, error);
+      console.error(`❌ [ExerciseCompletionManager] Erro ao executar conclusão:`, error, { exerciseId, timestamp: Date.now() });
+      // Não resetar flag aqui - deixar o finally fazer isso
       throw error;
     } finally {
+      // Sempre resetar flag no finally para garantir que seja resetada mesmo em caso de erro
       this.isExecuting = false;
+      console.log(`🔄 [ExerciseCompletionManager] Flag isExecuting resetada`, { exerciseId, timestamp: Date.now() });
     }
   }
 

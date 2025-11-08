@@ -876,25 +876,33 @@ export function ExerciseIdPage() {
     }
 
     const callback = () => {
-      console.log('🔔 Callback onCompleteExercise chamado!', { workoutId, exerciseId });
+      console.log('🔔 Callback onCompleteExercise chamado!', { workoutId, exerciseId, timestamp: Date.now() });
       
-      // Verificar se já foi executado para este exercício
+      // PROTEÇÃO IMEDIATA: Verificar e setar flag ANTES de qualquer verificação para evitar race conditions
       if (callbackExecutedRef.current) {
         console.log('⚠️ Callback já foi executado, ignorando chamada duplicada');
         return;
       }
       
+      // Setar flag IMEDIATAMENTE para evitar múltiplas execuções simultâneas (race condition fix)
+      callbackExecutedRef.current = true;
+      
       // Verificar se ainda estamos no mesmo exercício antes de executar
       if (workoutIdRef.current === workoutId && exerciseIdRef.current === exerciseId) {
-        callbackExecutedRef.current = true;
         // Usar o gerenciador singleton para executar
         exerciseCompletionManager.executeCompletion(
           () => handleCompleteExerciseRef.current(),
           exerciseId
         ).catch((error) => {
           console.error('❌ Erro ao executar conclusão via gerenciador:', error);
+          // Resetar flag em caso de erro para permitir nova tentativa (apenas se IDs ainda correspondem)
+          if (workoutIdRef.current === workoutId && exerciseIdRef.current === exerciseId) {
+            callbackExecutedRef.current = false;
+          }
         });
       } else {
+        // Resetar flag se IDs não correspondem (mudou de exercício)
+        callbackExecutedRef.current = false;
         console.log('⚠️ Callback ignorado - workout ou exercício mudou', {
           currentWorkoutId: workoutIdRef.current,
           expectedWorkoutId: workoutId,
