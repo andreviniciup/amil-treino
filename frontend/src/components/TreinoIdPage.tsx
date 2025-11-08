@@ -6,7 +6,6 @@ import { useWorkoutTimer } from '../contexts/WorkoutTimerContext';
 import { useWorkout } from '../contexts/WorkoutContext';
 import { MuscleGroupCarousel } from './workout/MuscleGroupCarousel';
 import { WorkoutHeader } from './workout/WorkoutHeader';
-import { WorkoutActionButton } from './workout/WorkoutActionButton';
 import { ExercisesList } from './workout/ExercisesList';
 
 interface Exercise {
@@ -365,11 +364,6 @@ export function TreinoIdPage() {
           <ExercisesList exercises={exercises} onExerciseClick={handleExerciseClick} />
         </div>
       </div>
-
-      <WorkoutActionButton 
-        workoutCompleted={workoutCompleted} 
-        onStartWorkout={handleStartWorkout} 
-      />
     </div>
   );
 }
