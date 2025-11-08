@@ -128,14 +128,34 @@ export const ExerciseSeriesList = memo(function ExerciseSeriesList({
   );
 }, (prevProps, nextProps) => {
   // Comparação customizada para evitar re-renderizações desnecessárias
-  return (
-    prevProps.series.length === nextProps.series.length &&
-    prevProps.expandedSeriesIndex === nextProps.expandedSeriesIndex &&
-    prevProps.exerciseCompleted === nextProps.exerciseCompleted &&
-    prevProps.currentSeriesIndex === nextProps.currentSeriesIndex &&
-    prevProps.currentReps === nextProps.currentReps &&
-    prevProps.exerciseHistory.length === nextProps.exerciseHistory.length &&
-    JSON.stringify(prevProps.series) === JSON.stringify(nextProps.series)
-  );
+  if (
+    prevProps.series.length !== nextProps.series.length ||
+    prevProps.expandedSeriesIndex !== nextProps.expandedSeriesIndex ||
+    prevProps.exerciseCompleted !== nextProps.exerciseCompleted ||
+    prevProps.currentSeriesIndex !== nextProps.currentSeriesIndex ||
+    prevProps.currentReps !== nextProps.currentReps ||
+    prevProps.exerciseHistory.length !== nextProps.exerciseHistory.length
+  ) {
+    return false;
+  }
+
+  // Comparar séries individualmente (mais eficiente que JSON.stringify)
+  for (let i = 0; i < prevProps.series.length; i++) {
+    const prev = prevProps.series[i];
+    const next = nextProps.series[i];
+    if (
+      prev.status !== next.status ||
+      prev.repetitions !== next.repetitions ||
+      prev.weight !== next.weight ||
+      prev.restTime !== next.restTime ||
+      prev.actualReps !== next.actualReps ||
+      prev.actualWeight !== next.actualWeight ||
+      prev.actualRestTime !== next.actualRestTime
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 });
 
