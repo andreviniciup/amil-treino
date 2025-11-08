@@ -8,6 +8,7 @@ import { ExerciseHeader } from "./exercise/ExerciseHeader";
 import { ExerciseSeriesList } from "./exercise/ExerciseSeriesList";
 import { ExerciseCompletedMessage } from "./exercise/ExerciseCompletedMessage";
 import { ExerciseLoadingState } from "./exercise/ExerciseLoadingState";
+import { exerciseCompletionManager } from "../utils/exerciseCompletionManager";
 
 interface SeriesData {
   repetitions: string;
@@ -182,7 +183,6 @@ export function ExerciseIdPage() {
   const completingExerciseRef = useRef(false);
   const callbackRegisteredRef = useRef(false);
   const callbackExecutedRef = useRef(false);
-  const lastExecutionTimeRef = useRef(0); // Timestamp da última execução
   
   // Refs para estabilizar dependências do useEffect que registra callback
   const workoutIdRef = useRef<string | undefined>(undefined);
@@ -585,28 +585,20 @@ export function ExerciseIdPage() {
   }, [currentExercise]);
 
   const handleCompleteExercise = useCallback(async () => {
-    // PROTEÇÃO 1: Rate limiting - não executar se foi chamado há menos de 5 segundos
-    const now = Date.now();
-    const timeSinceLastExecution = now - lastExecutionTimeRef.current;
-    if (timeSinceLastExecution < 5000 && lastExecutionTimeRef.current !== 0) {
-      console.log(`⏭️ Rate limit: última execução há ${timeSinceLastExecution}ms, aguardando...`);
-      return;
-    }
-    
-    // PROTEÇÃO 2: Bloquear se o exercício já foi concluído hoje
+    // PROTEÇÃO 1: Bloquear se o exercício já foi concluído hoje
     if (exerciseCompleted) {
       console.log('⚠️ Exercício já foi concluído hoje');
       return;
     }
     
-    // PROTEÇÃO 3: Evitar múltiplas chamadas simultâneas - VERIFICAÇÃO CRÍTICA
-    if (completingExerciseRef.current) {
-      console.log('⏭️ Conclusão de exercício já em andamento, pulando...');
-      return;
-    }
-    
-    // Marcar timestamp da execução
-    lastExecutionTimeRef.current = now;
+    // PROTEÇÃO 2: Usar gerenciador singleton global para evitar loops infinitos
+    const currentExerciseId = exerciseIdRef.current;
+    const shouldExecute = await exerciseCompletionManager.executeCompletion(async () => {
+      // Esta função será executada apenas se o gerenciador permitir
+      if (completingExerciseRef.current) {
+        console.log('⏭️ Conclusão de exercício já em andamento, pulando...');
+        return;
+      }
     
     // Usar refs para obter valores atuais sem adicionar como dependências
     const currentWorkout = workoutRef.current;
@@ -810,6 +802,13 @@ export function ExerciseIdPage() {
     } finally {
       completingExerciseRef.current = false;
       setSaving(false);
+    }
+    }, currentExerciseId);
+    
+    // Se o gerenciador bloqueou a execução, retornar
+    if (!shouldExecute) {
+      console.log('⏭️ Gerenciador bloqueou execução');
+      return;
     }
   }, [exerciseCompleted, navigate, stopTimer]);
 
