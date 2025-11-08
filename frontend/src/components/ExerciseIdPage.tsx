@@ -89,6 +89,7 @@ export function ExerciseIdPage() {
           }
         } catch (err) {
           console.error('❌ Erro ao carregar workout:', err);
+          workoutLoadedRef.current = false; // Resetar em caso de erro para permitir nova tentativa
         } finally {
           loadingWorkoutRef.current = false;
           setLoadingWorkout(false);
@@ -251,7 +252,7 @@ export function ExerciseIdPage() {
     return () => {
       clearTimeout(timeoutId);
     };
-  }, [workout, currentExercise, location.state?.preservedSeries]);
+  }, [workout?.id, workout?.workouts?.[0]?.id, currentExercise?.id, currentExercise?.exerciseId, location.state?.preservedSeries]);
 
   // Carregar histórico do exercício
   useEffect(() => {
@@ -361,10 +362,17 @@ export function ExerciseIdPage() {
   }, [location.state?.fromRest]);
 
   // Preservar séries quando o componente é remontado ou quando o workout é carregado
+  const preservedSeriesRef = useRef(location.state?.preservedSeries);
+  useEffect(() => {
+    if (location.state?.preservedSeries) {
+      preservedSeriesRef.current = location.state.preservedSeries;
+    }
+  }, [location.state?.preservedSeries]);
+
   useEffect(() => {
     // Se há séries preservadas no state, sempre restaurar (mesmo que workout seja carregado depois)
-    if (location.state?.preservedSeries) {
-      const preserved = location.state.preservedSeries;
+    const preserved = preservedSeriesRef.current;
+    if (preserved) {
       const preservedCompleted = preserved.filter((s: SeriesData) => s.status === "completed").length;
       
       console.log('🔄 Verificando séries preservadas:', {
@@ -408,7 +416,7 @@ export function ExerciseIdPage() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workout, location.state?.preservedSeries]);
+  }, [workout?.id, location.state?.preservedSeries]);
 
   const handleStartRest = (index: number, reps: number, weight: number, restTime: number) => {
     // Navega para a página de tempo de descanso com os valores ajustados
@@ -701,19 +709,34 @@ export function ExerciseIdPage() {
     }
   }, [exerciseCompleted, fromWorkout, workout, currentExerciseIndex, navigate, elapsedTime, series, params.workoutPlanId, exerciseName, currentExercise?.id, currentExercise?.exerciseId, stopTimer]);
 
-  const allSeriesCompleted = series.every((s) => s.status === "completed");
+  // Memoizar allSeriesCompleted para evitar recálculos desnecessários
+  const allSeriesCompleted = useMemo(() => {
+    return series.every((s) => s.status === "completed");
+  }, [series]);
   
   // Atualizar contexto quando o estado muda
   useEffect(() => {
     setAllSeriesCompleted(allSeriesCompleted);
   }, [allSeriesCompleted, setAllSeriesCompleted]);
   
-  // Registrar callback de conclusão
+  // Registrar callback de conclusão - usar useRef para evitar recriação
+  const handleCompleteExerciseRef = useRef(handleCompleteExercise);
   useEffect(() => {
-    const callback = () => handleCompleteExercise();
+    handleCompleteExerciseRef.current = handleCompleteExercise;
+  }, [handleCompleteExercise]);
+  
+  useEffect(() => {
+    const callback = () => {
+      console.log('🔔 Callback onCompleteExercise chamado!');
+      handleCompleteExerciseRef.current();
+    };
+    console.log('📝 Registrando callback onCompleteExercise');
     setOnCompleteExercise(callback);
-    return () => setOnCompleteExercise(null);
-  }, [setOnCompleteExercise, handleCompleteExercise]);
+    return () => {
+      console.log('🧹 Limpando callback onCompleteExercise');
+      setOnCompleteExercise(null);
+    };
+  }, [setOnCompleteExercise]);
   
   // Ajustar top baseado se o treino está ativo
   const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
