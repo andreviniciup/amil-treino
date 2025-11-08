@@ -696,6 +696,7 @@ export function ExerciseIdPage() {
         });
       }
     } finally {
+      completingExerciseRef.current = false;
       setSaving(false);
     }
   };
