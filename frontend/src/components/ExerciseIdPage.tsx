@@ -97,9 +97,12 @@ export function ExerciseIdPage() {
       }
     };
     
-    loadWorkoutFromUrl();
+    // Só executar se realmente precisamos carregar
+    if (hasUrlParams && !workoutData && params.workoutPlanId && !workoutLoadedRef.current) {
+      loadWorkoutFromUrl();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.workoutPlanId, params.exerciseId, hasUrlParams]);
+  }, [params.workoutPlanId, params.exerciseId]);
   
   // Se veio do treino, usar dados do treino
   const currentExercise = fromWorkout && workout?.workouts?.[0]?.exercises?.[currentExerciseIndex] 
@@ -747,7 +750,15 @@ export function ExerciseIdPage() {
     handleCompleteExerciseRef.current = handleCompleteExercise;
   }, [handleCompleteExercise]);
   
+  // Só registrar callback se temos dados do workout e exercício
   useEffect(() => {
+    // Não registrar callback se não temos dados necessários
+    if (!workout || !currentExercise) {
+      console.log('⏭️ Não registrando callback - workout ou exercício não disponível');
+      setOnCompleteExercise(null);
+      return;
+    }
+
     const callback = () => {
       console.log('🔔 Callback onCompleteExercise chamado!');
       handleCompleteExerciseRef.current();
@@ -758,7 +769,7 @@ export function ExerciseIdPage() {
       console.log('🧹 Limpando callback onCompleteExercise');
       setOnCompleteExercise(null);
     };
-  }, [setOnCompleteExercise]);
+  }, [setOnCompleteExercise, workout?.id, currentExercise?.id]);
   
   // Ajustar top baseado se o treino está ativo
   const topPosition = isRunning ? 'top-[90px]' : 'top-[56px]';
