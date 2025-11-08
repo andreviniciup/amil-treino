@@ -123,16 +123,6 @@ export function ExerciseCard({
                 </div>
               </div>
             ))}
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onExerciseClick?.();
-              }}
-              className="bg-[rgba(109,159,40,0.6)] hover:bg-[rgba(109,159,40,0.8)] transition-colors box-border content-stretch flex gap-[10px] h-[40px] items-center justify-center px-[111px] py-[11px] relative rounded-[28px] shrink-0 w-full mt-[11px]"
-            >
-              <p className="font-['Alexandria:Medium',_sans-serif] font-medium leading-[normal] relative shrink-0 text-[14px] text-nowrap text-white whitespace-pre">fazer exercicio</p>
-            </button>
           </div>
         </div>
       )}

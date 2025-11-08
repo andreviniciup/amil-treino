@@ -17,38 +17,38 @@ export function NavigationMenuBar({ currentPage, onNavigate }: NavigationMenuBar
   };
 
   return (
-    <div className="w-[320px] h-[40px] px-[86px] bg-[#222222] rounded-[99px] flex items-center justify-center gap-[30px]">
+    <div className="w-[360px] h-[56px] px-[90px] bg-[#222222] rounded-[99px] flex items-center justify-center gap-[35px]">
       <button
         onClick={() => onNavigate('home')}
-        className="p-[10px] flex items-center justify-center"
+        className="p-[12px] flex items-center justify-center"
         aria-label="Home"
       >
-        <Home className={`w-[18px] h-[18px] ${isActive('home') ? 'text-[#AD9EE7]' : 'text-[#464646]'}`} />
+        <Home className={`w-[22px] h-[22px] ${isActive('home') ? 'text-[#AD9EE7]' : 'text-[#464646]'}`} />
       </button>
 
       <button
         onClick={() => onNavigate('streak')}
-        className="p-[10px] flex items-center justify-center"
+        className="p-[12px] flex items-center justify-center"
         aria-label="Streak"
       >
-        <Calendar className={`w-[16px] h-[18px] ${isActive('streak') ? 'text-[#AD9EE7]' : 'text-[#464646]'}`} />
+        <Calendar className={`w-[20px] h-[22px] ${isActive('streak') ? 'text-[#AD9EE7]' : 'text-[#464646]'}`} />
       </button>
 
       <button
         onClick={() => onNavigate('treino')}
-        className="w-[43px] p-[10px] flex items-center justify-center"
+        className="w-[50px] p-[12px] flex items-center justify-center"
         aria-label="Treino"
       >
-        <Dumbbell className={`w-[23px] h-[14px] ${isActive('treino') ? 'text-[#AD9EE7]' : 'text-[#464646]'}`} />
+        <Dumbbell className={`w-[28px] h-[18px] ${isActive('treino') ? 'text-[#AD9EE7]' : 'text-[#464646]'}`} />
       </button>
 
       <button
         onClick={logout}
-        className="p-[10px] flex items-center justify-center"
+        className="p-[12px] flex items-center justify-center"
         aria-label="Sair"
         title={`Sair (${user?.name})`}
       >
-        <User className="w-[18px] h-[18px] text-[#464646]" />
+        <User className="w-[22px] h-[22px] text-[#464646]" />
       </button>
     </div>
   );
