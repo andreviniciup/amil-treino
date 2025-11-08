@@ -585,6 +585,18 @@ export function ExerciseIdPage() {
   }, [currentExercise]);
 
   const handleCompleteExercise = useCallback(async () => {
+    console.log('🚀 handleCompleteExercise chamado diretamente!', { 
+      exerciseId: exerciseIdRef.current, 
+      timestamp: Date.now(),
+      stackTrace: new Error().stack?.split('\n').slice(0, 5).join('\n')
+    });
+    
+    // PROTEÇÃO 0: Bloquear se já está executando (proteção adicional antes do gerenciador)
+    if (completingExerciseRef.current) {
+      console.log('⏭️ handleCompleteExercise já está executando, bloqueando chamada duplicada');
+      return;
+    }
+    
     // PROTEÇÃO 1: Bloquear se o exercício já foi concluído hoje
     if (exerciseCompleted) {
       console.log('⚠️ Exercício já foi concluído hoje');
@@ -593,6 +605,7 @@ export function ExerciseIdPage() {
     
     // PROTEÇÃO 2: Usar gerenciador singleton global para evitar loops infinitos
     const currentExerciseId = exerciseIdRef.current;
+    console.log('🔐 Chamando ExerciseCompletionManager.executeCompletion', { currentExerciseId });
     const shouldExecute = await exerciseCompletionManager.executeCompletion(async () => {
       // Esta função será executada apenas se o gerenciador permitir
       if (completingExerciseRef.current) {
