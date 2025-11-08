@@ -517,6 +517,18 @@ export function ExerciseIdPage() {
     });
   };
 
+  // Usar useRef para elapsedTime para evitar recriações do callback
+  const elapsedTimeRef = useRef(elapsedTime);
+  useEffect(() => {
+    elapsedTimeRef.current = elapsedTime;
+  }, [elapsedTime]);
+
+  // Usar useRef para series para evitar recriações do callback
+  const seriesRef = useRef(series);
+  useEffect(() => {
+    seriesRef.current = series;
+  }, [series]);
+
   const handleCompleteExercise = useCallback(async () => {
     // Bloquear se o exercício já foi concluído hoje
     if (exerciseCompleted) {
@@ -534,6 +546,10 @@ export function ExerciseIdPage() {
       completingExerciseRef.current = true;
       setSaving(true);
       
+      // Usar valores dos refs para evitar dependências desnecessárias
+      const currentElapsedTime = elapsedTimeRef.current;
+      const currentSeries = seriesRef.current;
+      
       // Verificar se é o último exercício do treino
       const isLastExercise = fromWorkout && 
         workout?.workouts?.[0]?.exercises && 
@@ -550,11 +566,11 @@ export function ExerciseIdPage() {
       // Se for o último exercício, parar o timer
       if (isLastExercise) {
         stopTimer();
-        console.log(`Treino finalizado! Tempo total: ${elapsedTime} segundos`);
+        console.log(`Treino finalizado! Tempo total: ${currentElapsedTime} segundos`);
       }
       
       // Coletar dados das séries completadas (usar valores reais)
-      const repsArray = series.map((s, idx) => {
+      const repsArray = currentSeries.map((s, idx) => {
         // Priorizar actualReps, depois tentar extrair do string
         if (s.actualReps !== undefined) {
           console.log(`Série ${idx + 1} - Reps (actualReps):`, s.actualReps);
@@ -569,7 +585,7 @@ export function ExerciseIdPage() {
         console.warn(`Série ${idx + 1} - Reps não encontrado, usando 0`);
         return 0;
       });
-      const weightsArray = series.map((s, idx) => {
+      const weightsArray = currentSeries.map((s, idx) => {
         // Priorizar actualWeight, depois parseFloat do string
         if (s.actualWeight !== undefined) {
           console.log(`Série ${idx + 1} - Weight (actualWeight):`, s.actualWeight);
@@ -587,7 +603,7 @@ export function ExerciseIdPage() {
       console.log('📊 Dados coletados para envio:', {
         repsArray,
         weightsArray,
-        series: series.map(s => ({
+        series: currentSeries.map(s => ({
           repetitions: s.repetitions,
           weight: s.weight,
           actualReps: s.actualReps,
@@ -603,10 +619,10 @@ export function ExerciseIdPage() {
       // Criar log do exercício (será agrupado no treino completo depois)
       const logData = {
         workoutId: workoutDayId, // ID do Workout (treino do dia), não do WorkoutPlan
-        duration: elapsedTime,
+        duration: currentElapsedTime,
         exercises: [{
           exerciseId: currentExercise?.exerciseId || currentExercise?.id || '1',
-          sets: series.length,
+          sets: currentSeries.length,
           reps: repsArray,
           weights: weightsArray,
           completed: true
@@ -630,14 +646,14 @@ export function ExerciseIdPage() {
               name: workout?.name || 'Treino',
               exercises: workout?.workouts?.[0]?.exercises || []
             },
-            duration: elapsedTime
+            duration: currentElapsedTime
           }
         });
       } else {
         console.log('📋 Exercício completado (não é o último) - navegando para /treino-id');
         // Navega de volta para a página de treino com informação de que o exercício foi concluído
         // Só marca como concluído se todas as séries foram completadas
-        const allSeriesCompleted = series.every((s) => s.status === "completed");
+        const allSeriesCompleted = currentSeries.every((s) => s.status === "completed");
         
         // Usar rota semântica se temos os IDs necessários
         const workoutPlanId = workout?.id || params.workoutPlanId;
@@ -707,7 +723,7 @@ export function ExerciseIdPage() {
       completingExerciseRef.current = false;
       setSaving(false);
     }
-  }, [exerciseCompleted, fromWorkout, workout, currentExerciseIndex, navigate, elapsedTime, series, params.workoutPlanId, exerciseName, currentExercise?.id, currentExercise?.exerciseId, stopTimer]);
+  }, [exerciseCompleted, fromWorkout, workout?.id, workout?.workouts?.[0]?.id, currentExerciseIndex, navigate, params.workoutPlanId, exerciseName, currentExercise?.id, currentExercise?.exerciseId, stopTimer]);
 
   // Memoizar allSeriesCompleted para evitar recálculos desnecessários
   const allSeriesCompleted = useMemo(() => {
