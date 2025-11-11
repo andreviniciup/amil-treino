@@ -332,7 +332,7 @@ export function TreinoIdPage() {
     };
 
     // Executar múltiplas vezes para garantir que capture o botão
-    const timeoutIds: NodeJS.Timeout[] = [];
+    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
     [0, 100, 300, 500, 1000].forEach((delay) => {
       timeoutIds.push(setTimeout(removeDuplicateButton, delay));
     });
