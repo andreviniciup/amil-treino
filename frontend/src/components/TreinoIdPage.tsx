@@ -282,6 +282,48 @@ export function TreinoIdPage() {
     return () => setOnStartWorkout(null);
   }, [setOnStartWorkout, exercises.length, workoutCompleted, currentPlan, workoutPlanIdFromUrl]);
 
+  // Remover qualquer botão "iniciar treino" que esteja sendo renderizado dentro da página (não no menubar)
+  useEffect(() => {
+    const removeDuplicateButton = () => {
+      // Procurar pelo container principal
+      const treinoContainer = document.querySelector('[data-name="treino"]');
+      if (!treinoContainer) return;
+
+      // Procurar por elementos com classes específicas do botão duplicado
+      const duplicateButtonContainer = Array.from(treinoContainer.children).find((child) => {
+        const className = String(child.className || '');
+        return className.includes('flex-shrink-0') && 
+               className.includes('px-5') && 
+               className.includes('py-4') && 
+               className.includes('bg-[#181818]');
+      });
+
+      if (duplicateButtonContainer) {
+        // Verificar se contém um botão "iniciar treino"
+        const button = duplicateButtonContainer.querySelector('button');
+        if (button && button.textContent?.toLowerCase().includes('iniciar treino')) {
+          console.log('🗑️ Removendo botão duplicado "iniciar treino" da página');
+          duplicateButtonContainer.remove();
+        }
+      }
+    };
+
+    // Executar após um pequeno delay para garantir que o DOM esteja renderizado
+    const timeoutId = setTimeout(removeDuplicateButton, 100);
+    
+    // Também executar quando o DOM mudar
+    const observer = new MutationObserver(removeDuplicateButton);
+    const treinoContainer = document.querySelector('[data-name="treino"]');
+    if (treinoContainer) {
+      observer.observe(treinoContainer, { childList: true, subtree: true });
+    }
+
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    };
+  }, []);
+
   const handleExerciseClick = useCallback((exercise: Exercise) => {
     const exerciseIndex = exercises.findIndex(ex => ex.id === exercise.id);
     const workoutPlanId = currentPlan?.id || workoutPlanIdFromUrl;
