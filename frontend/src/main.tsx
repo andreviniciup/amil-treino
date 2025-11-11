@@ -4,22 +4,21 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 
-// Limpar cache de service workers se existirem
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    registrations.forEach((registration) => {
-      registration.unregister();
+// Limpar cache de service workers se existirem (apenas em contexto seguro)
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  try {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        registration.unregister().catch(() => {
+          // Ignorar erros silenciosamente
+        });
+      });
+    }).catch(() => {
+      // Ignorar erros silenciosamente
     });
-  });
-}
-
-// Limpar cache do navegador ao carregar
-if ('caches' in window) {
-  caches.keys().then((names) => {
-    names.forEach((name) => {
-      caches.delete(name);
-    });
-  });
+  } catch (error) {
+    // Ignorar erros silenciosamente
+  }
 }
 
 createRoot(document.getElementById("root")!).render(
