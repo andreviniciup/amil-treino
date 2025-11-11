@@ -289,37 +289,70 @@ export function TreinoIdPage() {
       const treinoContainer = document.querySelector('[data-name="treino"]');
       if (!treinoContainer) return;
 
-      // Procurar por elementos com classes específicas do botão duplicado
-      const duplicateButtonContainer = Array.from(treinoContainer.children).find((child) => {
-        const className = String(child.className || '');
-        return className.includes('flex-shrink-0') && 
-               className.includes('px-5') && 
-               className.includes('py-4') && 
-               className.includes('bg-[#181818]');
-      });
-
-      if (duplicateButtonContainer) {
-        // Verificar se contém um botão "iniciar treino"
-        const button = duplicateButtonContainer.querySelector('button');
-        if (button && button.textContent?.toLowerCase().includes('iniciar treino')) {
-          console.log('🗑️ Removendo botão duplicado "iniciar treino" da página');
-          duplicateButtonContainer.remove();
+      // Procurar por TODOS os botões "iniciar treino" dentro do container
+      const allButtons = treinoContainer.querySelectorAll('button');
+      allButtons.forEach((button) => {
+        const buttonText = button.textContent?.toLowerCase().trim() || '';
+        if (buttonText.includes('iniciar treino') || buttonText.includes('iniciar')) {
+          // Verificar se o botão tem as classes específicas do botão duplicado
+          const buttonClasses = String(button.className || '');
+          const hasDuplicateClasses = buttonClasses.includes('bg-[#d9d9d9]') && 
+                                      buttonClasses.includes('h-[50px]') && 
+                                      buttonClasses.includes('px-[106px]') && 
+                                      buttonClasses.includes('py-[14px]') && 
+                                      buttonClasses.includes('rounded-[999px]') &&
+                                      buttonClasses.includes('max-w-[393px]');
+          
+          if (hasDuplicateClasses) {
+            // Verificar se está dentro de um container com classes específicas
+            const parent = button.parentElement;
+            if (parent) {
+              const parentClasses = String(parent.className || '');
+              const isInDuplicateContainer = parentClasses.includes('flex-shrink-0') && 
+                                            parentClasses.includes('px-5') && 
+                                            parentClasses.includes('py-4') && 
+                                            parentClasses.includes('bg-[#181818]');
+              
+              if (isInDuplicateContainer) {
+                console.log('🗑️ Removendo botão duplicado "iniciar treino" da página');
+                parent.remove();
+                return;
+              }
+            }
+            
+            // Se não está no container esperado, mas tem as classes, verificar se não está no menubar
+            const isInMenubar = button.closest('[class*="fixed"]') && button.closest('[class*="bottom"]');
+            if (!isInMenubar) {
+              console.log('🗑️ Removendo botão duplicado "iniciar treino" da página (não está no menubar)');
+              button.remove();
+            }
+          }
         }
-      }
+      });
     };
 
-    // Executar após um pequeno delay para garantir que o DOM esteja renderizado
-    const timeoutId = setTimeout(removeDuplicateButton, 100);
+    // Executar múltiplas vezes para garantir que capture o botão
+    const timeoutIds: NodeJS.Timeout[] = [];
+    [0, 100, 300, 500, 1000].forEach((delay) => {
+      timeoutIds.push(setTimeout(removeDuplicateButton, delay));
+    });
     
     // Também executar quando o DOM mudar
-    const observer = new MutationObserver(removeDuplicateButton);
+    const observer = new MutationObserver(() => {
+      removeDuplicateButton();
+    });
     const treinoContainer = document.querySelector('[data-name="treino"]');
     if (treinoContainer) {
-      observer.observe(treinoContainer, { childList: true, subtree: true });
+      observer.observe(treinoContainer, { 
+        childList: true, 
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
+      });
     }
 
     return () => {
-      clearTimeout(timeoutId);
+      timeoutIds.forEach(id => clearTimeout(id));
       observer.disconnect();
     };
   }, []);
